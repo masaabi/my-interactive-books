@@ -759,7 +759,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const callGeminiAPI = async (history) => {
         const payload = { contents: history };
-        const apiKey = ""; 
+        const apiKey = "AIzaSyBRj1dk5R_yOwsqGbA8C54U61oKYr2dbYM"; 
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
         try {
             const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
