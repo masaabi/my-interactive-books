@@ -759,23 +759,68 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const callGeminiAPI = async (history) => {
         const payload = { contents: history };
-        const apiKey = "AIzaSyBRj1dk5R_yOwsqGbA8C54U61oKYr2dbYM"; 
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-        try {
-            const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-            const result = await response.json();
-            if (result.candidates && result.candidates.length > 0 && result.candidates[0].content && result.candidates[0].content.parts && result.candidates[0].content.parts.length > 0) {
-                 return result.candidates[0].content.parts[0].text;
-            } else {
-                console.error('Gemini API Error:', result);
-                const errorMessage = result?.error?.message || 'لا توجد رسالة خطأ';
-                return `عذرًا، حدث خطأ في واجهة برمجة التطبيقات. (${errorMessage})`;
+        const apiKey = ""; // API key is managed by the environment.
+        const model = 'gemini-2.5-flash-preview-05-20';
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+        let retries = 5;
+        let delay = 1000; // Start with a 1-second delay
+
+        for (let i = 0; i < retries; i++) {
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.status === 429) {
+                    // If quota is exceeded, wait and then retry.
+                    // The delay increases exponentially for each retry.
+                    if (i === retries - 1) {
+                         // Log to console if it's the last retry, but don't show an error to the user.
+                         console.log("API rate limit exceeded. All retries failed.");
+                    }
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    delay *= 2; // Double the delay for the next attempt.
+                    continue; // Move to the next iteration.
+                }
+
+                if (!response.ok) {
+                    // Handle other HTTP errors (e.g., 500, 400).
+                    const errorResult = await response.json();
+                    console.error('Gemini API Error:', errorResult);
+                    const errorMessage = errorResult?.error?.message || `HTTP error! status: ${response.status}`;
+                    return `عذرًا، حدث خطأ في واجهة برمجة التطبيقات. (${errorMessage})`;
+                }
+
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    // Successfully got a response.
+                    return result.candidates[0].content.parts[0].text;
+                } else {
+                    // Handle cases where the response structure is unexpected.
+                    console.error('Gemini API Error: Invalid response structure', result);
+                    return `عذرًا، حدث خطأ في واجهة برمجة التطبيقات. (استجابة غير متوقعة)`;
+                }
+
+            } catch (error) {
+                // Handle network errors.
+                console.error('Gemini API call failed:', error);
+                if (i === retries - 1) { // If it's the last retry.
+                    return 'لا يمكن الوصول إلى الخدمة حاليًا. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.';
+                }
+                // Wait before the next retry for network errors as well.
+                await new Promise(resolve => setTimeout(resolve, delay));
+                delay *= 2;
             }
-        } catch (error) {
-            console.error('Gemini API call failed:', error);
-            return 'لا يمكن الوصول إلى الخدمة حاليًا. يرجى التحقق من اتصالك بالإنترنت.';
         }
+        // This message is returned if all retries fail due to rate limiting.
+        return 'لقد تجاوزت الحصة المتاحة. يرجى المحاولة مرة أخرى لاحقًا.';
     };
+
 
     const copyToClipboard = (text, buttonElement) => {
         const textarea = document.createElement('textarea');
