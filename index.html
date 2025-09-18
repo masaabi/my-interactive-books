@@ -3,941 +3,353 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>دليل رائد الأعمال: من الفكرة إلى الشركة الناشئة</title>
+    <title>خطة التمارين التفاعلية</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Desert Tones -->
+    <!-- Application Structure Plan: A task-oriented, single-page guide. The structure begins with a crucial medical disclaimer and core principles. It then presents the weekly schedule visually. The core of the app is the interactive, step-by-step workout session, broken into three distinct phases (Warm-up, Main Exercises, Cooldown). Exercises within the main section are presented as cards with toggleable instructions to prevent information overload and keep the user focused. The app concludes with a dynamic progress chart for the Plank exercise, designed to motivate the user by making the concept of 'التطور' (progression) tangible and interactive. This structure was chosen to transform the static text document into an active, guided, and encouraging user experience. -->
+    <!-- Visualization & Content Choices: Report Info: Core Principles -> Goal: Inform -> Viz/Presentation: Icon-based cards (HTML/CSS) for quick visual association. Report Info: Weekly Schedule -> Goal: Organize -> Viz/Presentation: Styled HTML Table for clear, structured layout. Report Info: Individual Exercises -> Goal: Instruct/Focus -> Viz/Presentation: Interactive Cards (HTML/CSS/JS) with toggleable details to manage information flow. Report Info: Progression -> Goal: Motivate/Track Change -> Viz/Presentation: Interactive Line Chart (Chart.js/Canvas) to visualize improvement over time. This makes the abstract concept of progress concrete. All choices support the guided, task-oriented structure of the application. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body {
             font-family: 'Cairo', sans-serif;
-            background-color: #FDFBF5; /* Cream background */
-            color: #2F4F4F; /* Dark Slate Gray text */
         }
-        .accent-color {
-            color: #2563EB;
+        .rtl {
+            direction: rtl;
         }
-        .bg-accent-color {
-            background-color: #2563EB;
+        .details-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out;
         }
-        .border-accent-color {
-            border-color: #2563EB;
+        .details-content.open {
+            max-height: 500px;
+            transition: max-height 0.5s ease-in;
         }
-        .nav-link.active {
-            background-color: #2563EB;
-            color: white;
-            transform: scale(1.05);
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
         }
-        .card {
-            background-color: #FFFFFF;
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-        }
-        html {
-            scroll-behavior: smooth;
-        }
-        .gemini-result h4, .model-message h4 {
-            font-weight: bold;
-            font-size: 1.1rem;
-            margin-top: 1rem;
-            color: #2563EB;
-        }
-        .gemini-result ul, .model-message ul {
-            list-style-type: disc;
-            margin-right: 1.5rem;
-            margin-top: 0.5rem;
-        }
-        .gemini-result p, .model-message p {
-            margin-top: 0.5rem;
-        }
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #2563EB;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        section h2 {
-            border-right-width: 4px;
-            border-color: #2563EB; /* border-accent-color */
-            padding-right: 1rem;
-        }
-        section h3 {
-            color: #1e3a8a; /* A darker blue */
-        }
-        .copy-btn {
-            position: absolute;
-            top: 0.5rem;
-            left: 0.5rem;
-            background-color: #e5e7eb;
-            color: #4b5563;
-            padding: 0.25rem 0.5rem;
-            border-radius: 0.375rem;
-            font-size: 0.75rem;
-            font-family: sans-serif;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            z-index: 10;
-        }
-        .copy-btn:hover {
-            background-color: #d1d5db;
-        }
-        .takeaway-box {
-            background-color: #eef2ff;
-            border-right: 4px solid #4f46e5;
-            padding: 1rem;
-            margin-bottom: 2rem;
-            border-radius: 8px;
-        }
-        .takeaway-box h3 {
-            color: #312e81;
-            margin-top: 0;
-            margin-bottom: 0.5rem;
-        }
-        .takeaway-box ul {
-            list-style-type: '✓  ';
-            padding-right: 1rem;
+         @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
         }
     </style>
 </head>
-<body class="flex">
+<body class="bg-stone-50 text-stone-800 rtl">
 
-    <!-- Sidebar Navigation -->
-    <nav id="sidebar" class="fixed top-0 right-0 h-full bg-white shadow-lg w-64 p-5 transition-transform transform translate-x-full md:translate-x-0 z-40 overflow-y-auto">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-xl font-bold text-center accent-color">فهرس المحتويات</h2>
-            <button id="close-menu-btn" class="md:hidden p-1">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
-        </div>
-        <ul class="space-y-2 text-sm">
-            <li><a href="#intro" class="nav-link block w-full text-right py-2 px-3 rounded-lg transition-all duration-300 hover:bg-gray-100">مقدمة: رحلة بناء لا تنتهي</a></li>
-            <li><a href="#business-clinic" class="nav-link block w-full text-right py-2 px-3 rounded-lg transition-all duration-300 hover:bg-gray-100 font-bold">🩺 عيادة الأعمال</a></li>
-            <li><a href="#chapter1" class="nav-link block w-full text-right py-2 px-3 rounded-lg transition-all duration-300 hover:bg-gray-100">الفصل الأول: من الفكرة إلى نموذج العمل</a></li>
-            <li><a href="#chapter2" class="nav-link block w-full text-right py-2 px-3 rounded-lg transition-all duration-300 hover:bg-gray-100">الفصل الثاني: بناء الفريق وتأسيس الشركة</a></li>
-            <li><a href="#chapter3" class="nav-link block w-full text-right py-2 px-3 rounded-lg transition-all duration-300 hover:bg-gray-100">الفصل الثالث: التمويل والجولات الاستثمارية</a></li>
-            <li><a href="#chapter4" class="nav-link block w-full text-right py-2 px-3 rounded-lg transition-all duration-300 hover:bg-gray-100">الفصل الرابع: من المنتج إلى السوق</a></li>
-            <li><a href="#chapter5" class="nav-link block w-full text-right py-2 px-3 rounded-lg transition-all duration-300 hover:bg-gray-100">الفصل الخامس: القيادة والنمو المستدام</a></li>
-            <li><a href="#chapter6" class="nav-link block w-full text-right py-2 px-3 rounded-lg transition-all duration-300 hover:bg-gray-100">الفصل السادس: صندوق الأدوات والمصادر</a></li>
-            <li><a href="#appendix" class="nav-link block w-full text-right py-2 px-3 rounded-lg transition-all duration-300 hover:bg-gray-100">ملحق: لماذا نفقد الشغف في العمل؟</a></li>
-        </ul>
-    </nav>
+    <main class="container mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-teal-700 mb-4">خطتك لتقوية الفخذين والخصر</h1>
+            <p class="text-lg text-stone-600 max-w-3xl mx-auto">دليلك التفاعلي لتمارين منزلية بسيطة وفعالة. ابدأ رحلتك نحو قوة ولياقة أفضل اليوم.</p>
+        </header>
 
-    <!-- Mobile Menu Button -->
-    <button id="menu-toggle" class="md:hidden fixed top-4 left-4 z-30 p-2 bg-accent-color text-white rounded-full shadow-lg">
-        <svg id="menu-open-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
-    </button>
-    
-    <!-- Overlay for mobile menu -->
-    <div id="overlay" class="md:hidden fixed inset-0 bg-black opacity-0 z-30 transition-opacity duration-300 hidden"></div>
-
-    <!-- Main Content -->
-    <main class="w-full pr-0 md:pr-64">
-        <div class="p-4 sm:p-6 md:p-10">
-            
-            <header class="text-center mb-12 sm:mb-16">
-                <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold accent-color">دليل رائد الأعمال: من الفكرة إلى الشركة الناشئة</h1>
-                <p class="mt-4 text-base sm:text-lg text-gray-600">م. وليد بن محمد المصعبي</p>
-            </header>
-
-            <section id="intro" class="mb-16 sm:mb-20">
-                <h2 class="text-2xl md:text-3xl font-bold mb-6">مقدمة: رحلة بناء لا تنتهي</h2>
-                <p class="text-base sm:text-lg text-gray-700 leading-relaxed">ريادة الأعمال ليست مجرد وظيفة، بل هي مغامرة بناء تتطلب أكثر من فكرة جيدة؛ إنها تحتاج إلى رؤية واضحة، تصميم لا يتزعزع، وقدرة فائقة على التكيف والتعلم. الطريق من فكرة أولية إلى شركة ناجحة مليء بالتحديات والمشتتات، والنجاح فيه حليف من يركز على حل المشاكل الحقيقية.</p>
-                <p class="mt-4 text-base sm:text-lg text-gray-700 leading-relaxed">هذا الدليل هو بوصلتك المرجعية، يجمع لك خلاصة تجارب وخبرات مؤسسي شركات ناجحة، وينظمها في مسار منطقي ومتسلسل. نهدف إلى تزويدك بالأساسيات التي تحتاجها لاتخاذ قرارات أفضل، وتجنب الأخطاء الشائعة، وبناء مشروع مستدام وقادر على النمو.</p>
-            </section>
-
-            <section id="business-clinic" class="mb-16 sm:mb-20">
-                <div class="card bg-indigo-50 border-l-4 border-indigo-500">
-                    <h2 class="text-2xl md:text-3xl font-bold mt-0 mb-6 text-center text-indigo-800">🩺 عيادة الأعمال</h2>
-                    <p class="text-center text-gray-600 mb-6">هل لديك فكرة مشروع ولكن لا تعرف من أين تبدأ؟ صف فكرتك أو المجال الذي تهتم به، وسيقوم مستشارنا الذكي بوضع خارطة طريق مخصصة لك تحتوي على أهم الخطوات العملية للبدء.</p>
-                    <div class="max-w-xl mx-auto">
-                        <textarea id="clinic-input" placeholder="مثال: أريد أن أبدأ مشروع متجر إلكتروني متخصص في بيع القهوة المختصة..." class="w-full p-3 border border-gray-300 rounded-md mb-4" rows="4"></textarea>
-                        <button id="generate-roadmap-btn" class="w-full py-3 px-5 bg-indigo-600 text-white rounded-lg shadow hover:bg-indigo-700 transition">🚀 أنشئ خارطة الطريق الخاصة بي</button>
-                    </div>
-                    <div id="clinic-container" class="mt-6 p-4 bg-white rounded-lg min-h-[100px] relative">
-                        <p class="text-center text-gray-500">ستظهر خارطة الطريق هنا...</p>
-                    </div>
+        <section id="principles" class="mb-12">
+            <h2 class="text-3xl font-bold text-center mb-8 text-teal-600">المبادئ الأساسية للنجاح</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-sm text-center">
+                    <div class="text-4xl mb-3">🗓️</div>
+                    <h3 class="text-xl font-semibold mb-2">الاستمرارية</h3>
+                    <p class="text-stone-600">التزم بالجدول قدر الإمكان. 3 أيام في الأسبوع كافية لتحقيق نتائج ملحوظة.</p>
                 </div>
-            </section>
-            
-            <section id="chapter1" class="mb-16 sm:mb-20">
-                <h2 class="text-2xl md:text-3xl font-bold mb-6">الفصل الأول: من الفكرة إلى نموذج العمل</h2>
-                
-                <div class="takeaway-box">
-                    <h3 class="text-lg font-bold">خلاصة الفصل الأول</h3>
-                    <ul>
-                        <li>ابحث عن مشكلة حقيقية تؤثر في الناس، فالحل هو أساس شركتك.</li>
-                        <li>بلور فكرتك في جملة واحدة واضحة باستخدام معادلة القيمة المقترحة.</li>
-                        <li>استخدم "مخطط نموذج العمل" لرؤية الصورة الكاملة لمشروعك قبل الغوص في التفاصيل.</li>
-                        <li>تحقق من فكرتك بأسرع وأرخص طريقة ممكنة عبر بناء منتج أولي (MVP) واختباره.</li>
-                    </ul>
+                <div class="bg-white p-6 rounded-lg shadow-sm text-center">
+                    <div class="text-4xl mb-3">🎯</div>
+                    <h3 class="text-xl font-semibold mb-2">التركيز</h3>
+                    <p class="text-stone-600">قم بأداء التمارين ببطء وتركيز. جودة الحركة أهم من عدد التكرارات.</p>
                 </div>
-
-                <p class="text-base sm:text-lg text-gray-700 mb-8">قبل كتابة أي سطر برمجي أو إنفاق أي ريال، يجب أن تبني أساساً صلباً لفكرتك.</p>
-
-                <h3 class="text-xl md:text-2xl font-bold mt-8 mb-4">المبدأ الأول: لا تبحث عن فكرة، بل ابحث عن مشكلة</h3>
-                <p>أفضل الشركات التقنية لم تبدأ بـ "فكرة عبقرية"، بل بدأت من مشكلة حقيقية ومؤلمة يعاني منها شريحة من الناس.</p>
-                <ul class="list-disc mr-6 mt-4 space-y-2 text-gray-700">
-                    <li><b>حل مشكلة عشتها بنفسك:</b> هذا هو المصدر الذهبي للأفكار، لأنك تفهم المشكلة بعمق وشغوف بحلها.</li>
-                    <li><b>راقب محيطك:</b> ما هي الصعوبات التي تواجه أصدقاءك أو الشركات من حولك؟ ما الذي يستهلك وقتهم أو مالهم بشكل غير فعال؟</li>
-                    <li><b>تحدث مع الناس:</b> لا تسألهم "ماذا تريدون؟"، بل اسألهم عن مشاكلهم: "ما هو أصعب جزء في يومك/عملك؟". استمع أكثر مما تتكلم.</li>
-                </ul>
-
-                <h3 class="text-xl md:text-2xl font-bold mt-8 mb-4">المبدأ الثاني: اشرح مشروعك في سطر واحد</h3>
-                <p>إذا لم تستطع شرح مشروعك في جملة واحدة واضحة، فأنت لم تفهمه بعد بما يكفي. ستحتاج إلى هذه الجملة لشرح مشروعك لكل من تقابله: عميل، مستثمر، شريك، أو موظف.</p>
-                <div class="mt-4 p-4 bg-gray-100 rounded-lg border-r-4 border-gray-300">
-                    <p class="font-bold">المعادلة البسيطة: شركتنا [اسم الشركة] تساعد [الشريحة المستهدفة] على تحقيق [النتيجة المرجوة] من خلال [الحل أو الميزة الفريدة].</p>
-                    <p class="mt-2 text-sm sm:text-base"><b>مثال تطبيقي:</b> "منصة iSchool تساعد الأطفال من سن 6 إلى 18 سنة على بناء مستقبلهم في مجال التكنولوجيا من خلال تدريبات برمجة مباشرة وتفاعلية أونلاين."</p>
+                <div class="bg-white p-6 rounded-lg shadow-sm text-center">
+                    <div class="text-4xl mb-3">💨</div>
+                    <h3 class="text-xl font-semibold mb-2">التنفس</h3>
+                    <p class="text-stone-600">خذ شهيقًا أثناء الاستعداد للحركة، وزفيرًا أثناء بذل الجهد.</p>
                 </div>
-
-                <h3 class="text-xl md:text-2xl font-bold mt-8 mb-4">المبدأ الثالث: ارسم نموذج عملك (Business Model Canvas)</h3>
-                <p>قبل بناء خطة عمل مفصلة، استخدم "مخطط نموذج العمل" لتوضيح أركان مشروعك الأساسية على ورقة واحدة. هذا المخطط يجبرك على التفكير في كيفية خلق القيمة وتقديمها وتحقيق الأرباح.</p>
-                <div class="card mt-6 bg-gray-50">
-                    <h4 class="text-lg font-bold text-center accent-color">مساعد مخطط نموذج العمل</h4>
-                    <p class="text-center text-gray-600 mb-4">صف فكرة مشروعك، وسيقوم الذكاء الاصطناعي بمساعدتك على ملء الخانات التسع للمخطط.</p>
-                    <textarea id="bmc-input" placeholder="صف فكرتك هنا..." class="w-full p-3 border border-gray-300 rounded-md mb-4" rows="3"></textarea>
-                    <button id="generate-bmc-btn" class="w-full py-2 px-4 bg-accent-color text-white rounded-lg shadow hover:bg-blue-700 transition">💡 ساعدني في بناء المخطط</button>
-                    <div id="bmc-container" class="mt-4 p-2 bg-white rounded-lg min-h-[100px] relative">
-                         <p class="text-center text-gray-500">ستظهر نتائج التحليل هنا...</p>
-                    </div>
+                 <div class="bg-white p-6 rounded-lg shadow-sm text-center">
+                    <div class="text-4xl mb-3">🔄</div>
+                    <h3 class="text-xl font-semibold mb-2">الإحماء والتبريد</h3>
+                    <p class="text-stone-600">لا تتخطى أبدًا هذه المراحل لتقليل خطر الإصابات وتحسين المرونة.</p>
                 </div>
-
-                <h3 class="text-xl md:text-2xl font-bold mt-8 mb-4">المبدأ الرابع: تحقق من فكرتك (Prototype vs. MVP)</h3>
-                <p>الفرق بينهما جوهري لتجنب إهدار الوقت والمال.</p>
-                <div class="overflow-x-auto mt-4">
-                    <table class="w-full text-sm text-left text-gray-500">
-                        <thead class="text-xs text-gray-700 uppercase bg-gray-100">
-                            <tr>
-                                <th scope="col" class="px-6 py-3">الميزة</th>
-                                <th scope="col" class="px-6 py-3">النموذج الأولي (Prototype)</th>
-                                <th scope="col" class="px-6 py-3">المنتج الأولي القابل للتطبيق (MVP)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="bg-white border-b"><td class="px-6 py-4 font-medium">ما هو؟</td><td class="px-6 py-4">نموذج بصري أو تفاعلي لشرح الفكرة، قد لا يكون وظيفيًا.</td><td class="px-6 py-4">نسخة عاملة من المنتج تحتوي على الميزة الأساسية فقط التي تحل المشكلة.</td></tr>
-                            <tr class="bg-gray-50 border-b"><td class="px-6 py-4 font-medium">الهدف؟</td><td class="px-6 py-4">توضيح الفكرة داخليًا للفريق أو المستثمرين.</td><td class="px-6 py-4">اختبار الفكرة في السوق مع مستخدمين حقيقيين وجمع بيانات.</td></tr>
-                            <tr class="bg-white border-b"><td class="px-6 py-4 font-medium">السؤال الذي يجيب عليه؟</td><td class="px-6 py-4">"هل يمكننا بناء هذا؟"</td><td class="px-6 py-4">"هل يجب علينا بناء هذا؟ وهل هناك من سيدفع مقابله؟"</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-                
-                 <div class="card mt-12 bg-blue-50 border-l-4 border-blue-500">
-                    <h3 class="text-xl md:text-2xl font-bold mt-0 mb-6 text-center text-blue-800">🔬 مختبر الأفكار الاستراتيجي</h3>
-                    <p class="text-center text-gray-600 mb-6">أدخل وصفًا لمشروعك، ثم استخدم الأدوات أدناه لتحليله من زوايا مختلفة.</p>
-                    <div class="max-w-2xl mx-auto">
-                        <textarea id="strategic-lab-input" placeholder="مثال: تطبيق لتوصيل الطلبات من المتاجر المحلية الصغيرة باستخدام الدراجات الكهربائية..." class="w-full p-3 border border-gray-300 rounded-md mb-4" rows="4"></textarea>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-                            <button id="analyze-swot-btn" class="w-full py-2 px-4 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition">تحليل SWOT</button>
-                            <button id="analyze-audience-btn" class="w-full py-2 px-4 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition">تحديد الجمهور</button>
-                            <button id="analyze-revenue-btn" class="w-full py-2 px-4 bg-purple-600 text-white rounded-lg shadow hover:bg-purple-700 transition">اقتراح إيرادات</button>
-                        </div>
-                    </div>
-                    <div id="strategic-lab-container" class="mt-6 p-4 bg-white rounded-lg min-h-[100px] relative">
-                        <p class="text-center text-gray-500">ستظهر نتائج التحليل هنا...</p>
-                    </div>
-                </div>
-
-
-                <div class="card mt-12 bg-green-50 border-l-4 border-green-500">
-                    <h3 class="text-xl md:text-2xl font-bold mt-0 mb-6 text-center text-green-800">✅ قائمة تحقق: 8 أسئلة حاسمة قبل إطلاق تطبيقك</h3>
-                    <p class="text-center text-gray-600 mb-6">قبل أن تستثمر وقتك ومالك، تأكد من أن لديك إجابات واضحة لهذه الأسئلة الأساسية. هذه هي البوصلة التي ستوجه قراراتك الأولية.</p>
-                    <ol class="list-decimal mr-6 mt-4 space-y-3 text-gray-700">
-                        <li><b>ما هي المشكلة التي يحلها تطبيقك؟</b> (هل هي مشكلة حقيقية ومؤلمة للعميل؟)</li>
-                        <li><b>من هم جمهورك المستهدف؟</b> (من هم العملاء الذين سيدفعون لك المال؟)</li>
-                        <li><b>كيف سيجني تطبيقك المال؟</b> (ما هو نموذج الإيرادات: اشتراكات، إعلانات، عمولة؟)</li>
-                        <li><b>من هم منافسوك؟</b> (ماذا يقدمون، وما هي نقاط ضعفهم؟)</li>
-                        <li><b>ما الذي يجعل تطبيقك فريدًا؟</b> (لماذا سيختارك العملاء بدلاً من المنافسين؟)</li>
-                        <li><b>كيف ستقوم بتسويق تطبيقك؟</b> (كيف ستصل إلى أول 100 عميل؟)</li>
-                        <li><b>ما هي الميزات الأساسية للنسخة الأولى (MVP)؟</b> (ما هو أقل عدد من الميزات التي تحل المشكلة الأساسية؟)</li>
-                        <li><b>كم ستكون التكلفة والمدة الزمنية المتوقعة؟</b> (هل لديك الموارد الكافية للبدء؟)</li>
-                    </ol>
-                </div>
-            </section>
-
-            <section id="chapter2" class="mb-16 sm:mb-20">
-                <h2 class="text-2xl md:text-3xl font-bold mb-6">الفصل الثاني: بناء الفريق وتأسيس الشركة</h2>
-                
-                <div class="takeaway-box">
-                    <h3 class="text-lg font-bold">خلاصة الفصل الثاني</h3>
-                    <ul>
-                        <li>اختيار الشريك المؤسس هو قرار مصيري، ابحث عن التكامل والثقة لا عن الصداقة فقط.</li>
-                        <li>وثّق كل شيء في "اتفاقية المؤسسين" لتجنب النزاعات المستقبلية حول الحصص والمسؤوليات.</li>
-                        <li>لا تهمل الجانب القانوني: أسس شركتك بشكل صحيح واحمِ ملكيتك الفكرية منذ اليوم الأول.</li>
-                        <li>استخدم حصص الموظفين (ESOP) مع الاستحقاق التدريجي (Vesting) لجذب الكفاءات والحفاظ عليها.</li>
-                    </ul>
-                </div>
-
-                <p class="text-base sm:text-lg text-gray-700 mb-8">فكرتك لا تساوي شيئاً بدون فريق قادر على تنفيذها.</p>
-                
-                <h3 class="text-xl md:text-2xl font-bold mt-8 mb-4">اختيار الشريك المؤسس: القرار الأهم</h3>
-                <p>اختيار الشريك قد يكون أهم قرار تتخذه. لا تختر صديقك، بل اختر شخصًا:</p>
-                <ul class="list-disc mr-6 mt-4 space-y-2 text-gray-700">
-                    <li>تثق به ثقة عمياء.</li>
-                    <li>يمتلك مهارات تكمّل مهاراتك (مثال: شريك تقني وآخر في إدارة الأعمال).</li>
-                    <li>يتمتع بنفس أخلاقيات العمل والالتزام.</li>
-                    <li>قادر على التواصل بصدق وتقبّل النقد.</li>
-                </ul>
-
-                <h3 class="text-xl md:text-2xl font-bold mt-8 mb-4">اتفاقية المؤسسين: الوثيقة التي تحمي الجميع</h3>
-                <p>قبل كتابة أي كود أو صرف أي مال، يجب توقيع اتفاقية المؤسسين (Founders' Agreement). هذه الاتفاقية هي عقد ما قبل الزواج لشركتك.</p>
-                <div class="mt-4 p-4 bg-yellow-50 rounded-lg border-r-4 border-yellow-400">
-                    <p class="font-bold">أهم بنودها:</p>
-                    <ul class="list-disc mr-6 mt-2 space-y-2">
-                        <li>نسب الملكية لكل شريك.</li>
-                        <li>الأدوار والمسؤوليات بوضوح.</li>
-                        <li>آلية اتخاذ القرارات الحاسمة.</li>
-                        <li>شروط الاستحقاق التدريجي (Vesting): ماذا يحدث لحصة الشريك إذا ترك الشركة مبكرًا؟</li>
-                        <li>آلية حل النزاعات أو خروج أحد الشركاء.</li>
-                    </ul>
-                </div>
-                
-                <h3 class="text-xl md:text-2xl font-bold mt-8 mb-4">التأسيس القانوني وحماية الملكية الفكرية</h3>
-                <ul class="list-disc mr-6 mt-4 space-y-2 text-gray-700">
-                    <li><b>اختر الكيان القانوني المناسب:</b> استشر محامياً لتحديد الشكل القانوني الأنسب لشركتك (مؤسسة فردية، شركة ذات مسؤولية محدودة، إلخ) بناءً على بلدك وخططك المستقبلية.</li>
-                    <li><b>سجّل علامتك التجارية:</b> احمِ اسم شركتك وشعارها.</li>
-                    <li><b>الملكية الفكرية (IP):</b> تأكد من أن جميع العقود مع الموظفين والمستقلين تنص بوضوح على أن الشركة تمتلك حقوق الملكية الفكرية لأي عمل يتم تطويره.</li>
-                </ul>
-                
-                <h3 class="text-xl md:text-2xl font-bold mt-8 mb-4">بناء ثقافة الشركة وتوزيع الحصص (ESOP & Vesting)</h3>
-                 <ul class="list-disc mr-6 mt-4 space-y-2 text-gray-700">
-                    <li><b>الثقافة هي ما يحدث عندما لا تكون موجودًا:</b> ثقافة شركتك هي ميزتك التنافسية الخفية. ابنِ بيئة عمل مبنية على الثقة والشفافية والتركيز على الإنجاز.</li>
-                    <li><b>حصص الموظفين (ESOP):</b> لجذب أفضل الكفاءات عندما تكون ميزانيتك محدودة، خصص جزءًا من أسهم الشركة (عادة 10-15%) لمنحها للموظفين الرئيسيين في المستقبل.</li>
-                    <li><b>الاستحقاق التدريجي (Vesting):</b> لا تمنح الحصص دفعة واحدة. يتم منحها على فترة زمنية (عادة 4 سنوات مع سنة واحدة كـ "cliff") لضمان التزام الموظف أو الشريك على المدى الطويل.</li>
-                </ul>
-
-                <div class="card mt-12">
-                    <h3 class="text-xl md:text-2xl font-bold mt-0 mb-6 text-center accent-color">✨ مساعد التوظيف الذكي</h3>
-                    <p class="text-center text-gray-600 mb-6">أدخل المسمى الوظيفي، وسيقوم الذكاء الاصطناعي بتوليد أسئلة مقابلة سلوكية وموقفية تساعدك على تقييم المرشحين بشكل أعمق.</p>
-                    <div class="max-w-lg mx-auto">
-                        <input id="job-role-input" type="text" placeholder="مثال: مدير تسويق رقمي" class="w-full p-3 border border-gray-300 rounded-md mb-4">
-                        <button id="generate-questions-btn" class="w-full py-3 px-5 bg-accent-color text-white rounded-lg shadow hover:bg-blue-700 transition">✨ جهّز أسئلة المقابلة</button>
-                    </div>
-                    <div id="hiring-interaction-container" class="mt-6 p-4 bg-gray-50 rounded-lg min-h-[100px] relative">
-                        <p class="text-center text-gray-500">ستظهر النتائج هنا...</p>
-                    </div>
-                </div>
-            </section>
-
-            <section id="chapter3" class="mb-16 sm:mb-20">
-                <h2 class="text-2xl md:text-3xl font-bold mb-6">الفصل الثالث: التمويل والجولات الاستثمارية</h2>
-                
-                <div class="takeaway-box">
-                    <h3 class="text-lg font-bold">خلاصة الفصل الثالث</h3>
-                    <ul>
-                        <li>التمويل ليس هدفًا، بل وسيلة للنمو. لا تسعَ للتمويل قبل أن تكون جاهزًا.</li>
-                        <li>لكل مرحلة من مراحل شركتك نوع تمويل مناسب (تمويل ذاتي، ملائكي، رأس مال جريء).</li>
-                        <li>افهم لغة المستثمرين: جولة البذرة (Seed) لإثبات الفكرة، والجولة "أ" (Series A) لتوسيع نطاق النجاح.</li>
-                        <li>المسرّعات تمنحك دفعة سريعة، بينما الحاضنات تساعدك على بناء الأساس على مهل.</li>
-                    </ul>
-                </div>
-
-                <p class="text-base sm:text-lg text-gray-700 mb-8">التمويل هو الأكسجين الذي يسمح لشركتك بالنمو، لكنه ليس الهدف بحد ذاته.</p>
-                
-                <h3 class="text-xl md:text-2xl font-bold mt-8 mb-4">خيارات التمويل المتاحة للشركات الناشئة</h3>
-                <ol class="list-decimal mr-6 mt-4 space-y-3 text-gray-700">
-                    <li><b>التمويل الذاتي (Bootstrapping):</b> الاعتماد على مدخراتك أو أرباح المشروع. يمنحك سيطرة كاملة ولكنه قد يبطئ النمو.</li>
-                    <li><b>الأصدقاء والعائلة (Friends & Family):</b> مصدر شائع للتمويل الأولي، لكن كن حذرًا واجعل كل شيء موثقًا رسميًا.</li>
-                    <li><b>المستثمرون الملائكيون (Angel Investors):</b> أفراد أثرياء يستثمرون أموالهم الخاصة مقابل حصة في الشركة، وغالبًا ما يقدمون خبرتهم وإرشادهم.</li>
-                    <li><b>رأس المال الجريء (Venture Capital - VC):</b> صناديق استثمارية متخصصة تستثمر مبالغ كبيرة في الشركات الواعدة ذات القدرة على النمو الهائل مقابل حصة ملكية.</li>
-                    <li><b>التمويل بالدين (Debt Financing):</b> قروض من البنوك أو برامج الإقراض. يحافظ على ملكيتك ولكنه يتطلب سدادًا مع فوائد.</li>
-                    <li><b>التمويل الجماعي (Crowdfunding):</b> جمع مبالغ صغيرة من عدد كبير من الأفراد عبر منصات متخصصة.</li>
-                </ol>
-
-                <h3 class="text-xl md:text-2xl font-bold mt-8 mb-4">فهم الجولات الاستثمارية (سؤال وجواب)</h3>
-                <ul class="list-disc mr-6 mt-4 space-y-2 text-gray-700">
-                    <li><b>ما هي الجولة الاستثمارية؟</b> مرحلة تحصل فيها الشركة على تمويل مقابل بيع جزء من أسهمها (ملكية).</li>
-                    <li><b>ما الفرق بين جولة البذرة (Seed) والجولة أ (Series A)؟</b>
-                        <ul class="list-disc mr-6 mt-2 space-y-1">
-                            <li><b>جولة البذرة (Seed):</b> الهدف هو إثبات صحة الفكرة وبناء نموذج أولي (MVP) وتحقيق أولى الإيرادات. المستثمرون عادة ما يكونون ملائكيين أو مسرّعات.</li>
-                            <li><b>الجولة أ (Series A):</b> الهدف هو تحقيق النمو وتوسيع نطاق العمل بعد إثبات نجاح نموذج العمل (Product-Market Fit). المستثمرون هم صناديق رأس المال الجريء.</li>
-                        </ul>
-                    </li>
-                    <li><b>هل يبقى المستثمر معي للأبد؟</b> لا، المستثمر (خاصة الـ VC) يهدف إلى الخروج من استثماره وتحقيق عائد كبير خلال 5-10 سنوات، غالبًا عبر بيع الشركة لشركة أكبر أو طرحها للاكتتاب العام (IPO).</li>
-                </ul>
-
-                <h3 class="text-xl md:text-2xl font-bold mt-8 mb-4">لمحة عن بيئة الاستثمار الجريء في الشرق الأوسط وشمال إفريقيا</h3>
-                <p>تشهد المنطقة نموًا استثنائيًا في الاستثمار الجريء، مع تركيز كبير على قطاعات محددة ودول معينة.</p>
-                <div class="card my-8">
-                     <h4 class="text-lg sm:text-xl font-bold mb-6 text-center">توجهات الاستثمار الجريء في المنطقة</h4>
-                     <div class="text-center mb-6 flex flex-wrap justify-center gap-2">
-                        <button id="show-countries-btn" class="py-2 px-5 bg-accent-color text-white rounded-lg shadow">الدول</button>
-                        <button id="show-sectors-btn" class="py-2 px-5 bg-gray-200 text-gray-800 rounded-lg">القطاعات</button>
-                     </div>
-                     <div class="relative h-80 sm:h-96 w-full max-w-3xl mx-auto"><canvas id="investmentChart"></canvas></div>
-                     <p class="text-xs text-center mt-2 text-gray-500">(المصدر: تقارير منصات متخصصة مثل MAGNiTT و Wamda)</p>
-                </div>
-
-                <h3 class="text-xl md:text-2xl font-bold mt-8 mb-4">مسرّعات وحاضنات الأعمال: أيهما أنسب لك؟</h3>
-                <div class="overflow-x-auto mt-4">
-                    <table class="w-full text-sm text-left text-gray-500">
-                        <thead class="text-xs text-gray-700 uppercase bg-gray-100">
-                            <tr>
-                                <th scope="col" class="px-6 py-3">المقارنة</th>
-                                <th scope="col" class="px-6 py-3">حاضنة الأعمال (Incubator)</th>
-                                <th scope="col" class="px-6 py-3">مسرّعة الأعمال (Accelerator)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="bg-white border-b"><td class="px-6 py-4 font-medium">المرحلة</td><td class="px-6 py-4">مرحلة الفكرة أو البحث</td><td class="px-6 py-4">شركة قائمة لديها MVP وفريق</td></tr>
-                            <tr class="bg-gray-50 border-b"><td class="px-6 py-4 font-medium">الهدف</td><td class="px-6 py-4">المساعدة في بناء الأساس وتطوير الفكرة</td><td class="px-6 py-4">تسريع النمو بشكل مكثف</td></tr>
-                            <tr class="bg-white border-b"><td class="px-6 py-4 font-medium">المدة</td><td class="px-6 py-4">طويلة ومرنة (6 أشهر إلى سنتين)</td><td class="px-6 py-4">قصيرة ومكثفة (3 إلى 6 أشهر)</td></tr>
-                             <tr class="bg-gray-50 border-b"><td class="px-6 py-4 font-medium">النموذج</td><td class="px-6 py-4">غالبًا دعم وإرشاد مقابل رسوم أو بدون مقابل</td><td class="px-6 py-4">غالبًا تمويل أولي مقابل حصة ملكية (Equity)</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="card mt-12">
-                    <h3 class="text-xl md:text-2xl font-bold mt-0 mb-6 text-center accent-color">✨ مساعد المستثمرين الذكي</h3>
-                    <p class="text-center text-gray-600 mb-6">استخدم هذه الأدوات للتحضير لجولاتك الاستثمارية. التدريب الجيد هو نصف المعركة.</p>
-                    <div class="grid md:grid-cols-2 gap-8">
-                        <div>
-                            <h4 class="text-lg sm:text-xl font-bold mb-3">مدرب العرض التقديمي (Pitch)</h4>
-                            <textarea id="pitch-input" placeholder="اكتب هنا العرض التقديمي المصعد لمشروعك..." class="w-full p-3 border border-gray-300 rounded-md mb-4" rows="4"></textarea>
-                            <button id="generate-pitch-feedback-btn" class="w-full py-3 px-5 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition">✨ قيّم العرض</button>
-                        </div>
-                        <div>
-                            <h4 class="text-lg sm:text-xl font-bold mb-3">منشئ شخصية المستثمر</h4>
-                            <input id="investor-type-input" placeholder="صف نوع المستثمر الذي تستهدفه..." class="w-full p-3 border border-gray-300 rounded-md mb-4">
-                            <button id="generate-investor-persona-btn" class="w-full py-3 px-5 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition">✨ ابنِ شخصية المستثمر</button>
-                        </div>
-                    </div>
-                    <div id="investor-interaction-container" class="mt-6 p-4 bg-gray-50 rounded-lg min-h-[100px] relative">
-                        <p class="text-center text-gray-500">ستظهر النتائج هنا...</p>
-                    </div>
-                </div>
-            </section>
-
-            <section id="chapter4" class="mb-16 sm:mb-20">
-                <h2 class="text-2xl md:text-3xl font-bold mb-6">الفصل الرابع: من المنتج إلى السوق</h2>
-
-                <div class="takeaway-box">
-                    <h3 class="text-lg font-bold">خلاصة الفصل الرابع</h3>
-                    <ul>
-                        <li>لا تبنِ المنتج وتنتظر العملاء، بل ابنِ خطة للوصول إلى السوق (Go-to-Market).</li>
-                        <li>التسويق ليس تكلفة، بل استثمار في النمو. خصص له الموارد منذ البداية.</li>
-                        <li>تحدث بلغة الأرقام: تعلم مؤشرات الأداء الرئيسية (KPIs) مثل LTV و CAC و Churn.</li>
-                        <li>القاعدة الذهبية للاستدامة: يجب أن تكون القيمة الدائمة للعميل (LTV) أكبر بثلاث مرات من تكلفة اكتسابه (CAC).</li>
-                    </ul>
-                </div>
-
-                <p>بناء منتج رائع لا يكفي، يجب أن تصل به إلى العميل المناسب.</p>
-                <h3 class="text-xl md:text-2xl font-bold mt-8 mb-4">استراتيجية الوصول إلى السوق (Go-to-Market)</h3>
-                <p>قبل إطلاق المنتج، يجب أن تكون لديك خطة واضحة للإجابة على هذه الأسئلة:</p>
-                <ul class="list-disc mr-6 mt-4 space-y-2 text-gray-700">
-                    <li><b>من هو عميلك المثالي (Ideal Customer Profile)؟</b></li>
-                    <li><b>ما هي القنوات التسويقية التي ستستخدمها للوصول إليه في البداية؟</b> (إعلانات، محتوى، شراكات). لا تحاول أن تكون في كل مكان، ركز على قناة أو قناتين في البداية.</li>
-                    <li><b>ما هي رسالتك التسويقية؟</b> كيف ستصف منتجك ليثير اهتمام العميل؟</li>
-                    <li><b>كيف سيكون نموذج التسعير الخاص بك؟</b> (اشتراك، مرة واحدة، إلخ).</li>
-                </ul>
-                
-                <h3 class="text-xl md:text-2xl font-bold mt-8 mb-4">التسويق ليس خياراً، بل محرك للنمو</h3>
-                <p>مقولة "منتجي رائع وسيسوق لنفسه" هي أسرع طريق للفشل. التسويق هو عملية منظمة لجذب انتباه العملاء المحتملين وتحويلهم إلى مستخدمين يدفعون. يجب أن يكون جزءًا لا يتجزأ من ميزانيتك وعملياتك منذ اليوم الأول.</p>
-
-                <h3 class="text-xl md:text-2xl font-bold mt-8 mb-4">مؤشرات الأداء الرئيسية (KPIs) التي تهم المستثمرين</h3>
-                <p>يجب أن تتحدث لغة الأرقام. أهم المؤشرات للشركات الناشئة (خاصة التي تعتمد على الاشتراكات):</p>
-                <ul class="list-disc mr-6 mt-4 space-y-2 text-gray-700">
-                    <li><b>الإيرادات الشهرية المتكررة (MRR):</b> مؤشر على حجم ونمو إيراداتك.</li>
-                    <li><b>تكلفة اكتساب العميل (CAC):</b> كم يكلفك الحصول على عميل جديد واحد؟</li>
-                    <li><b>القيمة الدائمة للعميل (LTV):</b> كم من المال سيحققه العميل لشركتك على مدار علاقته بك؟</li>
-                    <li><b>معدل التسرّب (Churn):</b> نسبة العملاء الذين يلغون اشتراكهم كل شهر. يجب أن يكون منخفضًا قدر الإمكان.</li>
-                </ul>
-                <div class="mt-4 p-4 bg-blue-50 rounded-lg border-r-4 border-blue-400">
-                    <p class="font-bold">القاعدة الذهبية: يجب أن تكون LTV > 3 x CAC ليكون نموذج عملك مستدامًا.</p>
-                </div>
-
-                <h3 class="text-xl md:text-2xl font-bold mt-8 mb-4">متى وكيف تحقق الشركات الناشئة الأرباح؟</h3>
-                <p>معظم الشركات الناشئة في مراحلها الأولى تعطي الأولوية للنمو السريع على الربحية الفورية.</p>
-                 <ul class="list-disc mr-6 mt-4 space-y-2 text-gray-700">
-                    <li><b>معدل الحرق (Burn Rate):</b> هو المبلغ الصافي الذي تخسره الشركة كل شهر. الشركات تتعمد "حرق" أموال المستثمرين للاستثمار في تطوير المنتج والتسويق واكتساب حصة سوقية.</li>
-                    <li><b>متى تأتي الأرباح؟</b> عندما تصل الشركة إلى حجم معين (Scale)، حيث تصبح إيراداتها أكبر من تكاليفها، وتتحسن هوامش الربح مع زيادة عدد العملاء.</li>
-                </ul>
-
-                 <div class="card mt-12">
-                    <h3 class="text-xl md:text-2xl font-bold mt-0 mb-6 text-center accent-color">✨ حاسبة ومستشار LTV/CAC</h3>
-                    <p class="text-center text-gray-600 mb-6">أدخل أرقامك، وسيقوم الذكاء الاصطناعي بتحليل نموذج عملك وتقديم نصائح عملية لتحسينه.</p>
-                    <div class="grid sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
-                        <div>
-                            <label for="arpu-input" class="block text-sm font-medium text-gray-700">متوسط الإيراد الشهري للعميل</label>
-                            <input id="arpu-input" type="number" placeholder="100" class="mt-1 block w-full p-3 border border-gray-300 rounded-md">
-                        </div>
-                        <div>
-                            <label for="lifetime-input" class="block text-sm font-medium text-gray-700">متوسط عمر العميل (بالأشهر)</label>
-                            <input id="lifetime-input" type="number" placeholder="12" class="mt-1 block w-full p-3 border border-gray-300 rounded-md">
-                        </div>
-                        <div>
-                            <label for="cac-input" class="block text-sm font-medium text-gray-700">تكلفة اكتساب العميل</label>
-                            <input id="cac-input" type="number" placeholder="100" class="mt-1 block w-full p-3 border border-gray-300 rounded-md">
-                        </div>
-                    </div>
-                    <div class="text-center mt-6">
-                        <button id="calculate-ltv-cac-btn" class="py-3 px-8 bg-accent-color text-white rounded-lg shadow hover:bg-blue-700 transition">📈 حلل النسبة وقدم نصيحة</button>
-                    </div>
-                    <div id="ltv-cac-container" class="mt-6 p-4 bg-gray-50 rounded-lg min-h-[100px] relative">
-                        <p class="text-center text-gray-500">ستظهر النتائج هنا...</p>
-                    </div>
-                </div>
-            </section>
-
-            <section id="chapter5" class="mb-16 sm:mb-20">
-                <h2 class="text-2xl md:text-3xl font-bold mb-6">الفصل الخامس: القيادة والنمو المستدام</h2>
-                
-                <div class="takeaway-box">
-                    <h3 class="text-lg font-bold">خلاصة الفصل الخامس</h3>
-                    <ul>
-                        <li>اتخذ قراراتك بناءً على البيانات، وتحمل مسؤوليتها، وامضِ قدمًا بسرعة.</li>
-                        <li>كن مرنًا ومستعدًا لتغيير المسار (Pivot) عندما تخبرك البيانات بذلك.</li>
-                        <li>استخدم نماذج مثل GROW لجعل اجتماعاتك مثمرة وموجهة نحو النتائج.</li>
-                        <li>استثمر في بناء شبكة علاقات قوية؛ فهي من أهم أصول شركتك.</li>
-                    </ul>
-                </div>
-
-                <p>النجاح على المدى الطويل يعتمد على قدرتك على القيادة والتكيف.</p>
-                <h3 class="text-xl md:text-2xl font-bold mt-8 mb-4">اتخاذ القرارات الصعبة تحت الضغط</h3>
-                <ol class="list-decimal mr-6 mt-4 space-y-2 text-gray-700">
-                    <li><b>اجمع البيانات، لا الآراء:</b> ابحث عن الحقائق والأرقام قبل اتخاذ القرار.</li>
-                    <li><b>لا تسعَ للمثالية:</b> قرار "جيد بما يكفي" وسريع أفضل من قرار "مثالي" ومتأخر.</li>
-                    <li><b>حدد موعدًا نهائيًا للقرار:</b> لا تدع التردد يستهلك وقتك.</li>
-                    <li><b>تحمل مسؤولية قرارك:</b> سواء كان صائبًا أو خاطئًا، تعلم منه وامضِ قدمًا.</li>
-                </ol>
-
-                <h3 class="text-xl md:text-2xl font-bold mt-8 mb-4">فن التحول (The Art of the Pivot)</h3>
-                <p>التحول ليس فشلاً، بل هو استجابة ذكية لبيانات السوق. هو تغيير استراتيجي في أحد عناصر نموذج عملك بناءً على ما تعلمته من عملائك.</p>
-                <ul class="list-disc mr-6 mt-4 space-y-2 text-gray-700">
-                    <li><b>متى تفكر في التحول؟</b> عندما لا ترى نموًا في مؤشراتك الرئيسية، أو عندما يخبرك العملاء باستمرار أنهم يستخدمون منتجك لغرض مختلف عن الذي صممته من أجله.</li>
-                    <li><b>أمثلة شهيرة:</b> بدأت شركة Slack كلعبة فيديو فاشلة، وتحولت إلى أداة تواصل. بدأت YouTube كموقع مواعدة بالفيديو.</li>
-                    <li><b>التحول لا يعني البدء من الصفر:</b> بل يعني الاستفادة مما بنيته (فريق، تقنية، معرفة) وتوجيهه نحو فرصة أفضل.</li>
-                </ul>
-
-                <h3 class="text-xl md:text-2xl font-bold mt-8 mb-4">نموذج GROW للاجتماعات الفعّالة</h3>
-                <p>اجعل اجتماعاتك قصيرة وفعالة باستخدام هذا النموذج:</p>
-                <ul class="list-disc mr-6 mt-4 space-y-2 text-gray-700">
-                    <li><b>G - Goal (الهدف):</b> "ماذا نريد تحقيقه بنهاية هذا الاجتماع؟"</li>
-                    <li><b>R - Reality (الواقع):</b> "أين نحن الآن؟ ما هي الحقائق؟"</li>
-                    <li><b>O - Options (الخيارات):</b> "ما هي الخيارات المتاحة أمامنا؟"</li>
-                    <li><b>W - Way Forward (الخطوة التالية):</b> "ماذا قررنا؟ من المسؤول؟ ومتى الموعد النهائي؟"</li>
-                </ul>
-
-                <h3 class="text-xl md:text-2xl font-bold mt-8 mb-4">قوة العلاقات وبيئة ريادة الأعمال</h3>
-                <ul class="list-disc mr-6 mt-4 space-y-2 text-gray-700">
-                    <li><b>شبكتك هي صافي ثروتك:</b> قيمة مشروعك لا تُقاس فقط بما تملكه، بل بمن تعرفهم. احضر الفعاليات، وتواصل مع رواد أعمال آخرين، وكن مساهمًا في مجتمعك.</li>
-                    <li><b>لماذا تبدأ في شركة ناشئة؟</b> إذا لم تكن جاهزًا بعد، فإن أفضل طريقة للتعلم هي العمل في شركة ناشئة أخرى. ستكتسب خبرة عملية لا تقدر بثمن وترى كيف تدار الأمور من الداخل.</li>
-                </ul>
-
-                <div class="card mt-12">
-                    <h3 class="text-xl md:text-2xl font-bold mt-0 mb-6 text-center accent-color">✨ مستشار القرارات الصعبة</h3>
-                    <p class="text-center text-gray-600 mb-6">القيادة عبارة عن سلسلة من القرارات الصعبة. صف قرارًا صعبًا تواجهك، وسيساعدك الذكاء الاصطناعي على تحليله باستخدام أطر عمل قيادية مجربة.</p>
-                    <div class="max-w-lg mx-auto">
-                        <textarea id="leadership-challenge-input" placeholder="مثال: أحد الموظفين أداؤه منخفض ولكنه محبوب من الفريق..." class="w-full p-3 border border-gray-300 rounded-md mb-4" rows="3"></textarea>
-                        <button id="generate-leadership-advice-btn" class="w-full py-3 px-5 bg-accent-color text-white rounded-lg shadow hover:bg-blue-700 transition">✨ ساعدني في اتخاذ القرار</button>
-                    </div>
-                    <div id="leadership-advice-container" class="mt-6 p-4 bg-gray-50 rounded-lg min-h-[100px] relative">
-                        <p class="text-center text-gray-500">ستظهر النتائج هنا...</p>
-                    </div>
-                </div>
-            </section>
-
-            <section id="chapter6" class="mb-16 sm:mb-20">
-                <h2 class="text-2xl md:text-3xl font-bold mb-6">الفصل السادس: صندوق الأدوات والمصادر</h2>
-
-                <div class="takeaway-box">
-                    <h3 class="text-lg font-bold">خلاصة الفصل السادس</h3>
-                    <ul>
-                        <li>تعلم من أخطاء الآخرين: معظم الشركات تفشل لأنها تبني منتجًا لا يريده أحد أو ينفد منها المال.</li>
-                        <li>عرضك الاستثماري (Pitch Deck) يجب أن يكون قصة مقنعة ومختصرة تركز على المشكلة والحل والفريق.</li>
-                        <li>استخدم الأدوات المناسبة لإدارة مهامك وتواصلك وتصميمك.</li>
-                        <li>اجعل التعلم عادة يومية عبر البودكاست والنشرات البريدية والمحتوى المتخصص.</li>
-                    </ul>
-                </div>
-
-                <h3 class="text-xl md:text-2xl font-bold mt-8 mb-4">أبرز أسباب فشل الشركات الناشئة</h3>
-                <ol class="list-decimal mr-6 mt-4 space-y-2 text-gray-700">
-                    <li><b>بناء منتج لا يريده أحد:</b> السبب الأول عالميًا. الفشل في حل مشكلة حقيقية.</li>
-                    <li><b>نفاد النقدية (Running out of cash):</b> سوء إدارة الموارد المالية ومعدل الحرق.</li>
-                    <li><b>فريق غير مناسب:</b> خلافات بين المؤسسين أو نقص في المهارات الأساسية.</li>
-                    <li><b>منافسة شرسة:</b> تجاهل المنافسين أو عدم وجود ميزة تنافسية واضحة.</li>
-                    <li><b>نموذج عمل خاطئ:</b> عدم القدرة على تحقيق إيرادات مستدامة من المنتج.</li>
-                    <li><b>تسويق ضعيف:</b> عدم القدرة على الوصول إلى العملاء بشكل فعال.</li>
-                    <li><b>توقيت سيئ:</b> إطلاق المنتج في وقت مبكر جدًا أو متأخر جدًا.</li>
-                </ol>
-
-                <h3 class="text-xl md:text-2xl font-bold mt-8 mb-4">أساسيات بناء العرض الاستثماري (Pitch Deck)</h3>
-                <p>عرضك يجب أن يكون قصة قصيرة ومقنعة (10-15 شريحة كحد أقصى). أهم الشرائح:</p>
-                <ol class="list-decimal mr-6 mt-4 space-y-2 text-gray-700">
-                    <li>الغلاف: اسم الشركة، شعارها، وشعارها في سطر واحد.</li>
-                    <li>المشكلة: صف المشكلة بشكل واضح ومؤثر.</li>
-                    <li>الحل: كيف يحل منتجك هذه المشكلة بشكل فريد؟</li>
-                    <li>المنتج: صور أو عرض توضيحي لكيفية عمل المنتج.</li>
-                    <li>حجم السوق: ما حجم الفرصة المتاحة؟</li>
-                    <li>نموذج العمل: كيف ستجني المال؟</li>
-                    <li>التقدم (Traction): أهم الأرقام التي حققتها (مستخدمون، إيرادات، نمو).</li>
-                    <li>الفريق: من أنتم ولماذا أنتم الفريق المناسب لهذه المهمة؟</li>
-                    <li>المنافسة: من هم منافسوك وكيف تتفوق عليهم؟</li>
-                    <li>الطلب (The Ask): كم من المال تطلب وماذا ستفعل به؟</li>
-                </ol>
-
-                <h3 class="text-xl md:text-2xl font-bold mt-8 mb-4">أدوات لا غنى عنها لرائد الأعمال</h3>
-                <div class="overflow-x-auto mt-4">
-                    <table class="w-full text-sm text-left text-gray-500">
-                        <thead class="text-xs text-gray-700 uppercase bg-gray-100">
-                            <tr>
-                                <th scope="col" class="px-6 py-3">المجال</th>
-                                <th scope="col" class="px-6 py-3">أدوات مقترحة</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="bg-white border-b"><td class="px-6 py-4 font-medium">إدارة المشاريع والمهام</td><td class="px-6 py-4">Notion, Trello, Asana, ClickUp</td></tr>
-                            <tr class="bg-gray-50 border-b"><td class="px-6 py-4 font-medium">التواصل الداخلي</td><td class="px-6 py-4">Slack, Microsoft Teams</td></tr>
-                            <tr class="bg-white border-b"><td class="px-6 py-4 font-medium">تصميم النماذج الأولية</td><td class="px-6 py-4">Figma, Balsamiq</td></tr>
-                            <tr class="bg-gray-50 border-b"><td class="px-6 py-4 font-medium">تحليل بيانات المستخدم</td><td class="px-6 py-4">Google Analytics, Mixpanel, Hotjar</td></tr>
-                            <tr class="bg-white border-b"><td class="px-6 py-4 font-medium">إدارة علاقات العملاء (CRM)</td><td class="px-6 py-4">HubSpot, Salesforce</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <h3 class="text-xl md:text-2xl font-bold mt-8 mb-4">مصادر معرفية لتطويرك المستمر</h3>
-                <ul class="list-disc mr-6 mt-4 space-y-2 text-gray-700">
-                    <li><b>بودكاست:</b> عربيًا (سوالف بزنس، بودكاست الفنجان)، انجليزيًا (How I Built This, The All-In Podcast).</li>
-                    <li><b>برامج وتلفزيون الواقع:</b> شارك تانك (Shark Tank) - لفهم عقلية المستثمرين.</li>
-                    <li><b>نشرات بريدية:</b> عربيًا (نشرة "ميم"، نشرة "ثمانية").</li>
-                    <li><b>محتوى ومراجع أساسية:</b> Y Combinator's Library, First Round Review, Paul Graham's Essays.</li>
-                </ul>
-
-                <div class="card mt-8">
-                    <h3 class="text-xl md:text-2xl font-bold mt-0 mb-6 text-center text-red-700">🚨 محلل مخاطر الفشل</h3>
-                    <p class="text-center text-gray-600 mb-6">أكثر من 90% من الشركات الناشئة تفشل. معرفة الأسباب الشائعة للفشل هي أفضل طريقة لتجنبها. أدخل وصف مشروعك لتعرف أهم المخاطر التي قد تواجهك.</p>
-                    <div class="max-w-xl mx-auto">
-                        <textarea id="failure-analysis-input" placeholder="صف فكرة مشروعك هنا..." class="w-full p-3 border border-gray-300 rounded-md mb-4" rows="4"></textarea>
-                        <button id="analyze-failure-risks-btn" class="w-full py-3 px-5 bg-red-600 text-white rounded-lg shadow hover:bg-red-700 transition">🚨 حلل مخاطر الفشل</button>
-                    </div>
-                    <div id="failure-analysis-container" class="mt-6 p-4 bg-gray-50 rounded-lg min-h-[100px] relative">
-                        <p class="text-center text-gray-500">ستظهر النتائج هنا...</p>
-                    </div>
-                </div>
-                 <div class="card mt-8">
-                    <h3 class="text-xl md:text-2xl font-bold mt-0 mb-6 text-center accent-color">✨ خبير الأدوات</h3>
-                    <p class="text-center text-gray-600 mb-6">ما هي المهمة التي تريد إنجازها؟ سيقترح عليك الذكاء الاصطناعي أفضل أداة لها، سواء كانت للتصميم، أو التسويق، أو إدارة المشاريع.</p>
-                    <div class="max-w-lg mx-auto">
-                        <input id="tool-task-input" type="text" placeholder="مثال: أحتاج أداة مجانية لعمل استبيانات" class="w-full p-3 border border-gray-300 rounded-md mb-4">
-                        <button id="generate-tool-recommendation-btn" class="w-full py-3 px-5 bg-accent-color text-white rounded-lg shadow hover:bg-blue-700 transition">✨ أوصني بأداة</button>
-                    </div>
-                    <div id="tool-recommendation-container" class="mt-6 p-4 bg-gray-50 rounded-lg min-h-[100px] relative">
-                        <p class="text-center text-gray-500">ستظهر النتائج هنا...</p>
-                    </div>
-                </div>
-            </section>
-            
-            <section id="appendix" class="mb-16 sm:mb-20">
-                <h2 class="text-2xl md:text-3xl font-bold mb-6">ملحق: لماذا نفقد الشغف في العمل؟</h2>
-                <div class="my-8">
-                    <h3 class="text-xl text-center">10 أسباب تجعل الموظف يفقد شغفه في الشغل…</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
-                        <div class="p-4 bg-amber-50 border-r-4 border-amber-400 rounded-lg"><h4 class="font-bold text-amber-800">1- مافي تقدير</h4><p class="mt-1 text-gray-700">يشتغل من قلبه، يعطي فوق طاقته، بس ما يسمع “يعطيك العافية” ولا حتى شكرًا.</p></div>
-                        <div class="p-4 bg-amber-50 border-r-4 border-amber-400 rounded-lg"><h4 class="font-bold text-amber-800">2- مافي رؤية واضحة</h4><p class="mt-1 text-gray-700">ليش نشتغل؟ شنو الهدف؟ وين بنوصل؟ … إذا ما عرفنا الجواب، الحماس يضيع.</p></div>
-                        <div class="p-4 bg-amber-50 border-r-4 border-amber-400 rounded-lg"><h4 class="font-bold text-amber-800">3- المدير المتسلط</h4><p class="mt-1 text-gray-700">إذا كل شي يصير أوامر بدون نقاش، تحس إنك آلة مب إنسان.</p></div>
-                        <div class="p-4 bg-amber-50 border-r-4 border-amber-400 rounded-lg"><h4 class="font-bold text-amber-800">4- وعود تنقال وما تنفذ</h4><p class="mt-1 text-gray-700">مرّة، مرتين مثل الترقيات … بعدين الشخص ما عاد يصدق أي كلمة.</p></div>
-                        <div class="p-4 bg-amber-50 border-r-4 border-amber-400 rounded-lg"><h4 class="font-bold text-amber-800">5- مافي فرص تطور</h4><p class="mt-1 text-gray-700">نفس الشغل، نفس المكان، نفس الراتب… والكل يتطور إلا أنا؟ طبيعي أحبط.</p></div>
-                        <div class="p-4 bg-amber-50 border-r-4 border-amber-400 rounded-lg"><h4 class="font-bold text-amber-800">6- بيئة مليئة باللوم والخوف</h4><p class="mt-1 text-gray-700">كل غلطة تصير فيلم رعب؟ من بيتجرأ يبدع؟</p></div>
-                        <div class="p-4 bg-amber-50 border-r-4 border-amber-400 rounded-lg"><h4 class="font-bold text-amber-800">7- مافي تنظيم</h4><p class="mt-1 text-gray-700">كل يوم قرار جديد ومافي خطة، ما تعرف وين رايح… يصير الشغل عشوائي مب تحدي.</p></div>
-                        <div class="p-4 bg-amber-50 border-r-4 border-amber-400 rounded-lg"><h4 class="font-bold text-amber-800">8- العدل مفقود</h4><p class="mt-1 text-gray-700">اللي يشتغل بضمير ما ينشاف، واللي عنده واسطة أو من ربع المجلس يترقى؟ كيف تبيني أتحمس؟</p></div>
-                        <div class="p-4 bg-amber-50 border-r-4 border-amber-400 rounded-lg"><h4 class="font-bold text-amber-800">9- مافي حد يسمعك</h4><p class="mt-1 text-gray-700">تبغي تقول شي، عندك فكرة، عندك مشكلة… بس محد فاضي يسمع لك؟!</p></div>
-                        <div class="p-4 bg-amber-50 border-r-4 border-amber-400 rounded-lg"><h4 class="font-bold text-amber-800">10- صحة الموظف النفسية ما تنحسب</h4><p class="mt-1 text-gray-700">اللي يشتغل وهو تعبان من جو الشركة… ما يطول فيها، لو كان معاشه عالي.</p></div>
-                    </div>
-                    <p class="mt-8 text-center text-lg font-semibold text-gray-800 bg-gray-100 p-4 rounded-lg">بيئة العمل إما ترفعك… أو تكسر المنظومة، فخلونا نبني بيئة نحب نروح لها كل صبح ❤️</p>
-                </div>
-            </section>
-            
-            <div class="text-center p-8 bg-white rounded-lg shadow-inner">
-                <h2 class="text-2xl font-bold accent-color mb-4">خاتمة: البناء رحلة مستمرة</h2>
-                <p class="text-lg text-gray-700 max-w-3xl mx-auto">
-                    لقد وصلت إلى نهاية هذا الدليل، ولكنك في بداية رحلة أعظم. ريادة الأعمال ليست خطًا مستقيمًا، بل هي سلسلة من التجارب والتعلم والتكيف. استخدم هذا الدليل كمرجع، ولكن تذكر دائمًا أن أفضل معلم هو السوق، وأهم أصل لديك هو قدرتك على الاستماع والاستجابة. بالتوفيق في رحلتك!
-                </p>
             </div>
+        </section>
 
+        <section id="schedule" class="mb-12">
+             <h2 class="text-3xl font-bold text-center mb-8 text-teal-600">الجدول الأسبوعي المقترح</h2>
+             <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+                <table class="w-full text-center">
+                    <thead class="bg-teal-600 text-white">
+                        <tr>
+                            <th class="py-3 px-4 font-semibold">اليوم</th>
+                            <th class="py-3 px-4 font-semibold">النشاط</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-stone-700">
+                        <tr class="border-b"><td class="py-3 px-4 font-semibold">الأول</td><td class="py-3 px-4 bg-teal-50">تمارين</td></tr>
+                        <tr class="border-b"><td class="py-3 px-4 font-semibold">الثاني</td><td class="py-3 px-4">راحة</td></tr>
+                        <tr class="border-b"><td class="py-3 px-4 font-semibold">الثالث</td><td class="py-3 px-4 bg-teal-50">تمارين</td></tr>
+                        <tr class="border-b"><td class="py-3 px-4 font-semibold">الرابع</td><td class="py-3 px-4">راحة</td></tr>
+                        <tr class="border-b"><td class="py-3 px-4 font-semibold">الخامس</td><td class="py-3 px-4 bg-teal-50">تمارين</td></tr>
+                        <tr class="border-b"><td class="py-3 px-4 font-semibold">السادس</td><td class="py-3 px-4">راحة أو مشي خفيف</td></tr>
+                        <tr><td class="py-3 px-4 font-semibold">السابع</td><td class="py-3 px-4">راحة</td></tr>
+                    </tbody>
+                </table>
+             </div>
+        </section>
+
+        <div class="bg-white p-6 sm:p-8 rounded-xl shadow-lg">
+            <h2 class="text-3xl font-bold text-center mb-8 text-teal-600">ابدأ جلسة التمرين (15-20 دقيقة)</h2>
+
+            <div class="space-y-8">
+                
+                <div id="warmup">
+                    <h3 class="text-2xl font-bold text-stone-700 mb-4 border-r-4 border-teal-500 pr-4">المرحلة الأولى: الإحماء (5 دقائق)</h3>
+                    <div class="space-y-4 text-stone-600">
+                        <p><strong>1. المشي في المكان مع رفع الركبة:</strong> (60 ثانية) ارفع ركبتيك لأعلى بشكل متبادل.</p>
+                        <p><strong>2. دوائر الذراعين:</strong> (60 ثانية) حرك ذراعيك بشكل دائري للأمام ثم للخلف.</p>
+                        <p><strong>3. مرجحة الساق:</strong> (30 ثانية لكل ساق) استند على حائط، ومرجح ساقك للأمام والخلف برفق.</p>
+                    </div>
+                </div>
+
+                <hr>
+                
+                <div id="main-workout">
+                    <h3 class="text-2xl font-bold text-stone-700 mb-6 border-r-4 border-teal-500 pr-4">المرحلة الثانية: التمارين الأساسية (10 دقائق)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        <div class="exercise-card bg-stone-50 rounded-lg p-4 border border-stone-200">
+                            <button class="w-full text-right font-bold text-lg flex justify-between items-center">
+                                <span>1. تمرين الجسر (Glute Bridge)</span>
+                                <span class="toggle-icon text-teal-600 transform transition-transform">▼</span>
+                            </button>
+                            <div class="details-content mt-4 pr-2 border-r-2 border-stone-200">
+                                <p class="font-semibold mb-2">الفائدة:</p>
+                                <p class="mb-4 text-sm">يقوي عضلات المؤخرة، أسفل الظهر، وأوتار الركبة. أساسي لدعم الحوض.</p>
+                                <p class="font-semibold mb-2">الطريقة:</p>
+                                <ul class="list-disc pr-5 mb-4 text-sm space-y-1">
+                                    <li>استلقِ على ظهرك مع ثني الركبتين والقدمين مسطحتين على الأرض.</li>
+                                    <li>ارفع خصرك عن الأرض حتى يشكل جسمك خطًا مستقيمًا.</li>
+                                    <li>اثبت في الأعلى لثانيتين ثم انزل ببطء.</li>
+                                </ul>
+                                <p class="font-semibold text-teal-700">المطلوب: 3 مجموعات، كل مجموعة 12 تكرارًا.</p>
+                                <p class="font-semibold mb-2 mt-4">فيديو توضيحي:</p>
+                                <a href="https://www.youtube.com/watch?v=RmnWSHUarsY" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">شاهد التمرين على يوتيوب</a>
+                            </div>
+                        </div>
+
+                        <div class="exercise-card bg-stone-50 rounded-lg p-4 border border-stone-200">
+                            <button class="w-full text-right font-bold text-lg flex justify-between items-center">
+                                <span>2. تمرين القرفصاء (Bodyweight Squat)</span>
+                                <span class="toggle-icon text-teal-600 transform transition-transform">▼</span>
+                            </button>
+                            <div class="details-content mt-4 pr-2 border-r-2 border-stone-200">
+                                <p class="font-semibold mb-2">الفائدة:</p>
+                                <p class="mb-4 text-sm">أفضل تمرين لتقوية الفخذين (الأمامية والخلفية) وعضلات المؤخرة.</p>
+                                <p class="font-semibold mb-2">الطريقة:</p>
+                                <ul class="list-disc pr-5 mb-4 text-sm space-y-1">
+                                    <li>قف مع مباعدة قدميك بعرض الكتفين.</li>
+                                    <li>انزل ببطء كما لو كنت تجلس على كرسي، مع الحفاظ على ظهرك مستقيمًا.</li>
+                                    <li>ادفع بكعبيك للعودة إلى وضع البداية.</li>
+                                </ul>
+                                <p class="font-semibold text-teal-700">المطلوب: 3 مجموعات، كل مجموعة 10 تكرارًا.</p>
+                                <p class="font-semibold mb-2 mt-4">فيديو توضيحي:</p>
+                                <a href="https://www.youtube.com/watch?v=0qccJ7ZmVhc" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">شاهد التمرين على يوتيوب</a>
+                            </div>
+                        </div>
+
+                        <div class="exercise-card bg-stone-50 rounded-lg p-4 border border-stone-200">
+                            <button class="w-full text-right font-bold text-lg flex justify-between items-center">
+                                <span>3. تمرين البلانك (Plank)</span>
+                                <span class="toggle-icon text-teal-600 transform transition-transform">▼</span>
+                            </button>
+                            <div class="details-content mt-4 pr-2 border-r-2 border-stone-200">
+                                <p class="font-semibold mb-2">الفائدة:</p>
+                                <p class="mb-4 text-sm">يقوي منطقة الجذع (البطن والظهر) بالكامل، وهو أمر حيوي للاستقرار والتحكم.</p>
+                                <p class="font-semibold mb-2">الطريقة:</p>
+                                <ul class="list-disc pr-5 mb-4 text-sm space-y-1">
+                                    <li>ارفع جسمك بالاعتماد على ساعديك وأصابع قدميك.</li>
+                                    <li>حافظ على جسمك في خط مستقيم من الرأس إلى الكعبين.</li>
+                                    <li>شد عضلات بطنك ومؤخرتك.</li>
+                                </ul>
+                                <p class="font-semibold text-teal-700">المطلوب: 3 مجموعات، حاول الثبات 20-30 ثانية.</p>
+                                <p class="font-semibold mb-2 mt-4">فيديو توضيحي:</p>
+                                <a href="https://www.youtube.com/watch?v=1SrK4spQ4WA" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">شاهد التمرين على يوتيوب</a>
+                            </div>
+                        </div>
+
+                        <div class="exercise-card bg-stone-50 rounded-lg p-4 border border-stone-200">
+                             <button class="w-full text-right font-bold text-lg flex justify-between items-center">
+                                <span>4. تمرين الطائر والكلب (Bird-Dog)</span>
+                                <span class="toggle-icon text-teal-600 transform transition-transform">▼</span>
+                            </button>
+                            <div class="details-content mt-4 pr-2 border-r-2 border-stone-200">
+                                <p class="font-semibold mb-2">الفائدة:</p>
+                                <p class="mb-4 text-sm">يحسن التوازن ويقوي عضلات الظهر والخصر والمؤخرة.</p>
+                                <p class="font-semibold mb-2">الطريقة:</p>
+                                <ul class="list-disc pr-5 mb-4 text-sm space-y-1">
+                                    <li>ابدأ على يديك وركبتيك (وضعية الطاولة).</li>
+                                    <li>ارفع ذراعك اليمنى وساقك اليسرى بشكل مستقيم.</li>
+                                    <li>حافظ على استقامة ظهرك واثبت لثانيتين.</li>
+                                    <li>كرر على الجانب الآخر.</li>
+                                </ul>
+                                <p class="font-semibold text-teal-700">المطلوب: 3 مجموعات، 8 تكرارات لكل جانب.</p>
+                                <p class="font-semibold mb-2 mt-4">فيديو توضيحي:</p>
+                                <a href="https://www.youtube.com/watch?v=954Pa0Q7yak" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">شاهد التمرين على يوتيوب</a>
+                            </div>
+                        </div>
+
+                        <div class="exercise-card bg-stone-50 rounded-lg p-4 border border-stone-200">
+                             <button class="w-full text-right font-bold text-lg flex justify-between items-center">
+                                <span>5. تمارين كيجل (Kegel Exercises)</span>
+                                <span class="toggle-icon text-teal-600 transform transition-transform">▼</span>
+                            </button>
+                            <div class="details-content mt-4 pr-2 border-r-2 border-stone-200">
+                                <p class="font-semibold mb-2">الفائدة:</p>
+                                <p class="mb-4 text-sm">تقوي عضلات قاع الحوض، مما يساعد على تحسين التحكم ودعم المثانة ويمكن أن يكون له تأثير إيجابي على الأداء الجنسي.</p>
+                                <p class="font-semibold mb-2">الطريقة:</p>
+                                <ul class="list-disc pr-5 mb-4 text-sm space-y-1">
+                                    <li>لتحديد العضلات الصحيحة، حاول إيقاف تدفق البول في منتصفه. هذه هي عضلات قاع الحوض.</li>
+                                    <li>قم بشد (قبض) هذه العضلات لمدة 3-5 ثوانٍ.</li>
+                                    <li>استرخِ لمدة 3-5 ثوانٍ.</li>
+                                    <li>تجنب حبس أنفاسك أو شد عضلات البطن أو الفخذين.</li>
+                                </ul>
+                                <p class="font-semibold text-teal-700">المطلوب: 3 مجموعات، 10-15 تكرارًا.</p>
+                                <p class="font-semibold mb-2 mt-4">فيديو توضيحي:</p>
+                                <a href="http://www.youtube.com/watch?v=6IOjhYLV8yo" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">شاهد أفضل تمرين على يوتيوب</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div id="cooldown">
+                    <h3 class="text-2xl font-bold text-stone-700 mb-4 border-r-4 border-teal-500 pr-4">المرحلة الثالثة: الإطالة والتهدئة (5 دقائق)</h3>
+                     <div class="space-y-4 text-stone-600">
+                        <p><strong>1. إطالة أوتار الركبة:</strong> (30 ثانية لكل ساق) اجلس وانحنِ برفق نحو الساق الممدودة.</p>
+                        <p><strong>2. إطالة العضلة الحرقفية:</strong> (30 ثانية لكل ساق) اركع على ركبة وادفع حوضك للأمام.</p>
+                        <p><strong>3. وضعية الطفل:</strong> (60 ثانية) اركع ومد ذراعيك للأمام على الأرض لإراحة الظهر.</p>
+                    </div>
+                </div>
+            </div>
         </div>
-        <footer class="text-center py-8 mt-12 border-t border-gray-200">
-            <p class="text-sm text-gray-500">الإصدار الاول - يوليو 2025</p>
-        </footer>
+
+        <section id="progress" class="mt-12">
+            <h2 class="text-3xl font-bold text-center mb-8 text-teal-600">تتبع تطورك</h2>
+            <div class="bg-white p-6 sm:p-8 rounded-xl shadow-lg">
+                <p class="text-center text-stone-600 mb-6">تتبع مدة ثباتك في تمرين البلانك (بالثواني) لترى مدى تحسن قوتك بمرور الوقت. ابدأ بإضافة نتيجتك اليوم!</p>
+                <div class="chart-container mb-6">
+                    <canvas id="progressChart"></canvas>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                    <input type="text" id="plankDay" placeholder="اليوم (مثال: اليوم 1)" class="w-full sm:w-auto text-center border-stone-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500">
+                    <input type="number" id="plankTime" placeholder="مدة الثبات (بالثواني)" class="w-full sm:w-auto text-center border-stone-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500">
+                    <button id="addDataBtn" class="w-full sm:w-auto bg-teal-600 text-white font-bold py-2 px-6 rounded-md hover:bg-teal-700 transition-colors">أضف البيانات</button>
+                </div>
+            </div>
+        </section>
+
     </main>
+    
+    <footer class="text-center py-6 mt-8 bg-stone-100">
+        <p class="text-stone-500">بالتوفيق في رحلتك نحو صحة وقوة أفضل!</p>
+        <p class="text-stone-500 mt-2">اعداد م. وليد المصعبي</p>
+    </footer>
 
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    // --- Mobile Navigation & Page Setup ---
-    const setupPage = () => {
-        const sections = document.querySelectorAll('section');
-        const navLinks = document.querySelectorAll('.nav-link');
-        const sidebar = document.getElementById('sidebar');
-        const menuToggle = document.getElementById('menu-toggle');
-        const closeMenuBtn = document.getElementById('close-menu-btn');
-        const overlay = document.getElementById('overlay');
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const exerciseCards = document.querySelectorAll('.exercise-card');
+            
+            exerciseCards.forEach(card => {
+                const button = card.querySelector('button');
+                const content = card.querySelector('.details-content');
+                const icon = card.querySelector('.toggle-icon');
 
-        const toggleMenu = () => {
-            const isVisible = !sidebar.classList.contains('translate-x-full');
-            sidebar.classList.toggle('translate-x-full', isVisible);
-            sidebar.classList.toggle('translate-x-0', !isVisible);
-            overlay.classList.toggle('hidden', isVisible);
-            overlay.classList.toggle('opacity-50', !isVisible);
-            overlay.classList.toggle('opacity-0', isVisible);
-        };
-
-        menuToggle.addEventListener('click', toggleMenu);
-        closeMenuBtn.addEventListener('click', toggleMenu);
-        overlay.addEventListener('click', toggleMenu);
-        
-        navLinks.forEach(link => {
-            link.addEventListener('click', () => {
-                if (window.innerWidth < 768) {
-                    toggleMenu();
-                }
-            });
-        });
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    navLinks.forEach(link => {
-                        link.classList.remove('active');
-                        if (link.getAttribute('href').substring(1) === entry.target.id) {
-                            link.classList.add('active');
-                        }
-                    });
-                }
-            });
-        }, { root: null, rootMargin: '0px', threshold: 0.1 });
-        sections.forEach(section => observer.observe(section));
-    };
-
-    // --- Chart.js Setup ---
-    const setupChart = () => {
-        const investmentData = {
-            countries: { labels: ['السعودية', 'الإمارات', 'مصر'], data: [52, 22, 18], title: 'نسبة التمويل (%)' },
-            sectors: { labels: ['التقنية المالية', 'التجارة الإلكترونية', 'الخدمات اللوجستية'], data: [21, 15, 9], title: 'نسبة التمويل (%)' }
-        };
-        const ctx = document.getElementById('investmentChart')?.getContext('2d');
-        if (!ctx) return;
-        const investmentChart = new Chart(ctx, { type: 'bar', data: { labels: investmentData.countries.labels, datasets: [{ label: investmentData.countries.title, data: investmentData.countries.data, backgroundColor: '#2563EB', borderRadius: 5 }] }, options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', scales: { x: { beginAtZero: true, title: { display: true, text: 'نسبة التمويل الجريء (%)' } } }, plugins: { legend: { display: false } } } });
-        const countriesBtn = document.getElementById('show-countries-btn');
-        const sectorsBtn = document.getElementById('show-sectors-btn');
-        const updateChart = (type) => {
-            const d = investmentData[type];
-            investmentChart.data.labels = d.labels;
-            investmentChart.data.datasets[0].data = d.data;
-            investmentChart.update();
-            countriesBtn.classList.toggle('bg-accent-color', type === 'countries');
-            countriesBtn.classList.toggle('text-white', type === 'countries');
-            countriesBtn.classList.toggle('bg-gray-200', type !== 'countries');
-            sectorsBtn.classList.toggle('bg-accent-color', type === 'sectors');
-            sectorsBtn.classList.toggle('text-white', type === 'sectors');
-            sectorsBtn.classList.toggle('bg-gray-200', type !== 'sectors');
-        };
-        countriesBtn.addEventListener('click', () => updateChart('countries'));
-        sectorsBtn.addEventListener('click', () => updateChart('sectors'));
-    };
-
-    // --- Gemini API & Helper Logic ---
-    const formatResponse = (text) => {
-        let formattedText = text
-            .replace(/\*\*(.*?)\*\*/g, '<h4>$1</h4>')
-            .replace(/\* (.*?)(?:\n|\r\n|$)/g, '<li>$1</li>')
-            .replace(/(\r\n|\n|\r)/g, "<br>");
-        return formattedText.replace(/(<li>.*?<\/li>)/gs, '<ul>$1</ul>').replace(/<\/ul><br><ul>/g, '');
-    };
-
-    const callGeminiAPI = async (history) => {
-        const payload = { contents: history };
-        const apiKey = ""; // API key is managed by the environment.
-        const model = 'gemini-2.5-flash-preview-05-20';
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-
-        let retries = 5;
-        let delay = 1000; // Start with a 1-second delay
-
-        for (let i = 0; i < retries; i++) {
-            try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                button.addEventListener('click', () => {
+                    content.classList.toggle('open');
+                    icon.classList.toggle('rotate-180');
                 });
+            });
 
-                if (response.status === 429) {
-                    // If quota is exceeded, wait and then retry.
-                    // The delay increases exponentially for each retry.
-                    if (i === retries - 1) {
-                         // Log to console if it's the last retry, but don't show an error to the user.
-                         console.log("API rate limit exceeded. All retries failed.");
+            const initialLabels = ['البداية', 'الأسبوع 1', 'الأسبوع 2', 'الأسبوع 3'];
+            const initialData = [20, 25, 35, 45];
+
+            const ctx = document.getElementById('progressChart').getContext('2d');
+            const progressChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: initialLabels,
+                    datasets: [{
+                        label: 'مدة الثبات في تمرين البلانك (ثانية)',
+                        data: initialData,
+                        borderColor: 'rgb(13, 148, 136)',
+                        backgroundColor: 'rgba(13, 148, 136, 0.1)',
+                        fill: true,
+                        tension: 0.3,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'الثواني'
+                            }
+                        },
+                        x: {
+                             title: {
+                                display: true,
+                                text: 'الزمن'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.raw} ثانية`;
+                                }
+                            }
+                        }
                     }
-                    await new Promise(resolve => setTimeout(resolve, delay));
-                    delay *= 2; // Double the delay for the next attempt.
-                    continue; // Move to the next iteration.
                 }
+            });
 
-                if (!response.ok) {
-                    // Handle other HTTP errors (e.g., 500, 400).
-                    const errorResult = await response.json();
-                    console.error('Gemini API Error:', errorResult);
-                    const errorMessage = errorResult?.error?.message || `HTTP error! status: ${response.status}`;
-                    return `عذرًا، حدث خطأ في واجهة برمجة التطبيقات. (${errorMessage})`;
-                }
+            const addDataBtn = document.getElementById('addDataBtn');
+            const plankDayInput = document.getElementById('plankDay');
+            const plankTimeInput = document.getElementById('plankTime');
 
-                const result = await response.json();
-                if (result.candidates && result.candidates.length > 0 &&
-                    result.candidates[0].content && result.candidates[0].content.parts &&
-                    result.candidates[0].content.parts.length > 0) {
-                    // Successfully got a response.
-                    return result.candidates[0].content.parts[0].text;
+            addDataBtn.addEventListener('click', () => {
+                const day = plankDayInput.value;
+                const time = parseInt(plankTimeInput.value, 10);
+
+                if (day && !isNaN(time) && time > 0) {
+                    progressChart.data.labels.push(day);
+                    progressChart.data.datasets[0].data.push(time);
+                    progressChart.update();
+                    plankDayInput.value = '';
+                    plankTimeInput.value = '';
                 } else {
-                    // Handle cases where the response structure is unexpected.
-                    console.error('Gemini API Error: Invalid response structure', result);
-                    return `عذرًا، حدث خطأ في واجهة برمجة التطبيقات. (استجابة غير متوقعة)`;
+                    alert('الرجاء إدخال بيانات صالحة.');
                 }
-
-            } catch (error) {
-                // Handle network errors.
-                console.error('Gemini API call failed:', error);
-                if (i === retries - 1) { // If it's the last retry.
-                    return 'لا يمكن الوصول إلى الخدمة حاليًا. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.';
-                }
-                // Wait before the next retry for network errors as well.
-                await new Promise(resolve => setTimeout(resolve, delay));
-                delay *= 2;
-            }
-        }
-        // This message is returned if all retries fail due to rate limiting.
-        return 'لقد تجاوزت الحصة المتاحة. يرجى المحاولة مرة أخرى لاحقًا.';
-    };
-
-
-    const copyToClipboard = (text, buttonElement) => {
-        const textarea = document.createElement('textarea');
-        textarea.value = text;
-        textarea.style.position = 'absolute';
-        textarea.style.left = '-9999px';
-        document.body.appendChild(textarea);
-        textarea.select();
-        try {
-            document.execCommand('copy');
-            if(buttonElement) {
-                buttonElement.textContent = 'تم النسخ!';
-                setTimeout(() => {
-                    buttonElement.textContent = 'نسخ';
-                }, 2000);
-            }
-        } catch (err) {
-            console.error('Failed to copy text: ', err);
-        }
-        document.body.removeChild(textarea);
-    };
-
-    const displayAIResult = (container, content) => {
-        const finalHtml = `
-            <button class="copy-btn">نسخ</button>
-            <div class="gemini-result text-right">${formatResponse(content)}</div>
-        `;
-        container.innerHTML = finalHtml;
-        container.querySelector('.copy-btn').addEventListener('click', (e) => {
-            const textToCopy = container.querySelector('.gemini-result').innerText;
-            copyToClipboard(textToCopy, e.target);
+            });
         });
-    };
-    
-    // --- AI Feature Handlers ---
-    const setupSimpleAIFeature = (buttonId, inputId, containerId, promptGenerator) => {
-        const button = document.getElementById(buttonId);
-        if (!button) return;
-        button.addEventListener('click', async () => {
-            const inputElement = document.getElementById(inputId);
-            const container = document.getElementById(containerId);
-            if (!inputElement.value.trim()) {
-                container.innerHTML = `<p class="text-red-500 text-center">يرجى ملء حقل الوصف أولاً.</p>`;
-                return;
-            }
-            container.innerHTML = '<div class="loader"></div>';
-            const prompt = promptGenerator(inputElement.value);
-            const response = await callGeminiAPI([{ role: 'user', parts: [{ text: prompt }] }]);
-            displayAIResult(container, response);
-        });
-    };
-    
-    const setupStrategicLab = () => {
-        const inputElement = document.getElementById('strategic-lab-input');
-        const container = document.getElementById('strategic-lab-container');
-        const swotBtn = document.getElementById('analyze-swot-btn');
-        const audienceBtn = document.getElementById('analyze-audience-btn');
-        const revenueBtn = document.getElementById('analyze-revenue-btn');
-
-        const analyze = async (promptGenerator) => {
-            if (!inputElement.value.trim()) {
-                container.innerHTML = `<p class="text-red-500 text-center">يرجى ملء حقل وصف المشروع أولاً.</p>`;
-                return;
-            }
-            container.innerHTML = '<div class="loader"></div>';
-            const prompt = promptGenerator(inputElement.value);
-            const response = await callGeminiAPI([{ role: 'user', parts: [{ text: prompt }] }]);
-            displayAIResult(container, response);
-        };
-
-        swotBtn?.addEventListener('click', () => analyze((idea) => `بصفتك محلل أعمال، قم بإجراء تحليل SWOT (نقاط القوة، الضعف، الفرص، التهديدات) لفكرة المشروع التالية: "${idea}". قدم التحليل في 4 أقسام واضحة.`));
-        audienceBtn?.addEventListener('click', () => analyze((idea) => `بصفتك خبير تسويق، حدد شرائح الجمهور المستهدف الرئيسية لفكرة المشروع التالية: "${idea}". صف شريحتين مثاليتين للعملاء (Customer Personas) مع ذكر معلومات ديموغرافية، اهتمامات، ونقاط ألم لكل منهما.`));
-        revenueBtn?.addEventListener('click', () => analyze((idea) => `بصفتك خبير في نماذج الأعمال، اقترح نموذجين مختلفين للإيرادات (Revenue Models) يمكن تطبيقهما على فكرة المشروع التالية: "${idea}". اشرح كيف يعمل كل نموذج واذكر ميزة وعيب لكل منهما.`));
-    };
-
-    const setupAIEventListeners = () => {
-        setupSimpleAIFeature('generate-roadmap-btn', 'clinic-input', 'clinic-container', (idea) => `بصفتك مستشارًا في 'عيادة الأعمال'، استلمت الوصف التالي لفكرة مشروع: "${idea}". قم بإنشاء 'خارطة طريق مخصصة' للبدء. يجب أن تتضمن الخارطة 3 إلى 5 خطوات رئيسية وعملية. لكل خطوة، اذكر: **عنوان الخطوة**، و **شرح موجز** لما يجب فعله، و **مهمة واحدة قابلة للتنفيذ** يمكن للمؤسس البدء بها فورًا. قدم الإجابة بتنسيق واضح ومنظم.`);
-        
-        setupStrategicLab();
-        
-        setupSimpleAIFeature('generate-bmc-btn', 'bmc-input', 'bmc-container', (idea) => `بصفتك مستشار أعمال خبير، بناءً على فكرة المشروع التالية: "${idea}"، قم بتوليد اقتراحات لكل قسم من أقسام مخطط نموذج العمل التسعة (شرائح العملاء، القيمة المقترحة، القنوات، علاقات العملاء، مصادر الإيرادات، الموارد الرئيسية، الأنشطة الرئيسية، الشركاء الرئيسيون، هيكل التكاليف). قدم لكل قسم نقطتين أو ثلاث نقاط رئيسية.`);
-
-        document.getElementById('calculate-ltv-cac-btn')?.addEventListener('click', async () => {
-            const arpu = parseFloat(document.getElementById('arpu-input').value);
-            const lifetime = parseFloat(document.getElementById('lifetime-input').value);
-            const cac = parseFloat(document.getElementById('cac-input').value);
-            const container = document.getElementById('ltv-cac-container');
-            if (isNaN(arpu) || isNaN(lifetime) || isNaN(cac) || arpu <= 0 || lifetime <= 0 || cac < 0) {
-                container.innerHTML = `<p class="text-red-500 text-center">يرجى إدخال قيم رقمية موجبة وصحيحة.</p>`;
-                return;
-            }
-            container.innerHTML = '<div class="loader"></div>';
-            const ltv = arpu * lifetime;
-            const ratio = cac > 0 ? (ltv / cac).toFixed(2) : '∞';
-            const paybackPeriod = (cac / arpu).toFixed(1);
-            const prompt = `بصفتك مستشارًا ماليًا للشركات الناشئة، قم بتحليل الأرقام التالية: LTV = ${ltv.toFixed(2)}, CAC = ${cac.toFixed(2)}, LTV:CAC Ratio = ${ratio}, وفترة استرداد العميل (Payback Period) = ${paybackPeriod} شهرًا. 1. قدم تحليلًا موجزًا لصحة هذا النموذج. 2. علّق على نسبة LTV:CAC وفترة الاسترداد. 3. اقترح استراتيجية لزيادة LTV. 4. اقترح استراتيجية لتقليل CAC. قدم الإجابة بتنسيق واضح.`;
-            const response = await callGeminiAPI([{ role: 'user', parts: [{ text: prompt }] }]);
-            const resultHtml = `<div class="text-center mb-4"><p class="text-lg">القيمة الدائمة للعميل (LTV): <span class="font-bold text-green-600">${ltv.toFixed(2)}</span></p><p class="text-lg">نسبة LTV إلى CAC هي: <span class="font-bold text-blue-600">${ratio}</span></p><p class="text-lg">فترة استرداد العميل: <span class="font-bold text-purple-600">${paybackPeriod} أشهر</span></p></div><hr class="my-4"><div class="gemini-result text-right">${formatResponse(response)}</div>`;
-            container.innerHTML = `<button class="copy-btn">نسخ</button><div class="ltv-cac-result">${resultHtml}</div>`;
-            container.querySelector('.copy-btn').addEventListener('click', (e) => copyToClipboard(container.querySelector('.ltv-cac-result').innerText, e.target));
-        });
-
-        setupSimpleAIFeature('generate-leadership-advice-btn', 'leadership-challenge-input', 'leadership-advice-container', (challenge) => `بصفتي قائد فريق، أواجه هذا الموقف: "${challenge}". طبق "نموذج GROW" على هذا الموقف وقدم لي سؤالاً واحدًا لكل مرحلة (Goal, Reality, Options, Way Forward) لمساعدتي على التفكير في الحل.`);
-        setupSimpleAIFeature('analyze-failure-risks-btn', 'failure-analysis-input', 'failure-analysis-container', (idea) => `بصفتك محلل مخاطر خبير، بناءً على وصف المشروع التالي: "${idea}", حدد أهم 3 مخاطر فشل محتملة. لكل خطر، قدم: 1. **الخطر**. 2. **لماذا ينطبق؟**. 3. **سؤال وقائي**.`);
-        setupSimpleAIFeature('generate-tool-recommendation-btn', 'tool-task-input', 'tool-recommendation-container', (task) => `أحتاج إلى أداة من أجل: "${task}". اقترح أداة واحدة مجانية وأداة واحدة مدفوعة، مع ذكر ميزة رئيسية لكل منهما.`);
-        setupSimpleAIFeature('generate-questions-btn', 'job-role-input', 'hiring-interaction-container', (jobRole) => `بصفتك مدير توظيف خبير، قم بتوليد 4 أسئلة مقابلة سلوكية وموقفية لدور "${jobRole}". لكل سؤال، قدم شرحًا موجزًا عن الهدف منه.`);
-        setupSimpleAIFeature('generate-pitch-feedback-btn', 'pitch-input', 'investor-interaction-container', (pitch) => `هذا هو العرض التقديمي المصعد لمشروعي: "${pitch}". بصفتك مستثمرًا جريئًا، قدم لي 3 نقاط قوة و 3 اقتراحات للتحسين.`);
-        setupSimpleAIFeature('generate-investor-persona-btn', 'investor-type-input', 'investor-interaction-container', (type) => `بصفتك خبيرًا في علاقات المستثمرين، أنشئ "شخصية مستثمر" مفصلة للنوع التالي: "${type}". يجب أن تتضمن الشخصية: **الأطروحة الاستثمارية**، **الأسئلة المفضلة**، و **العلامات الحمراء**.`);
-
-    };
-
-    // --- Initialize App ---
-    setupPage();
-    setupChart();
-    setupAIEventListeners();
-});
-</script>
-
+    </script>
 </body>
 </html>
+
+
+
