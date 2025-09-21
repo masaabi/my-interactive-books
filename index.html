@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>خطة التمارين التفاعلية</title>
+    <title>خطة تمارين لصحة أفضل</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -28,248 +28,285 @@
         .chart-container {
             position: relative;
             width: 100%;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
-            height: 350px;
-            max-height: 400px;
+            height: 300px;
         }
-         @media (min-width: 768px) {
-            .chart-container {
-                height: 400px;
-            }
-        }
-        #show-mens-plan.active {
-            background-color: #0ea5e9; /* sky-500 */
+        .plan-btn.waleed-active {
+            background-color: #3b82f6; /* blue-500 */
             color: white;
+            box-shadow: 0 4px 14px 0 rgb(59 130 246 / 39%);
         }
-        #show-womens-plan.active {
+        .plan-btn.lujain-active {
             background-color: #f472b6; /* pink-400 */
             color: white;
+            box-shadow: 0 4px 14px 0 rgb(244 114 182 / 39%);
         }
         .winner {
             box-shadow: 0 0 15px rgba(250, 204, 21, 0.7);
             transform: scale(1.02);
             border-color: #facc15;
         }
+        /* For horizontal scrollbar styling */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
     </style>
 </head>
-<body class="bg-stone-50 text-stone-800 rtl">
+<body class="bg-slate-900 text-slate-300 rtl">
 
-    <main class="container mx-auto p-4 sm:p-6 lg:p-8">
+    <div id="toast" class="fixed bottom-5 right-1/2 translate-x-1/2 sm:right-5 sm:translate-x-0 z-50 bg-red-500 text-white py-2 px-5 rounded-full shadow-lg transition-transform transform translate-y-20 duration-300">
+        <p id="toast-message"></p>
+    </div>
+
+    <main class="max-w-xl mx-auto bg-slate-800 min-h-screen shadow-2xl sm:shadow-black/50">
         
-        <header class="text-center mb-12">
-            <h1 class="text-4xl md:text-5xl font-bold text-sky-700 mb-4">خطتك لتقوية الفخذين والخصر</h1>
-            <p class="text-lg text-stone-600 max-w-3xl mx-auto">دليلك التفاعلي لتمارين منزلية بسيطة وفعالة. ابدأ رحلتك نحو قوة ولياقة أفضل اليوم.</p>
+        <header class="bg-slate-900 text-white p-6 rounded-b-3xl shadow-lg mb-6 sticky top-0 z-10 border-b-2 border-sky-500">
+            <h1 class="text-3xl font-bold text-center">خطة تمارين لصحة أفضل</h1>
+            <p class="text-center text-sm text-sky-300 mt-2">برنامج متكامل لتقوية الجسم وزيادة النشاط</p>
         </header>
 
-        <section id="principles" class="mb-12">
-            <h2 class="text-3xl font-bold text-center mb-8 text-sky-600">المبادئ الأساسية للنجاح</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="bg-white p-6 rounded-lg shadow-sm text-center">
-                    <div class="text-4xl mb-3">🗓️</div>
-                    <h3 class="text-xl font-semibold mb-2">الاستمرارية</h3>
-                    <p class="text-stone-600">التزم بالجدول قدر الإمكان. 3 أيام في الأسبوع كافية لتحقيق نتائج ملحوظة.</p>
-                </div>
-                <div class="bg-white p-6 rounded-lg shadow-sm text-center">
-                    <div class="text-4xl mb-3">🎯</div>
-                    <h3 class="text-xl font-semibold mb-2">التركيز</h3>
-                    <p class="text-stone-600">قم بأداء التمارين ببطء وتركيز. جودة الحركة أهم من عدد التكرارات.</p>
-                </div>
-                <div class="bg-white p-6 rounded-lg shadow-sm text-center">
-                    <div class="text-4xl mb-3">💨</div>
-                    <h3 class="text-xl font-semibold mb-2">التنفس</h3>
-                    <p class="text-stone-600">خذ شهيقًا أثناء الاستعداد للحركة، وزفيرًا أثناء بذل الجهد.</p>
-                </div>
-                 <div class="bg-white p-6 rounded-lg shadow-sm text-center">
-                    <div class="text-4xl mb-3">🔄</div>
-                    <h3 class="text-xl font-semibold mb-2">الإحماء والتبريد</h3>
-                    <p class="text-stone-600">لا تتخطى أبدًا هذه المراحل لتقليل خطر الإصابات وتحسين المرونة.</p>
-                </div>
-            </div>
-        </section>
+        <div class="p-4 sm:p-6 space-y-8">
 
-        <section id="schedule" class="mb-12">
-             <h2 class="text-3xl font-bold text-center mb-8 text-sky-600">الجدول الأسبوعي المقترح</h2>
-             <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
-                <table class="w-full text-center">
-                    <thead class="bg-sky-600 text-white">
-                        <tr>
-                            <th class="py-3 px-4 font-semibold">اليوم</th>
-                            <th class="py-3 px-4 font-semibold">النشاط</th>
-                        </tr>
-                    </thead>
-                    <tbody class="text-stone-700">
-                        <tr class="border-b"><td class="py-3 px-4 font-semibold">السبت</td><td class="py-3 px-4 bg-sky-50">تمارين</td></tr>
-                        <tr class="border-b"><td class="py-3 px-4 font-semibold">الأحد</td><td class="py-3 px-4">راحة</td></tr>
-                        <tr class="border-b"><td class="py-3 px-4 font-semibold">الاثنين</td><td class="py-3 px-4 bg-sky-50">تمارين</td></tr>
-                        <tr class="border-b"><td class="py-3 px-4 font-semibold">الثلاثاء</td><td class="py-3 px-4">راحة</td></tr>
-                        <tr class="border-b"><td class="py-3 px-4 font-semibold">الأربعاء</td><td class="py-3 px-4 bg-sky-50">تمارين</td></tr>
-                        <tr class="border-b"><td class="py-3 px-4 font-semibold">الخميس</td><td class="py-3 px-4">راحة</td></tr>
-                        <tr><td class="py-3 px-4 font-semibold">الجمعة</td><td class="py-3 px-4">راحة أو مشي خفيف</td></tr>
-                    </tbody>
-                </table>
-             </div>
-        </section>
-
-        <div class="bg-white p-6 sm:p-8 rounded-xl shadow-lg">
-            <h2 class="text-3xl font-bold text-center mb-6 text-sky-600">اختر خطة التمرين</h2>
-            <div class="flex justify-center gap-4 mb-8">
-                <button id="show-mens-plan" class="plan-btn active w-full md:w-auto bg-stone-200 text-stone-800 font-bold py-2 px-6 rounded-md hover:bg-sky-500 hover:text-white transition-colors">وليد</button>
-                <button id="show-womens-plan" class="plan-btn w-full md:w-auto bg-stone-200 text-stone-800 font-bold py-2 px-6 rounded-md hover:bg-pink-400 hover:text-white transition-colors">لجين</button>
-            </div>
-
-            <!-- Men's Plan -->
-            <div id="mens-plan">
-                <div class="space-y-8">
-                    <!-- Men's Plan Content (Warmup, Main, Cooldown) -->
-                     <div id="warmup-men">
-                        <h3 class="text-2xl font-bold text-stone-700 mb-4 border-r-4 border-sky-400 pr-4">المرحلة الأولى: الإحماء (5 دقائق)</h3>
-                        <div class="space-y-4 text-stone-600">
-                            <p><strong>1. المشي في المكان مع رفع الركبة:</strong> (60 ثانية) ارفع ركبتيك لأعلى بشكل متبادل.</p>
-                            <p><strong>2. دوائر الذراعين:</strong> (60 ثانية) حرك ذراعيك بشكل دائري للأمام ثم للخلف.</p>
-                            <p><strong>3. مرجحة الساق:</strong> (30 ثانية لكل ساق) استند على حائط، ومرجح ساقك للأمام والخلف برفق.</p>
-                        </div>
+            <section id="principles">
+                <h2 class="text-2xl font-bold mb-4 px-2 text-sky-400">مبادئ النجاح</h2>
+                <div class="flex overflow-x-auto gap-4 pb-4 no-scrollbar">
+                    <div class="flex-shrink-0 w-48 bg-slate-700/50 p-4 rounded-xl shadow-md text-center">
+                        <div class="text-3xl mb-2">🗓️</div>
+                        <h3 class="text-lg font-semibold text-slate-100">الاستمرارية</h3>
+                        <p class="text-slate-400 text-sm mt-1">3 أيام أسبوعيًا كافية.</p>
                     </div>
-                    <hr>
-                    <div id="main-workout-men">
-                        <h3 class="text-2xl font-bold text-stone-700 mb-6 border-r-4 border-sky-400 pr-4">المرحلة الثانية: التمارين الأساسية (10 دقائق)</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="exercise-card bg-stone-50 rounded-lg p-4 border border-stone-200">
-                                <button class="w-full text-right font-bold text-lg flex justify-between items-center"><span>1. تمرين الجسر (Glute Bridge)</span><span class="toggle-icon text-sky-600 transform transition-transform">▼</span></button>
-                                <div class="details-content mt-4 pr-2 border-r-2 border-stone-200"><p class="font-semibold mb-2">الفائدة:</p><p class="mb-4 text-sm">يقوي عضلات المؤخرة، أسفل الظهر، وأوتار الركبة. أساسي لدعم الحوض.</p><p class="font-semibold mb-2">الطريقة:</p><ul class="list-disc pr-5 mb-4 text-sm space-y-1"><li>استلقِ على ظهرك مع ثني الركبتين والقدمين مسطحتين على الأرض.</li><li>ارفع خصرك عن الأرض حتى يشكل جسمك خطًا مستقيمًا.</li><li>اثبت في الأعلى لثانيتين ثم انزل ببطء.</li></ul><p class="font-semibold text-sky-700">المطلوب: 3 مجموعات، كل مجموعة 12 تكرارًا.</p><p class="font-semibold mb-2 mt-4">فيديو توضيحي:</p><a href="https://www.youtube.com/watch?v=RmnWSHUarsY" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">شاهد التمرين على يوتيوب</a></div>
-                            </div>
-                            <div class="exercise-card bg-stone-50 rounded-lg p-4 border border-stone-200">
-                                <button class="w-full text-right font-bold text-lg flex justify-between items-center"><span>2. تمرين القرفصاء (Bodyweight Squat)</span><span class="toggle-icon text-sky-600 transform transition-transform">▼</span></button>
-                                <div class="details-content mt-4 pr-2 border-r-2 border-stone-200"><p class="font-semibold mb-2">الفائدة:</p><p class="mb-4 text-sm">أفضل تمرين لتقوية الفخذين (الأمامية والخلفية) وعضلات المؤخرة.</p><p class="font-semibold mb-2">الطريقة:</p><ul class="list-disc pr-5 mb-4 text-sm space-y-1"><li>قف مع مباعدة قدميك بعرض الكتفين.</li><li>انزل ببطء كما لو كنت تجلس على كرسي، مع الحفاظ على ظهرك مستقيمًا.</li><li>ادفع بكعبيك للعودة إلى وضع البداية.</li></ul><p class="font-semibold text-sky-700">المطلوب: 3 مجموعات، كل مجموعة 10 تكرارًا.</p><p class="font-semibold mb-2 mt-4">فيديو توضيحي:</p><a href="https://www.youtube.com/watch?v=0qccJ7ZmVhc" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">شاهد التمرين على يوتيوب</a></div>
-                            </div>
-                            <div class="exercise-card bg-stone-50 rounded-lg p-4 border border-stone-200">
-                                <button class="w-full text-right font-bold text-lg flex justify-between items-center"><span>3. تمرين البلانك (Plank)</span><span class="toggle-icon text-sky-600 transform transition-transform">▼</span></button>
-                                <div class="details-content mt-4 pr-2 border-r-2 border-stone-200"><p class="font-semibold mb-2">الفائدة:</p><p class="mb-4 text-sm">يقوي منطقة الجذع (البطن والظهر) بالكامل، وهو أمر حيوي للاستقرار والتحكم.</p><p class="font-semibold mb-2">الطريقة:</p><ul class="list-disc pr-5 mb-4 text-sm space-y-1"><li>ارفع جسمك بالاعتماد على ساعديك وأصابع قدميك.</li><li>حافظ على جسمك في خط مستقيم من الرأس إلى الكعبين.</li><li>شد عضلات بطنك ومؤخرتك.</li></ul><p class="font-semibold text-sky-700">المطلوب: 3 مجموعات، حاول الثبات 20-30 ثانية.</p><p class="font-semibold mb-2 mt-4">فيديو توضيحي:</p><a href="https://www.youtube.com/watch?v=1SrK4spQ4WA" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">شاهد التمرين على يوتيوب</a></div>
-                            </div>
-                            <div class="exercise-card bg-stone-50 rounded-lg p-4 border border-stone-200">
-                                <button class="w-full text-right font-bold text-lg flex justify-between items-center"><span>4. تمرين الطائر والكلب (Bird-Dog)</span><span class="toggle-icon text-sky-600 transform transition-transform">▼</span></button>
-                                <div class="details-content mt-4 pr-2 border-r-2 border-stone-200"><p class="font-semibold mb-2">الفائدة:</p><p class="mb-4 text-sm">يحسن التوازن ويقوي عضلات الظهر والخصر والمؤخرة.</p><p class="font-semibold mb-2">الطريقة:</p><ul class="list-disc pr-5 mb-4 text-sm space-y-1"><li>ابدأ على يديك وركبتيك (وضعية الطاولة).</li><li>ارفع ذراعك اليمنى وساقك اليسرى بشكل مستقيم.</li><li>حافظ على استقامة ظهرك واثبت لثانيتين.</li><li>كرر على الجانب الآخر.</li></ul><p class="font-semibold text-sky-700">المطلوب: 3 مجموعات، 8 تكرارات لكل جانب.</p><p class="font-semibold mb-2 mt-4">فيديو توضيحي:</p><a href="https://www.youtube.com/watch?v=954Pa0Q7yak" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">شاهد التمرين على يوتيوب</a></div>
-                            </div>
-                             <div class="exercise-card bg-stone-50 rounded-lg p-4 border border-stone-200">
-                                <button class="w-full text-right font-bold text-lg flex justify-between items-center"><span>5. تمارين كيجل (Kegel Exercises)</span><span class="toggle-icon text-sky-600 transform transition-transform">▼</span></button>
-                                <div class="details-content mt-4 pr-2 border-r-2 border-stone-200"><p class="font-semibold mb-2">الفائدة:</p><p class="mb-4 text-sm">تقوي عضلات قاع الحوض، مما يساعد على تحسين التحكم ودعم المثانة ويمكن أن يكون له تأثير إيجابي على الأداء الجنسي.</p><p class="font-semibold mb-2">الطريقة:</p><ul class="list-disc pr-5 mb-4 text-sm space-y-1"><li>لتحديد العضلات الصحيحة، حاول إيقاف تدفق البول في منتصفه. هذه هي عضلات قاع الحوض.</li><li>قم بشد (قبض) هذه العضلات لمدة 3-5 ثوانٍ.</li><li>استرخِ لمدة 3-5 ثوانٍ.</li><li>تجنب حبس أنفاسك أو شد عضلات البطن أو الفخذين.</li></ul><p class="font-semibold text-sky-700">المطلوب: 3 مجموعات، 10-15 تكرارًا.</p><p class="font-semibold mb-2 mt-4">فيديو توضيحي:</p><a href="https://youtu.be/Y6_ATlEZaUU?si=F8YGQXTIyL-MgrvO" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">شاهد أفضل تمرين على يوتيوب</a></div>
-                            </div>
-                        </div>
+                    <div class="flex-shrink-0 w-48 bg-slate-700/50 p-4 rounded-xl shadow-md text-center">
+                        <div class="text-3xl mb-2">🎯</div>
+                        <h3 class="text-lg font-semibold text-slate-100">التركيز</h3>
+                        <p class="text-slate-400 text-sm mt-1">الجودة أهم من الكمية.</p>
                     </div>
-                    <hr>
-                    <div id="cooldown-men">
-                        <h3 class="text-2xl font-bold text-stone-700 mb-4 border-r-4 border-sky-400 pr-4">المرحلة الثالثة: الإطالة والتهدئة (5 دقائق)</h3>
-                        <div class="space-y-4 text-stone-600">
-                            <p><strong>1. إطالة أوتار الركبة:</strong> (30 ثانية لكل ساق) اجلس وانحنِ برفق نحو الساق الممدودة.</p>
-                            <p><strong>2. إطالة العضلة الحرقفية:</strong> (30 ثانية لكل ساق) اركع على ركبة وادفع حوضك للأمام.</p>
-                            <p><strong>3. وضعية الطفل:</strong> (60 ثانية) اركع ومد ذراعيك للأمام على الأرض لإراحة الظهر.</p>
+                    <div class="flex-shrink-0 w-48 bg-slate-700/50 p-4 rounded-xl shadow-md text-center">
+                        <div class="text-3xl mb-2">💨</div>
+                        <h3 class="text-lg font-semibold text-slate-100">التنفس</h3>
+                        <p class="text-slate-400 text-sm mt-1">شهيق وزفير مع الحركة.</p>
+                    </div>
+                    <div class="flex-shrink-0 w-48 bg-slate-700/50 p-4 rounded-xl shadow-md text-center">
+                        <div class="text-3xl mb-2">🔄</div>
+                        <h3 class="text-lg font-semibold text-slate-100">الإحماء</h3>
+                        <p class="text-slate-400 text-sm mt-1">لا تتخطى هذه المرحلة أبدًا.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="schedule" class="bg-slate-900/50 p-6 rounded-2xl shadow-md">
+                 <h2 class="text-2xl font-bold text-center mb-4 text-sky-400">الجدول الأسبوعي</h2>
+                 <div class="overflow-hidden">
+                    <table class="w-full text-center">
+                        <thead class="text-sm text-slate-400">
+                            <tr>
+                                <th class="py-2 font-semibold">السبت</th>
+                                <th class="py-2 font-semibold">الأحد</th>
+                                <th class="py-2 font-semibold">الاثنين</th>
+                                <th class="py-2 font-semibold">الثلاثاء</th>
+                                <th class="py-2 font-semibold">الأربعاء</th>
+                                <th class="py-2 font-semibold">الخميس</th>
+                                <th class="py-2 font-semibold">الجمعة</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-slate-200">
+                            <tr>
+                                <td class="py-2"><div class="bg-sky-900/50 text-sky-300 rounded-full text-sm font-semibold">تمرين</div></td>
+                                <td class="py-2"><div class="bg-slate-700/50 rounded-full text-sm font-semibold">راحة</div></td>
+                                <td class="py-2"><div class="bg-sky-900/50 text-sky-300 rounded-full text-sm font-semibold">تمرين</div></td>
+                                <td class="py-2"><div class="bg-slate-700/50 rounded-full text-sm font-semibold">راحة</div></td>
+                                <td class="py-2"><div class="bg-sky-900/50 text-sky-300 rounded-full text-sm font-semibold">تمرين</div></td>
+                                <td class="py-2"><div class="bg-slate-700/50 rounded-full text-sm font-semibold">راحة</div></td>
+                                <td class="py-2"><div class="bg-slate-700/50 rounded-full text-sm font-semibold px-2">راحة أو مشي</div></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                 </div>
+            </section>
+
+            <section id="tips" class="bg-slate-900/50 p-6 rounded-2xl shadow-md">
+                <h2 class="text-2xl font-bold text-center mb-4 text-sky-400">نصائح هامة لوقت التمرين</h2>
+                <div class="space-y-4 text-slate-300 text-center">
+                    <p class="text-slate-400">أفضل وقت للتمرين هو الوقت الذي <strong class="text-sky-300">يناسبك</strong> ويمكنك <strong class="text-sky-300">الالتزام به</strong>. ولكن إليك بعض الإرشادات العامة:</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 text-sm">
+                        <div class="bg-slate-700/50 p-4 rounded-xl">
+                            <h3 class="font-bold text-lg mb-2 text-pink-400">نصيحة للجين 💃</h3>
+                            <p>الاستماع لجسدك هو الأهم. قد تلاحظين أن لديك طاقة أكبر في الصباح الباكر أو بعد الظهر. جربي أوقاتًا مختلفة واختاري ما يشعرك بالنشاط والراحة. تجنبي الأكل قبل التمرين مباشرة، وجبة خفيفة قبل 30-60 دقيقة فكرة جيدة.</p>
+                        </div>
+                        <div class="bg-slate-700/50 p-4 rounded-xl">
+                            <h3 class="font-bold text-lg mb-2 text-sky-400">نصيحة لوليد 💪</h3>
+                            <p>الكثير يجدون أن التمارين الصباحية تمنحهم نشاطًا لبقية اليوم. إذا كان هدفك بناء العضلات، فالتمرين في المساء قد يكون مفيدًا أيضًا. القاعدة الأهم: اترك ساعة إلى ساعتين بعد وجبة دسمة قبل البدء.</p>
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <!-- Women's Plan -->
-            <div id="womens-plan" class="hidden">
-                 <div class="space-y-8">
-                    <!-- Women's Plan Content (Warmup, Main, Cooldown) -->
-                     <div id="warmup-women">
-                        <h3 class="text-2xl font-bold text-stone-700 mb-4 border-r-4 border-pink-400 pr-4">المرحلة الأولى: الإحماء (5 دقائق)</h3>
-                        <div class="space-y-4 text-stone-600">
-                            <p><strong>1. قفزات جاك الخفيفة:</strong> (60 ثانية) لتنشيط الدورة الدموية.</p>
-                            <p><strong>2. دوائر الحوض:</strong> (30 ثانية لكل اتجاه) لتحسين مرونة الخصر.</p>
-                            <p><strong>3. مرجحة الساق (جانبية):</strong> (30 ثانية لكل ساق) لتهيئة عضلات الفخذين الجانبية.</p>
-                        </div>
-                    </div>
-                    <hr>
-                    <div id="main-workout-women">
-                        <h3 class="text-2xl font-bold text-stone-700 mb-6 border-r-4 border-pink-400 pr-4">المرحلة الثانية: التمارين الأساسية (10 دقائق)</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="exercise-card bg-stone-50 rounded-lg p-4 border border-stone-200">
-                                <button class="w-full text-right font-bold text-lg flex justify-between items-center"><span>1. تمرين الصدفة (Clamshell)</span><span class="toggle-icon text-pink-500 transform transition-transform">▼</span></button>
-                                <div class="details-content mt-4 pr-2 border-r-2 border-stone-200"><p class="font-semibold mb-2">الفائدة:</p><p class="mb-4 text-sm">ممتاز لنحت وتقوية عضلات الأرداف الجانبية والوركين.</p><p class="font-semibold mb-2">الطريقة:</p><ul class="list-disc pr-5 mb-4 text-sm space-y-1"><li>استلقِ على جانبك مع ثني الركبتين بزاوية 45 درجة.</li><li>حافظ على كعبيك متلاصقين، وارفع ركبتك العليا لأعلى قدر الإمكان.</li><li>انزل ببطء وتحكم.</li></ul><p class="font-semibold text-pink-500">المطلوب: 3 مجموعات، 15 تكرارًا لكل جانب.</p><p class="font-semibold mb-2 mt-4">فيديو توضيحي:</p><a href="https://www.youtube.com/watch?v=jgh6sGwtTwk" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">شاهد التمرين على يوتيوب</a></div>
-                            </div>
-                             <div class="exercise-card bg-stone-50 rounded-lg p-4 border border-stone-200">
-                                <button class="w-full text-right font-bold text-lg flex justify-between items-center"><span>2. تمرين الطعن الجانبي (Side Lunge)</span><span class="toggle-icon text-pink-500 transform transition-transform">▼</span></button>
-                                <div class="details-content mt-4 pr-2 border-r-2 border-stone-200"><p class="font-semibold mb-2">الفائدة:</p><p class="mb-4 text-sm">يستهدف الفخذين من الداخل والخارج، ويحسن مرونة الحوض.</p><p class="font-semibold mb-2">الطريقة:</p><ul class="list-disc pr-5 mb-4 text-sm space-y-1"><li>قف بشكل مستقيم ثم خذ خطوة واسعة إلى الجانب.</li><li>اثنِ ركبة الساق التي تحركت وانزل بخصرك للأسفل.</li><li>ادفع للعودة إلى وضع البداية وكرر على الجانب الآخر.</li></ul><p class="font-semibold text-pink-500">المطلوب: 3 مجموعات، 10 تكرارات لكل جانب.</p><p class="font-semibold mb-2 mt-4">فيديو توضيحي:</p><a href="https://www.youtube.com/watch?v=FUX6Pz8vV0s" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">شاهد التمرين على يوتيوب</a></div>
-                            </div>
-                             <div class="exercise-card bg-stone-50 rounded-lg p-4 border border-stone-200">
-                                <button class="w-full text-right font-bold text-lg flex justify-between items-center"><span>3. تمرين رفسة الحمار (Donkey Kicks)</span><span class="toggle-icon text-pink-500 transform transition-transform">▼</span></button>
-                                <div class="details-content mt-4 pr-2 border-r-2 border-stone-200"><p class="font-semibold mb-2">الفائدة:</p><p class="mb-4 text-sm">يركز بشكل مباشر على شد ورفع عضلة المؤخرة الرئيسية.</p><p class="font-semibold mb-2">الطريقة:</p><ul class="list-disc pr-5 mb-4 text-sm space-y-1"><li>ابدأ على يديك وركبتيك (وضعية الطاولة).</li><li>ارفع ساق واحدة للخلف ولأعلى مع الحفاظ على ثني الركبة.</li><li>تخيل أنك تدفع السقف بكعب قدمك.</li></ul><p class="font-semibold text-pink-500">المطلوب: 3 مجموعات، 15 تكرارًا لكل جانب.</p><p class="font-semibold mb-2 mt-4">فيديو توضيحي:</p><a href="https://youtu.be/-gkiI00Xc9Q?si=FOPo32MyZKvxgX4c" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">شاهد التمرين على يوتيوب</a></div>
-                            </div>
-                            <div class="exercise-card bg-stone-50 rounded-lg p-4 border border-stone-200">
-                                <button class="w-full text-right font-bold text-lg flex justify-between items-center"><span>4. تمرين البلانك (Plank)</span><span class="toggle-icon text-pink-500 transform transition-transform">▼</span></button>
-                                <div class="details-content mt-4 pr-2 border-r-2 border-stone-200"><p class="font-semibold mb-2">الفائدة:</p><p class="mb-4 text-sm">يقوي منطقة الجذع (البطن والظهر) بالكامل، وهو أمر حيوي لدعم الحوض وتقليل آلام الظهر.</p><p class="font-semibold mb-2">الطريقة:</p><ul class="list-disc pr-5 mb-4 text-sm space-y-1"><li>ارفع جسمك بالاعتماد على ساعديك وأصابع قدميك.</li><li>حافظ على جسمك في خط مستقيم من الرأس إلى الكعبين.</li><li>شد عضلات بطنك ومؤخرتك.</li></ul><p class="font-semibold text-pink-500">المطلوب: 3 مجموعات، حاول الثبات 20-30 ثانية.</p><p class="font-semibold mb-2 mt-4">فيديو توضيحي:</p><a href="https://www.youtube.com/watch?v=pvIjsG5Svck" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">شاهد التمرين على يوتيوب</a></div>
-                            </div>
-                             <div class="exercise-card bg-stone-50 rounded-lg p-4 border border-stone-200">
-                                <button class="w-full text-right font-bold text-lg flex justify-between items-center"><span>5. تمارين كيجل (Kegel Exercises)</span><span class="toggle-icon text-pink-500 transform transition-transform">▼</span></button>
-                                <div class="details-content mt-4 pr-2 border-r-2 border-stone-200"><p class="font-semibold mb-2">الفائدة:</p><p class="mb-4 text-sm">أساسية لصحة المرأة، حيث تقوي عضلات قاع الحوض، وتدعم المثانة والرحم، وتحسن التحكم.</p><p class="font-semibold mb-2">الطريقة:</p><ul class="list-disc pr-5 mb-4 text-sm space-y-1"><li>لتحديد العضلات الصحيحة، حاولي إيقاف تدفق البول في منتصفه.</li><li>قومي بشد (قبض) هذه العضلات لمدة 5 ثوانٍ ثم استرخي 5 ثوانٍ.</li><li>تجنبي حبس أنفاسك أو شد عضلات البطن أو الفخذين.</li></ul><p class="font-semibold text-pink-500">المطلوب: 3 مجموعات، 10-15 تكرارًا.</p><p class="font-semibold mb-2 mt-4">فيديو توضيحي:</p><a href="https://youtu.be/Y6_ATlEZaUU?si=FidtbYlxH0xySk1d" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">شاهد أفضل تمرين على يوتيوب</a></div>
+            <div class="bg-slate-900/50 p-4 sm:p-6 rounded-2xl shadow-md">
+                <h2 class="text-2xl font-bold text-center mb-6 text-sky-400">اختر خطة التمرين</h2>
+                <div class="flex justify-center bg-slate-700 p-1 rounded-full w-fit mx-auto mb-8">
+                    <button id="show-mens-plan" class="plan-btn waleed-active w-full md:w-auto text-slate-300 font-bold py-2 px-8 rounded-full transition-all duration-300">وليد</button>
+                    <button id="show-womens-plan" class="plan-btn w-full md:w-auto text-slate-300 font-bold py-2 px-8 rounded-full transition-all duration-300">لجين</button>
+                </div>
+
+                <!-- Men's Plan -->
+                <div id="mens-plan">
+                    <div class="space-y-6">
+                         <div>
+                            <h3 class="text-xl font-bold text-slate-100 mb-4 border-r-4 border-sky-400 pr-4">الإحماء (5 دقائق)</h3>
+                            <div class="space-y-3 text-slate-400 px-2">
+                                <p><strong>1. المشي في المكان:</strong> 60 ثانية</p>
+                                <p><strong>2. دوائر الذراعين:</strong> 60 ثانية</p>
+                                <p><strong>3. مرجحة الساق:</strong> 30 ثانية لكل ساق</p>
                             </div>
                         </div>
+                        <hr class="border-slate-700">
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-100 mb-4 border-r-4 border-sky-400 pr-4">التمارين الأساسية (10 دقائق)</h3>
+                            <div class="space-y-4">
+                                <div class="exercise-card bg-slate-700/60 rounded-lg p-4 border border-slate-700">
+                                    <button class="w-full text-right font-bold text-lg flex justify-between items-center text-slate-100"><span>1. تمرين القرفصاء</span><span class="toggle-icon text-sky-400 transform transition-transform">▼</span></button>
+                                    <div class="details-content mt-4 pr-2 border-r-2 border-slate-600"><p class="font-semibold mb-2">الفائدة:</p><p class="mb-4 text-sm text-slate-400">أفضل تمرين لتقوية الفخذين وعضلات المؤخرة.</p><p class="font-semibold text-sky-400">المطلوب: 3 مجموعات، 10 تكرارًا.</p><p class="mt-2"><a href="https://www.youtube.com/watch?v=0qccJ7ZmVhc" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline text-sm">شاهد فيديو توضيحي</a></p></div>
+                                </div>
+                                <div class="exercise-card bg-slate-700/60 rounded-lg p-4 border border-slate-700">
+                                    <button class="w-full text-right font-bold text-lg flex justify-between items-center text-slate-100"><span>2. تمرين الجسر</span><span class="toggle-icon text-sky-400 transform transition-transform">▼</span></button>
+                                    <div class="details-content mt-4 pr-2 border-r-2 border-slate-600"><p class="font-semibold mb-2">الفائدة:</p><p class="mb-4 text-sm text-slate-400">يقوي عضلات المؤخرة، أسفل الظهر، وأوتار الركبة.</p><p class="font-semibold text-sky-400">المطلوب: 3 مجموعات، 12 تكرارًا.</p><p class="mt-2"><a href="https://www.youtube.com/watch?v=RmnWSHUarsY" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline text-sm">شاهد فيديو توضيحي</a></p></div>
+                                </div>
+                                <div class="exercise-card bg-slate-700/60 rounded-lg p-4 border border-slate-700">
+                                    <button class="w-full text-right font-bold text-lg flex justify-between items-center text-slate-100"><span>3. تمرين الطائر والكلب</span><span class="toggle-icon text-sky-400 transform transition-transform">▼</span></button>
+                                    <div class="details-content mt-4 pr-2 border-r-2 border-slate-600"><p class="font-semibold mb-2">الفائدة:</p><p class="mb-4 text-sm text-slate-400">يحسن التوازن ويقوي الظهر والخصر.</p><p class="font-semibold text-sky-400">المطلوب: 3 مجموعات، 8 تكرارات لكل جانب.</p><p class="mt-2"><a href="https://www.youtube.com/watch?v=954Pa0Q7yak" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline text-sm">شاهد فيديو توضيحي</a></p></div>
+                                </div>
+                                <div class="exercise-card bg-slate-700/60 rounded-lg p-4 border border-slate-700">
+                                    <button class="w-full text-right font-bold text-lg flex justify-between items-center text-slate-100"><span>4. تمرين البلانك</span><span class="toggle-icon text-sky-400 transform transition-transform">▼</span></button>
+                                    <div class="details-content mt-4 pr-2 border-r-2 border-slate-600"><p class="font-semibold mb-2">الفائدة:</p><p class="mb-4 text-sm text-slate-400">يقوي منطقة الجذع (البطن والظهر) بالكامل.</p><p class="font-semibold text-sky-400">المطلوب: 3 مجموعات، ثبات 20-30 ثانية.</p><p class="mt-2"><a href="https://www.youtube.com/watch?v=1SrK4spQ4WA" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline text-sm">شاهد فيديو توضيحي</a></p></div>
+                                </div>
+                                <div class="exercise-card bg-slate-700/60 rounded-lg p-4 border border-slate-700">
+                                    <button class="w-full text-right font-bold text-lg flex justify-between items-center text-slate-100"><span>5. تمارين كيجل</span><span class="toggle-icon text-sky-400 transform transition-transform">▼</span></button>
+                                    <div class="details-content mt-4 pr-2 border-r-2 border-slate-600"><p class="font-semibold mb-2">الفائدة:</p><p class="mb-4 text-sm text-slate-400">تقوي عضلات قاع الحوض لتحسين التحكم والدعم.</p><p class="font-semibold text-sky-400">المطلوب: 3 مجموعات، 10-15 تكرارًا.</p><p class="mt-2"><a href="https://youtu.be/Y6_ATlEZaUU?si=F8YGQXTIyL-MgrvO" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline text-sm">شاهد فيديو توضيحي</a></p></div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr class="border-slate-700">
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-100 mb-4 border-r-4 border-sky-400 pr-4">الإطالة والتهدئة (5 دقائق)</h3>
+                            <div class="space-y-3 text-slate-400 px-2">
+                                <p><strong>1. إطالة أوتار الركبة:</strong> 30 ثانية لكل ساق.</p>
+                                <p><strong>2. إطالة العضلة الحرقفية:</strong> 30 ثانية لكل ساق.</p>
+                                <p><strong>3. وضعية الطفل:</strong> 60 ثانية.</p>
+                            </div>
+                        </div>
                     </div>
-                    <hr>
-                    <div id="cooldown-women">
-                        <h3 class="text-2xl font-bold text-stone-700 mb-4 border-r-4 border-pink-400 pr-4">المرحلة الثالثة: الإطالة والتهدئة (5 دقائق)</h3>
-                        <div class="space-y-4 text-stone-600">
-                            <p><strong>1. إطالة الفراشة:</strong> (45 ثانية) اجلسي مع ضم باطن القدمين معًا واسمحي لركبتيك بالهبوط للجانبين.</p>
-                            <p><strong>2. إطالة الحمام:</strong> (30 ثانية لكل ساق) إطالة عميقة للأرداف والوركين.</p>
-                            <p><strong>3. وضعية الطفل:</strong> (60 ثانية) لإراحة الظهر والوركين.</p>
+                </div>
+
+                <!-- Women's Plan -->
+                <div id="womens-plan" class="hidden">
+                    <div class="space-y-6">
+                         <div>
+                            <h3 class="text-xl font-bold text-slate-100 mb-4 border-r-4 border-pink-400 pr-4">الإحماء (5 دقائق)</h3>
+                            <div class="space-y-3 text-slate-400 px-2">
+                                <p><strong>1. قفزات جاك الخفيفة:</strong> 60 ثانية.</p>
+                                <p><strong>2. دوائر الحوض:</strong> 30 ثانية لكل اتجاه.</p>
+                                <p><strong>3. مرجحة الساق (جانبية):</strong> 30 ثانية لكل ساق.</p>
+                            </div>
+                        </div>
+                        <hr class="border-slate-700">
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-100 mb-4 border-r-4 border-pink-400 pr-4">التمارين الأساسية (10 دقائق)</h3>
+                            <div class="space-y-4">
+                                <div class="exercise-card bg-slate-700/60 rounded-lg p-4 border border-slate-700">
+                                    <button class="w-full text-right font-bold text-lg flex justify-between items-center text-slate-100"><span>1. تمرين الطعن الجانبي</span><span class="toggle-icon text-pink-400 transform transition-transform">▼</span></button>
+                                    <div class="details-content mt-4 pr-2 border-r-2 border-slate-600"><p class="font-semibold mb-2">الفائدة:</p><p class="mb-4 text-sm text-slate-400">يستهدف الفخذين من الداخل والخارج، ويحسن مرونة الحوض.</p><p class="font-semibold text-pink-400">المطلوب: 3 مجموعات، 10 تكرارات لكل جانب.</p><p class="mt-2"><a href="https://www.youtube.com/watch?v=FUX6Pz8vV0s" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline text-sm">شاهد فيديو توضيحي</a></p></div>
+                                </div>
+                                <div class="exercise-card bg-slate-700/60 rounded-lg p-4 border border-slate-700">
+                                    <button class="w-full text-right font-bold text-lg flex justify-between items-center text-slate-100"><span>2. تمرين رفسة الحمار</span><span class="toggle-icon text-pink-400 transform transition-transform">▼</span></button>
+                                    <div class="details-content mt-4 pr-2 border-r-2 border-slate-600"><p class="font-semibold mb-2">الفائدة:</p><p class="mb-4 text-sm text-slate-400">يركز بشكل مباشر على شد ورفع عضلة المؤخرة الرئيسية.</p><p class="font-semibold text-pink-400">المطلوب: 3 مجموعات، 15 تكرارًا لكل جانب.</p><p class="mt-2"><a href="https://youtu.be/-gkiI00Xc9Q?si=FOPo32MyZKvxgX4c" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline text-sm">شاهد فيديو توضيحي</a></p></div>
+                                </div>
+                                <div class="exercise-card bg-slate-700/60 rounded-lg p-4 border border-slate-700">
+                                    <button class="w-full text-right font-bold text-lg flex justify-between items-center text-slate-100"><span>3. تمرين الصدفة</span><span class="toggle-icon text-pink-400 transform transition-transform">▼</span></button>
+                                    <div class="details-content mt-4 pr-2 border-r-2 border-slate-600"><p class="font-semibold mb-2">الفائدة:</p><p class="mb-4 text-sm text-slate-400">ممتاز لنحت وتقوية عضلات الأرداف الجانبية والوركين.</p><p class="font-semibold text-pink-400">المطلوب: 3 مجموعات، 15 تكرارًا لكل جانب.</p><p class="mt-2"><a href="https://www.youtube.com/watch?v=jgh6sGwtTwk" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline text-sm">شاهد فيديو توضيحي</a></p></div>
+                                </div>
+                                <div class="exercise-card bg-slate-700/60 rounded-lg p-4 border border-slate-700">
+                                    <button class="w-full text-right font-bold text-lg flex justify-between items-center text-slate-100"><span>4. تمرين البلانك</span><span class="toggle-icon text-pink-400 transform transition-transform">▼</span></button>
+                                    <div class="details-content mt-4 pr-2 border-r-2 border-slate-600"><p class="font-semibold mb-2">الفائدة:</p><p class="mb-4 text-sm text-slate-400">يقوي منطقة الجذع لدعم الحوض وتقليل آلام الظهر.</p><p class="font-semibold text-pink-400">المطلوب: 3 مجموعات، ثبات 20-30 ثانية.</p><p class="mt-2"><a href="https://www.youtube.com/watch?v=pvIjsG5Svck" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline text-sm">شاهد فيديو توضيحي</a></p></div>
+                                </div>
+                                <div class="exercise-card bg-slate-700/60 rounded-lg p-4 border border-slate-700">
+                                    <button class="w-full text-right font-bold text-lg flex justify-between items-center text-slate-100"><span>5. تمارين كيجل</span><span class="toggle-icon text-pink-400 transform transition-transform">▼</span></button>
+                                    <div class="details-content mt-4 pr-2 border-r-2 border-slate-600"><p class="font-semibold mb-2">الفائدة:</p><p class="mb-4 text-sm text-slate-400">أساسية لصحة المرأة، حيث تقوي عضلات قاع الحوض.</p><p class="font-semibold text-pink-400">المطلوب: 3 مجموعات، 10-15 تكرارًا.</p><p class="mt-2"><a href="https://youtu.be/Y6_ATlEZaUU?si=FidtbYlxH0xySk1d" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline text-sm">شاهد فيديو توضيحي</a></p></div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr class="border-slate-700">
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-100 mb-4 border-r-4 border-pink-400 pr-4">الإطالة والتهدئة (5 دقائق)</h3>
+                            <div class="space-y-3 text-slate-400 px-2">
+                                <p><strong>1. إطالة الفراشة:</strong> 45 ثانية.</p>
+                                <p><strong>2. إطالة الحمام:</strong> 30 ثانية لكل ساق.</p>
+                                <p><strong>3. وضعية الطفل:</strong> 60 ثانية.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Commitment Challenge Section -->
-        <section id="challenge" class="mt-12">
-            <h2 class="text-3xl font-bold text-center mb-4 text-sky-600">تحدي الالتزام 🔥</h2>
-            <p class="text-center text-stone-600 mb-8 max-w-2xl mx-auto">من سيلتزم أكثر هذا الأسبوع؟ سجلا أيام التمرين وتنافسا بروح رياضية!</p>
-            <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Waleed's Card -->
-                <div id="waleed-card" class="bg-sky-50/70 border-2 border-sky-200 rounded-xl p-6 text-center transition-all duration-300">
-                    <h3 class="text-2xl font-bold text-sky-700 mb-2">وليد 💪</h3>
-                    <p id="waleed-score" class="text-6xl font-bold my-4 text-sky-600">0</p>
-                    <p class="text-stone-600 mb-6">أيام تمرين</p>
-                    <button id="add-waleed-day" class="w-full bg-sky-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-sky-600 transition-colors shadow-md">أضف يوم تمرين</button>
+            <section id="challenge" class="bg-slate-900/50 p-6 rounded-2xl shadow-md">
+                <h2 class="text-2xl font-bold text-center mb-2 text-sky-400">تحدي الالتزام 🔥</h2>
+                <p class="text-center text-slate-400 text-sm mb-6">من سيلتزم أكثر هذا الأسبوع؟</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div id="waleed-card" class="bg-transparent border-2 border-sky-600 rounded-xl p-4 text-center transition-all duration-300">
+                        <h3 class="text-xl font-bold text-sky-400">وليد 💪</h3>
+                        <p id="waleed-score" class="text-5xl font-bold my-2 text-sky-400">0</p>
+                        <button id="add-waleed-day" class="w-full bg-sky-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-sky-600 transition-colors shadow-sm text-sm">أضف يوم تمرين</button>
+                    </div>
+                    <div id="lujain-card" class="bg-transparent border-2 border-pink-500 rounded-xl p-4 text-center transition-all duration-300">
+                        <h3 class="text-xl font-bold text-pink-400">لجين 💃</h3>
+                        <p id="lujain-score" class="text-5xl font-bold my-2 text-pink-400">0</p>
+                        <button id="add-lujain-day" class="w-full bg-pink-400 text-white font-bold py-2 px-6 rounded-lg hover:bg-pink-500 transition-colors shadow-sm text-sm">أضف يوم تمرين</button>
+                    </div>
                 </div>
-                <!-- Lujain's Card -->
-                <div id="lujain-card" class="bg-pink-50/70 border-2 border-pink-200 rounded-xl p-6 text-center transition-all duration-300">
-                    <h3 class="text-2xl font-bold text-pink-500 mb-2">لجين 💃</h3>
-                    <p id="lujain-score" class="text-6xl font-bold my-4 text-pink-500">0</p>
-                    <p class="text-stone-600 mb-6">أيام تمرين</p>
-                    <button id="add-lujain-day" class="w-full bg-pink-400 text-white font-bold py-3 px-6 rounded-lg hover:bg-pink-500 transition-colors shadow-md">أضف يوم تمرين</button>
+                <div class="text-center mt-6">
+                    <button id="reset-challenge" class="bg-slate-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-slate-500 transition-colors text-sm">بدء تحدي جديد</button>
                 </div>
-            </div>
-            <div class="text-center mt-8">
-                <button id="reset-challenge" class="bg-stone-500 text-white font-bold py-2 px-8 rounded-lg hover:bg-stone-600 transition-colors">بدء تحدي جديد</button>
-            </div>
-        </section>
+            </section>
 
-
-        <section id="progress" class="mt-12">
-            <h2 class="text-3xl font-bold text-center mb-8 text-sky-600">تتبع تطورك</h2>
-            <div class="bg-white p-6 sm:p-8 rounded-xl shadow-lg">
-                <p class="text-center text-stone-600 mb-6">تتبع مدة ثباتك في تمرين البلانك (بالثواني) لترى مدى تحسن قوتك بمرور الوقت. ابدأ بإضافة نتيجتك اليوم!</p>
+            <section id="progress" class="bg-slate-900/50 p-6 rounded-2xl shadow-md">
+                <h2 class="text-2xl font-bold text-center mb-4 text-sky-400">تتبع تطورك</h2>
+                <p class="text-center text-slate-400 mb-6 text-sm">تتبع مدة ثباتك في تمرين البلانك لترى مدى تحسن قوتك.</p>
                 <div class="chart-container mb-6">
                     <canvas id="progressChart"></canvas>
                 </div>
-                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                    <input type="text" id="plankDay" placeholder="اليوم (مثال: اليوم 1)" class="w-full sm:w-auto text-center border-stone-300 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500">
-                    <input type="number" id="plankTime" placeholder="مدة الثبات (بالثواني)" class="w-full sm:w-auto text-center border-stone-300 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500">
-                    <button id="addDataBtn" class="w-full sm:w-auto bg-sky-600 text-white font-bold py-2 px-6 rounded-md hover:bg-sky-700 transition-colors">أضف البيانات</button>
+                <div class="flex flex-col sm:flex-row gap-3 justify-center items-center">
+                    <input type="text" id="plankDay" placeholder="اليوم" class="w-full sm:w-auto text-center bg-slate-700 border-slate-600 text-slate-200 placeholder:text-slate-400 focus:ring-sky-500 focus:border-sky-500 rounded-md shadow-sm">
+                    <input type="number" id="plankTime" placeholder="الثواني" class="w-full sm:w-auto text-center bg-slate-700 border-slate-600 text-slate-200 placeholder:text-slate-400 focus:ring-sky-500 focus:border-sky-500 rounded-md shadow-sm">
+                    <button id="addDataBtn" class="w-full sm:w-auto bg-sky-600 text-white font-bold py-2 px-6 rounded-md hover:bg-sky-700 transition-colors">إضافة</button>
                 </div>
-            </div>
-        </section>
-
+            </section>
+        </div>
+        
+        <footer class="text-center py-6">
+            <p class="text-slate-500 text-sm">بالتوفيق في رحلتك نحو صحة وقوة أفضل!</p>
+             <p class="text-slate-500 mt-2 text-xs">اعداد م. وليد المصعبي</p>
+        </footer>
     </main>
     
-    <footer class="text-center py-6 mt-8 bg-stone-100">
-        <p class="text-stone-500">بالتوفيق في رحلتك نحو صحة وقوة أفضل!</p>
-        <p class="text-stone-500 mt-2">اعداد م. وليد المصعبي</p>
-    </footer>
-
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Toast notification logic
+            let toastTimeout;
+            function showToast(message) {
+                const toast = document.getElementById('toast');
+                const toastMessage = document.getElementById('toast-message');
+                if (!toast || !toastMessage) return;
+
+                toastMessage.textContent = message;
+                toast.classList.remove('translate-y-20');
+                
+                clearTimeout(toastTimeout);
+                toastTimeout = setTimeout(() => {
+                    toast.classList.add('translate-y-20');
+                }, 3000);
+            }
+
             // Card toggle logic
             const exerciseCards = document.querySelectorAll('.exercise-card');
             exerciseCards.forEach(card => {
@@ -291,15 +328,17 @@
             showMensBtn.addEventListener('click', () => {
                 mensPlan.classList.remove('hidden');
                 womensPlan.classList.add('hidden');
-                showMensBtn.classList.add('active');
-                showWomensBtn.classList.remove('active');
+                showMensBtn.classList.add('waleed-active');
+                showMensBtn.classList.remove('lujain-active');
+                showWomensBtn.classList.remove('waleed-active', 'lujain-active');
             });
 
             showWomensBtn.addEventListener('click', () => {
                 womensPlan.classList.remove('hidden');
                 mensPlan.classList.add('hidden');
-                showWomensBtn.classList.add('active');
-                showMensBtn.classList.remove('active');
+                showWomensBtn.classList.add('lujain-active');
+                showWomensBtn.classList.remove('waleed-active');
+                showMensBtn.classList.remove('waleed-active', 'lujain-active');
             });
 
             // Commitment Challenge Logic
@@ -345,9 +384,9 @@
                 updateWinner();
             });
 
-
             // Chart.js logic
-            const initialLabels = ['البداية', 'الأسبوع 1', 'الأسبوع 2', 'الأسبوع 3'];
+            Chart.defaults.color = '#cbd5e1'; // slate-300
+            const initialLabels = ['البداية', 'أسبوع 1', 'أسبوع 2', 'أسبوع 3'];
             const initialData = [20, 25, 35, 45];
             const ctx = document.getElementById('progressChart').getContext('2d');
             const progressChart = new Chart(ctx, {
@@ -355,10 +394,10 @@
                 data: {
                     labels: initialLabels,
                     datasets: [{
-                        label: 'مدة الثبات في تمرين البلانك (ثانية)',
+                        label: 'مدة الثبات (ثانية)',
                         data: initialData,
-                        borderColor: 'rgb(14, 165, 233)',
-                        backgroundColor: 'rgba(14, 165, 233, 0.1)',
+                        borderColor: 'rgb(56, 189, 248)', // sky-400
+                        backgroundColor: 'rgba(56, 189, 248, 0.2)',
                         fill: true,
                         tension: 0.3,
                         borderWidth: 2
@@ -368,16 +407,18 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        y: { beginAtZero: true, title: { display: true, text: 'الثواني' }},
-                        x: { title: { display: true, text: 'الزمن' }}
+                        y: { 
+                            beginAtZero: true, 
+                            ticks: { font: { size: 10 }},
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        },
+                        x: { 
+                            ticks: { font: { size: 10 }},
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        }
                     },
                     plugins: {
-                        legend: { display: true },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) { return `${context.dataset.label}: ${context.raw} ثانية`; }
-                            }
-                        }
+                        legend: { display: false },
                     }
                 }
             });
@@ -395,13 +436,14 @@
                     plankDayInput.value = '';
                     plankTimeInput.value = '';
                 } else {
-                    alert('الرجاء إدخال بيانات صالحة.');
+                    showToast('الرجاء إدخال بيانات صالحة.');
                 }
             });
         });
     </script>
 </body>
 </html>
+
 
 
 
