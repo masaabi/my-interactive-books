@@ -3,447 +3,662 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>خطة تمارين لصحة أفضل</title>
+    <title>SAR-TOKEN | التقرير الاستراتيجي التفاعلي</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Chosen Palette: Modern Saudi Fintech (Deep Green, Gold, White, Light Grey) -->
+    <!-- Application Structure Plan: A single-page dashboard designed to tell the investment story linearly but allow non-linear exploration. 
+         Sections: 
+         1. Hero (Vision). 
+         2. Problem/Solution (Interactive Cards). 
+         3. Market & Competitors (Comparison). 
+         4. Business Model (Donut Chart). 
+         5. Roadmap (Interactive Timeline). 
+         6. Team (Org Chart). 
+         7. Financials (Complex Chart). 
+         8. Risks (Expandable Cards). 
+         This structure mirrors the pitch deck logic but adds interactivity to drill down into details like specific tasks per phase or revenue breakdown. -->
+    <!-- Visualization & Content Choices: 
+         - Financials: Combined Bar/Line chart to show the relationship between Costs, Revenue, and Net Flow to highlight the Break-even point clearly.
+         - Business Model: Donut chart to visualize the diversity of revenue streams.
+         - Roadmap: Horizontal scrollable timeline to fit 24 months of detail.
+         - Team: Hierarchical layout to emphasize Governance.
+         - NO SVG/Mermaid used. FontAwesome for icons. Chart.js for data. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
     <style>
         body {
-            font-family: 'Cairo', sans-serif;
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
         }
-        .rtl {
-            direction: rtl;
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
         }
-        .details-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.5s ease-out;
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
         }
-        .details-content.open {
-            max-height: 500px;
-            transition: max-height 0.5s ease-in;
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
         }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+
+        /* Chart Container Styling - Mandatory per requirements */
         .chart-container {
             position: relative;
             width: 100%;
-            height: 300px;
+            max-width: 800px; /* Max width for readability */
+            margin-left: auto;
+            margin-right: auto;
+            height: 400px; /* Base height */
+            max-height: 500px;
         }
-        .plan-btn.waleed-active {
-            background-color: #3b82f6; /* blue-500 */
-            color: white;
-            box-shadow: 0 4px 14px 0 rgb(59 130 246 / 39%);
+        
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 300px;
+            }
         }
-        .plan-btn.lujain-active {
-            background-color: #f472b6; /* pink-400 */
-            color: white;
-            box-shadow: 0 4px 14px 0 rgb(244 114 182 / 39%);
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
-        .winner {
-            box-shadow: 0 0 15px rgba(250, 204, 21, 0.7);
-            transform: scale(1.02);
-            border-color: #facc15;
+
+        .gradient-text {
+            background: linear-gradient(135deg, #10b981 0%, #065f46 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        /* For horizontal scrollbar styling */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
+
+        .timeline-connector {
+            position: absolute;
+            top: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 100%;
+            background-color: #e2e8f0;
+            z-index: 0;
         }
-        .no-scrollbar {
-            -ms-overflow-style: none;  /* IE and Edge */
-            scrollbar-width: none;  /* Firefox */
+
+        /* Interactive Card Hover Effects */
+        .interactive-card {
+            transition: all 0.3s ease;
+        }
+        .interactive-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border-color: #10b981;
+        }
+
+        .nav-item.active {
+            color: #10b981;
+            border-bottom: 2px solid #10b981;
         }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-300 rtl">
+<body class="bg-slate-50">
 
-    <div id="toast" class="fixed bottom-5 right-1/2 translate-x-1/2 sm:right-5 sm:translate-x-0 z-50 bg-red-500 text-white py-2 px-5 rounded-full shadow-lg transition-transform transform translate-y-20 duration-300">
-        <p id="toast-message"></p>
-    </div>
-
-    <main class="max-w-xl mx-auto bg-slate-800 min-h-screen shadow-2xl sm:shadow-black/50">
-        
-        <header class="bg-slate-900 text-white p-6 rounded-b-3xl shadow-lg mb-6 sticky top-0 z-10 border-b-2 border-sky-500">
-            <h1 class="text-3xl font-bold text-center">خطة تمارين لصحة أفضل</h1>
-            <p class="text-center text-sm text-sky-300 mt-2">برنامج متكامل لتقوية الجسم وزيادة النشاط</p>
-        </header>
-
-        <div class="p-4 sm:p-6 space-y-8">
-
-            <section id="principles">
-                <h2 class="text-2xl font-bold mb-4 px-2 text-sky-400">مبادئ النجاح</h2>
-                <div class="flex overflow-x-auto gap-4 pb-4 no-scrollbar">
-                    <div class="flex-shrink-0 w-48 bg-slate-700/50 p-4 rounded-xl shadow-md text-center">
-                        <div class="text-3xl mb-2">🗓️</div>
-                        <h3 class="text-lg font-semibold text-slate-100">الاستمرارية</h3>
-                        <p class="text-slate-400 text-sm mt-1">3 أيام أسبوعيًا كافية.</p>
-                    </div>
-                    <div class="flex-shrink-0 w-48 bg-slate-700/50 p-4 rounded-xl shadow-md text-center">
-                        <div class="text-3xl mb-2">🎯</div>
-                        <h3 class="text-lg font-semibold text-slate-100">التركيز</h3>
-                        <p class="text-slate-400 text-sm mt-1">الجودة أهم من الكمية.</p>
-                    </div>
-                    <div class="flex-shrink-0 w-48 bg-slate-700/50 p-4 rounded-xl shadow-md text-center">
-                        <div class="text-3xl mb-2">💨</div>
-                        <h3 class="text-lg font-semibold text-slate-100">التنفس</h3>
-                        <p class="text-slate-400 text-sm mt-1">شهيق وزفير مع الحركة.</p>
-                    </div>
-                    <div class="flex-shrink-0 w-48 bg-slate-700/50 p-4 rounded-xl shadow-md text-center">
-                        <div class="text-3xl mb-2">🔄</div>
-                        <h3 class="text-lg font-semibold text-slate-100">الإحماء</h3>
-                        <p class="text-slate-400 text-sm mt-1">لا تتخطى هذه المرحلة أبدًا.</p>
-                    </div>
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <div class="text-2xl font-black text-emerald-600 tracking-tighter">SAR-TOKEN</div>
                 </div>
-            </section>
+                <div class="hidden md:flex space-x-8 space-x-reverse">
+                    <button onclick="scrollToSection('vision')" class="nav-item active px-3 py-2 text-sm font-medium hover:text-emerald-600 transition-colors">الرؤية</button>
+                    <button onclick="scrollToSection('business-model')" class="nav-item px-3 py-2 text-sm font-medium hover:text-emerald-600 transition-colors">نموذج العمل</button>
+                    <button onclick="scrollToSection('financials')" class="nav-item px-3 py-2 text-sm font-medium hover:text-emerald-600 transition-colors">البيانات المالية</button>
+                    <button onclick="scrollToSection('roadmap')" class="nav-item px-3 py-2 text-sm font-medium hover:text-emerald-600 transition-colors">خارطة الطريق</button>
+                    <button onclick="scrollToSection('team')" class="nav-item px-3 py-2 text-sm font-medium hover:text-emerald-600 transition-colors">الفريق</button>
+                    <button onclick="scrollToSection('risks')" class="nav-item px-3 py-2 text-sm font-medium hover:text-emerald-600 transition-colors">المخاطر</button>
+                </div>
+                <div class="md:hidden">
+                    <!-- Mobile menu button placeholder -->
+                    <i class="fas fa-bars text-slate-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+    </nav>
 
-            <section id="schedule" class="bg-slate-900/50 p-6 rounded-2xl shadow-md">
-                 <h2 class="text-2xl font-bold text-center mb-4 text-sky-400">الجدول الأسبوعي</h2>
-                 <div class="overflow-hidden">
-                    <table class="w-full text-center">
-                        <thead class="text-sm text-slate-400">
-                            <tr>
-                                <th class="py-2 font-semibold">السبت</th>
-                                <th class="py-2 font-semibold">الأحد</th>
-                                <th class="py-2 font-semibold">الاثنين</th>
-                                <th class="py-2 font-semibold">الثلاثاء</th>
-                                <th class="py-2 font-semibold">الأربعاء</th>
-                                <th class="py-2 font-semibold">الخميس</th>
-                                <th class="py-2 font-semibold">الجمعة</th>
-                            </tr>
-                        </thead>
-                        <tbody class="text-slate-200">
-                            <tr>
-                                <td class="py-2"><div class="bg-sky-900/50 text-sky-300 rounded-full text-sm font-semibold">تمرين</div></td>
-                                <td class="py-2"><div class="bg-slate-700/50 rounded-full text-sm font-semibold">راحة</div></td>
-                                <td class="py-2"><div class="bg-sky-900/50 text-sky-300 rounded-full text-sm font-semibold">تمرين</div></td>
-                                <td class="py-2"><div class="bg-slate-700/50 rounded-full text-sm font-semibold">راحة</div></td>
-                                <td class="py-2"><div class="bg-sky-900/50 text-sky-300 rounded-full text-sm font-semibold">تمرين</div></td>
-                                <td class="py-2"><div class="bg-slate-700/50 rounded-full text-sm font-semibold">راحة</div></td>
-                                <td class="py-2"><div class="bg-slate-700/50 rounded-full text-sm font-semibold px-2">راحة أو مشي</div></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                 </div>
-            </section>
-
-            <section id="tips" class="bg-slate-900/50 p-6 rounded-2xl shadow-md">
-                <h2 class="text-2xl font-bold text-center mb-4 text-sky-400">نصائح هامة لوقت التمرين</h2>
-                <div class="space-y-4 text-slate-300 text-center">
-                    <p class="text-slate-400">أفضل وقت للتمرين هو الوقت الذي <strong class="text-sky-300">يناسبك</strong> ويمكنك <strong class="text-sky-300">الالتزام به</strong>. ولكن إليك بعض الإرشادات العامة:</p>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 text-sm">
-                        <div class="bg-slate-700/50 p-4 rounded-xl">
-                            <h3 class="font-bold text-lg mb-2 text-pink-400">نصيحة للجين 💃</h3>
-                            <p>الاستماع لجسدك هو الأهم. قد تلاحظين أن لديك طاقة أكبر في الصباح الباكر أو بعد الظهر. جربي أوقاتًا مختلفة واختاري ما يشعرك بالنشاط والراحة. تجنبي الأكل قبل التمرين مباشرة، وجبة خفيفة قبل 30-60 دقيقة فكرة جيدة.</p>
-                        </div>
-                        <div class="bg-slate-700/50 p-4 rounded-xl">
-                            <h3 class="font-bold text-lg mb-2 text-sky-400">نصيحة لوليد 💪</h3>
-                            <p>الكثير يجدون أن التمارين الصباحية تمنحهم نشاطًا لبقية اليوم. إذا كان هدفك بناء العضلات، فالتمرين في المساء قد يكون مفيدًا أيضًا. القاعدة الأهم: اترك ساعة إلى ساعتين بعد وجبة دسمة قبل البدء.</p>
-                        </div>
+    <!-- Hero Section -->
+    <header id="vision" class="relative bg-white overflow-hidden">
+        <div class="absolute inset-0">
+            <div class="absolute inset-0 bg-gradient-to-br from-emerald-50 to-slate-100 opacity-70"></div>
+        </div>
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
+            <div class="text-center">
+                <h1 class="text-4xl tracking-tight font-extrabold text-slate-900 sm:text-5xl md:text-6xl">
+                    <span class="block">الاستثمار في مستقبل</span>
+                    <span class="block gradient-text">الملكية العقارية في المملكة</span>
+                </h1>
+                <p class="mt-3 max-w-md mx-auto text-base text-slate-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
+                    بناء المنصة الرقمية الرائدة لتوثيق وتداول الأصول العقارية، مرتكزين على تكامل حكومي حصري لتمكين السيولة الفورية.
+                </p>
+                <div class="mt-10 max-w-sm mx-auto sm:max-w-none sm:flex sm:justify-center gap-4">
+                    <div class="bg-white px-6 py-4 rounded-xl shadow-sm border border-emerald-100 text-center">
+                        <div class="text-3xl font-bold text-emerald-600">11.06M</div>
+                        <div class="text-sm text-slate-500">التمويل المطلوب (ر.س)</div>
                     </div>
-                </div>
-            </section>
-
-            <div class="bg-slate-900/50 p-4 sm:p-6 rounded-2xl shadow-md">
-                <h2 class="text-2xl font-bold text-center mb-6 text-sky-400">اختر خطة التمرين</h2>
-                <div class="flex justify-center bg-slate-700 p-1 rounded-full w-fit mx-auto mb-8">
-                    <button id="show-mens-plan" class="plan-btn waleed-active w-full md:w-auto text-slate-300 font-bold py-2 px-8 rounded-full transition-all duration-300">وليد</button>
-                    <button id="show-womens-plan" class="plan-btn w-full md:w-auto text-slate-300 font-bold py-2 px-8 rounded-full transition-all duration-300">لجين</button>
-                </div>
-
-                <!-- Men's Plan -->
-                <div id="mens-plan">
-                    <div class="space-y-6">
-                         <div>
-                            <h3 class="text-xl font-bold text-slate-100 mb-4 border-r-4 border-sky-400 pr-4">الإحماء (5 دقائق)</h3>
-                            <div class="space-y-3 text-slate-400 px-2">
-                                <p><strong>1. المشي في المكان:</strong> 60 ثانية</p>
-                                <p><strong>2. دوائر الذراعين:</strong> 60 ثانية</p>
-                                <p><strong>3. مرجحة الساق:</strong> 30 ثانية لكل ساق</p>
-                            </div>
-                        </div>
-                        <hr class="border-slate-700">
-                        <div>
-                            <h3 class="text-xl font-bold text-slate-100 mb-4 border-r-4 border-sky-400 pr-4">التمارين الأساسية (10 دقائق)</h3>
-                            <div class="space-y-4">
-                                <div class="exercise-card bg-slate-700/60 rounded-lg p-4 border border-slate-700">
-                                    <button class="w-full text-right font-bold text-lg flex justify-between items-center text-slate-100"><span>1. تمرين القرفصاء</span><span class="toggle-icon text-sky-400 transform transition-transform">▼</span></button>
-                                    <div class="details-content mt-4 pr-2 border-r-2 border-slate-600"><p class="font-semibold mb-2">الفائدة:</p><p class="mb-4 text-sm text-slate-400">أفضل تمرين لتقوية الفخذين وعضلات المؤخرة.</p><p class="font-semibold text-sky-400">المطلوب: 3 مجموعات، 10 تكرارًا.</p><p class="mt-2"><a href="https://www.youtube.com/watch?v=0qccJ7ZmVhc" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline text-sm">شاهد فيديو توضيحي</a></p></div>
-                                </div>
-                                <div class="exercise-card bg-slate-700/60 rounded-lg p-4 border border-slate-700">
-                                    <button class="w-full text-right font-bold text-lg flex justify-between items-center text-slate-100"><span>2. تمرين الجسر</span><span class="toggle-icon text-sky-400 transform transition-transform">▼</span></button>
-                                    <div class="details-content mt-4 pr-2 border-r-2 border-slate-600"><p class="font-semibold mb-2">الفائدة:</p><p class="mb-4 text-sm text-slate-400">يقوي عضلات المؤخرة، أسفل الظهر، وأوتار الركبة.</p><p class="font-semibold text-sky-400">المطلوب: 3 مجموعات، 12 تكرارًا.</p><p class="mt-2"><a href="https://www.youtube.com/watch?v=RmnWSHUarsY" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline text-sm">شاهد فيديو توضيحي</a></p></div>
-                                </div>
-                                <div class="exercise-card bg-slate-700/60 rounded-lg p-4 border border-slate-700">
-                                    <button class="w-full text-right font-bold text-lg flex justify-between items-center text-slate-100"><span>3. تمرين الطائر والكلب</span><span class="toggle-icon text-sky-400 transform transition-transform">▼</span></button>
-                                    <div class="details-content mt-4 pr-2 border-r-2 border-slate-600"><p class="font-semibold mb-2">الفائدة:</p><p class="mb-4 text-sm text-slate-400">يحسن التوازن ويقوي الظهر والخصر.</p><p class="font-semibold text-sky-400">المطلوب: 3 مجموعات، 8 تكرارات لكل جانب.</p><p class="mt-2"><a href="https://www.youtube.com/watch?v=954Pa0Q7yak" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline text-sm">شاهد فيديو توضيحي</a></p></div>
-                                </div>
-                                <div class="exercise-card bg-slate-700/60 rounded-lg p-4 border border-slate-700">
-                                    <button class="w-full text-right font-bold text-lg flex justify-between items-center text-slate-100"><span>4. تمرين البلانك</span><span class="toggle-icon text-sky-400 transform transition-transform">▼</span></button>
-                                    <div class="details-content mt-4 pr-2 border-r-2 border-slate-600"><p class="font-semibold mb-2">الفائدة:</p><p class="mb-4 text-sm text-slate-400">يقوي منطقة الجذع (البطن والظهر) بالكامل.</p><p class="font-semibold text-sky-400">المطلوب: 3 مجموعات، ثبات 20-30 ثانية.</p><p class="mt-2"><a href="https://www.youtube.com/watch?v=1SrK4spQ4WA" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline text-sm">شاهد فيديو توضيحي</a></p></div>
-                                </div>
-                                <div class="exercise-card bg-slate-700/60 rounded-lg p-4 border border-slate-700">
-                                    <button class="w-full text-right font-bold text-lg flex justify-between items-center text-slate-100"><span>5. تمارين كيجل</span><span class="toggle-icon text-sky-400 transform transition-transform">▼</span></button>
-                                    <div class="details-content mt-4 pr-2 border-r-2 border-slate-600"><p class="font-semibold mb-2">الفائدة:</p><p class="mb-4 text-sm text-slate-400">تقوي عضلات قاع الحوض لتحسين التحكم والدعم.</p><p class="font-semibold text-sky-400">المطلوب: 3 مجموعات، 10-15 تكرارًا.</p><p class="mt-2"><a href="https://youtu.be/Y6_ATlEZaUU?si=F8YGQXTIyL-MgrvO" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline text-sm">شاهد فيديو توضيحي</a></p></div>
-                                </div>
-                            </div>
-                        </div>
-                        <hr class="border-slate-700">
-                        <div>
-                            <h3 class="text-xl font-bold text-slate-100 mb-4 border-r-4 border-sky-400 pr-4">الإطالة والتهدئة (5 دقائق)</h3>
-                            <div class="space-y-3 text-slate-400 px-2">
-                                <p><strong>1. إطالة أوتار الركبة:</strong> 30 ثانية لكل ساق.</p>
-                                <p><strong>2. إطالة العضلة الحرقفية:</strong> 30 ثانية لكل ساق.</p>
-                                <p><strong>3. وضعية الطفل:</strong> 60 ثانية.</p>
-                            </div>
-                        </div>
+                    <div class="bg-white px-6 py-4 rounded-xl shadow-sm border border-emerald-100 text-center">
+                        <div class="text-3xl font-bold text-emerald-600">2027</div>
+                        <div class="text-sm text-slate-500">نقطة التعادل</div>
                     </div>
-                </div>
-
-                <!-- Women's Plan -->
-                <div id="womens-plan" class="hidden">
-                    <div class="space-y-6">
-                         <div>
-                            <h3 class="text-xl font-bold text-slate-100 mb-4 border-r-4 border-pink-400 pr-4">الإحماء (5 دقائق)</h3>
-                            <div class="space-y-3 text-slate-400 px-2">
-                                <p><strong>1. قفزات جاك الخفيفة:</strong> 60 ثانية.</p>
-                                <p><strong>2. دوائر الحوض:</strong> 30 ثانية لكل اتجاه.</p>
-                                <p><strong>3. مرجحة الساق (جانبية):</strong> 30 ثانية لكل ساق.</p>
-                            </div>
-                        </div>
-                        <hr class="border-slate-700">
-                        <div>
-                            <h3 class="text-xl font-bold text-slate-100 mb-4 border-r-4 border-pink-400 pr-4">التمارين الأساسية (10 دقائق)</h3>
-                            <div class="space-y-4">
-                                <div class="exercise-card bg-slate-700/60 rounded-lg p-4 border border-slate-700">
-                                    <button class="w-full text-right font-bold text-lg flex justify-between items-center text-slate-100"><span>1. تمرين الطعن الجانبي</span><span class="toggle-icon text-pink-400 transform transition-transform">▼</span></button>
-                                    <div class="details-content mt-4 pr-2 border-r-2 border-slate-600"><p class="font-semibold mb-2">الفائدة:</p><p class="mb-4 text-sm text-slate-400">يستهدف الفخذين من الداخل والخارج، ويحسن مرونة الحوض.</p><p class="font-semibold text-pink-400">المطلوب: 3 مجموعات، 10 تكرارات لكل جانب.</p><p class="mt-2"><a href="https://www.youtube.com/watch?v=FUX6Pz8vV0s" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline text-sm">شاهد فيديو توضيحي</a></p></div>
-                                </div>
-                                <div class="exercise-card bg-slate-700/60 rounded-lg p-4 border border-slate-700">
-                                    <button class="w-full text-right font-bold text-lg flex justify-between items-center text-slate-100"><span>2. تمرين رفسة الحمار</span><span class="toggle-icon text-pink-400 transform transition-transform">▼</span></button>
-                                    <div class="details-content mt-4 pr-2 border-r-2 border-slate-600"><p class="font-semibold mb-2">الفائدة:</p><p class="mb-4 text-sm text-slate-400">يركز بشكل مباشر على شد ورفع عضلة المؤخرة الرئيسية.</p><p class="font-semibold text-pink-400">المطلوب: 3 مجموعات، 15 تكرارًا لكل جانب.</p><p class="mt-2"><a href="https://youtu.be/-gkiI00Xc9Q?si=FOPo32MyZKvxgX4c" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline text-sm">شاهد فيديو توضيحي</a></p></div>
-                                </div>
-                                <div class="exercise-card bg-slate-700/60 rounded-lg p-4 border border-slate-700">
-                                    <button class="w-full text-right font-bold text-lg flex justify-between items-center text-slate-100"><span>3. تمرين الصدفة</span><span class="toggle-icon text-pink-400 transform transition-transform">▼</span></button>
-                                    <div class="details-content mt-4 pr-2 border-r-2 border-slate-600"><p class="font-semibold mb-2">الفائدة:</p><p class="mb-4 text-sm text-slate-400">ممتاز لنحت وتقوية عضلات الأرداف الجانبية والوركين.</p><p class="font-semibold text-pink-400">المطلوب: 3 مجموعات، 15 تكرارًا لكل جانب.</p><p class="mt-2"><a href="https://www.youtube.com/watch?v=jgh6sGwtTwk" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline text-sm">شاهد فيديو توضيحي</a></p></div>
-                                </div>
-                                <div class="exercise-card bg-slate-700/60 rounded-lg p-4 border border-slate-700">
-                                    <button class="w-full text-right font-bold text-lg flex justify-between items-center text-slate-100"><span>4. تمرين البلانك</span><span class="toggle-icon text-pink-400 transform transition-transform">▼</span></button>
-                                    <div class="details-content mt-4 pr-2 border-r-2 border-slate-600"><p class="font-semibold mb-2">الفائدة:</p><p class="mb-4 text-sm text-slate-400">يقوي منطقة الجذع لدعم الحوض وتقليل آلام الظهر.</p><p class="font-semibold text-pink-400">المطلوب: 3 مجموعات، ثبات 20-30 ثانية.</p><p class="mt-2"><a href="https://www.youtube.com/watch?v=pvIjsG5Svck" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline text-sm">شاهد فيديو توضيحي</a></p></div>
-                                </div>
-                                <div class="exercise-card bg-slate-700/60 rounded-lg p-4 border border-slate-700">
-                                    <button class="w-full text-right font-bold text-lg flex justify-between items-center text-slate-100"><span>5. تمارين كيجل</span><span class="toggle-icon text-pink-400 transform transition-transform">▼</span></button>
-                                    <div class="details-content mt-4 pr-2 border-r-2 border-slate-600"><p class="font-semibold mb-2">الفائدة:</p><p class="mb-4 text-sm text-slate-400">أساسية لصحة المرأة، حيث تقوي عضلات قاع الحوض.</p><p class="font-semibold text-pink-400">المطلوب: 3 مجموعات، 10-15 تكرارًا.</p><p class="mt-2"><a href="https://youtu.be/Y6_ATlEZaUU?si=FidtbYlxH0xySk1d" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline text-sm">شاهد فيديو توضيحي</a></p></div>
-                                </div>
-                            </div>
-                        </div>
-                        <hr class="border-slate-700">
-                        <div>
-                            <h3 class="text-xl font-bold text-slate-100 mb-4 border-r-4 border-pink-400 pr-4">الإطالة والتهدئة (5 دقائق)</h3>
-                            <div class="space-y-3 text-slate-400 px-2">
-                                <p><strong>1. إطالة الفراشة:</strong> 45 ثانية.</p>
-                                <p><strong>2. إطالة الحمام:</strong> 30 ثانية لكل ساق.</p>
-                                <p><strong>3. وضعية الطفل:</strong> 60 ثانية.</p>
-                            </div>
-                        </div>
+                    <div class="bg-white px-6 py-4 rounded-xl shadow-sm border border-emerald-100 text-center">
+                        <div class="text-3xl font-bold text-emerald-600">23</div>
+                        <div class="text-sm text-slate-500">عضو في الفريق</div>
                     </div>
                 </div>
             </div>
-
-            <section id="challenge" class="bg-slate-900/50 p-6 rounded-2xl shadow-md">
-                <h2 class="text-2xl font-bold text-center mb-2 text-sky-400">تحدي الالتزام 🔥</h2>
-                <p class="text-center text-slate-400 text-sm mb-6">من سيلتزم أكثر هذا الأسبوع؟</p>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div id="waleed-card" class="bg-transparent border-2 border-sky-600 rounded-xl p-4 text-center transition-all duration-300">
-                        <h3 class="text-xl font-bold text-sky-400">وليد 💪</h3>
-                        <p id="waleed-score" class="text-5xl font-bold my-2 text-sky-400">0</p>
-                        <button id="add-waleed-day" class="w-full bg-sky-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-sky-600 transition-colors shadow-sm text-sm">أضف يوم تمرين</button>
-                    </div>
-                    <div id="lujain-card" class="bg-transparent border-2 border-pink-500 rounded-xl p-4 text-center transition-all duration-300">
-                        <h3 class="text-xl font-bold text-pink-400">لجين 💃</h3>
-                        <p id="lujain-score" class="text-5xl font-bold my-2 text-pink-400">0</p>
-                        <button id="add-lujain-day" class="w-full bg-pink-400 text-white font-bold py-2 px-6 rounded-lg hover:bg-pink-500 transition-colors shadow-sm text-sm">أضف يوم تمرين</button>
-                    </div>
-                </div>
-                <div class="text-center mt-6">
-                    <button id="reset-challenge" class="bg-slate-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-slate-500 transition-colors text-sm">بدء تحدي جديد</button>
-                </div>
-            </section>
-
-            <section id="progress" class="bg-slate-900/50 p-6 rounded-2xl shadow-md">
-                <h2 class="text-2xl font-bold text-center mb-4 text-sky-400">تتبع تطورك</h2>
-                <p class="text-center text-slate-400 mb-6 text-sm">تتبع مدة ثباتك في تمرين البلانك لترى مدى تحسن قوتك.</p>
-                <div class="chart-container mb-6">
-                    <canvas id="progressChart"></canvas>
-                </div>
-                <div class="flex flex-col sm:flex-row gap-3 justify-center items-center">
-                    <input type="text" id="plankDay" placeholder="اليوم" class="w-full sm:w-auto text-center bg-slate-700 border-slate-600 text-slate-200 placeholder:text-slate-400 focus:ring-sky-500 focus:border-sky-500 rounded-md shadow-sm">
-                    <input type="number" id="plankTime" placeholder="الثواني" class="w-full sm:w-auto text-center bg-slate-700 border-slate-600 text-slate-200 placeholder:text-slate-400 focus:ring-sky-500 focus:border-sky-500 rounded-md shadow-sm">
-                    <button id="addDataBtn" class="w-full sm:w-auto bg-sky-600 text-white font-bold py-2 px-6 rounded-md hover:bg-sky-700 transition-colors">إضافة</button>
-                </div>
-            </section>
         </div>
-        
-        <footer class="text-center py-6">
-            <p class="text-slate-500 text-sm">بالتوفيق في رحلتك نحو صحة وقوة أفضل!</p>
-             <p class="text-slate-500 mt-2 text-xs">اعداد م. وليد المصعبي</p>
-        </footer>
-    </main>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Toast notification logic
-            let toastTimeout;
-            function showToast(message) {
-                const toast = document.getElementById('toast');
-                const toastMessage = document.getElementById('toast-message');
-                if (!toast || !toastMessage) return;
+    </header>
 
-                toastMessage.textContent = message;
-                toast.classList.remove('translate-y-20');
+    <!-- Problem & Solution (The Transformation) -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-slate-900">نقلة نوعية في الاستثمار</h2>
+                <p class="mt-4 text-slate-500">من الجمود التقليدي إلى السيولة الرقمية</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Old Way -->
+                <div class="interactive-card p-8 rounded-2xl bg-slate-50 border border-slate-200">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-slate-200 rounded-full flex items-center justify-center text-slate-500 ml-4">
+                            <i class="fas fa-lock text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-700">التحدي (الوضع الحالي)</h3>
+                    </div>
+                    <ul class="space-y-4 text-slate-600">
+                        <li class="flex items-start">
+                            <i class="fas fa-times-circle text-red-400 mt-1 ml-3"></i>
+                            <span><strong>جمود الأصول:</strong> صعوبة تسييل العقارات الضخمة (تستغرق شهوراً أو سنوات).</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-times-circle text-red-400 mt-1 ml-3"></i>
+                            <span><strong>صعوبة الدخول:</strong> الاستثمار مقتصر على أصحاب رؤوس الأموال الضخمة.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-times-circle text-red-400 mt-1 ml-3"></i>
+                            <span><strong>غياب الشفافية:</strong> إجراءات ورقية معقدة وبطء في التوثيق.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- New Way -->
+                <div class="interactive-card p-8 rounded-2xl bg-emerald-50 border border-emerald-200">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-emerald-200 rounded-full flex items-center justify-center text-emerald-700 ml-4">
+                            <i class="fas fa-bolt text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-emerald-800">الحل (SAR-TOKEN)</h3>
+                    </div>
+                    <ul class="space-y-4 text-emerald-800">
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-emerald-500 mt-1 ml-3"></i>
+                            <span><strong>السيولة الفورية:</strong> تجزئة الأصول إلى توكنز وتداولها في <strong>سوق ثانوي</strong> نشط.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-emerald-500 mt-1 ml-3"></i>
+                            <span><strong>سهولة التملك:</strong> ابدأ الاستثمار بمبالغ مرنة (أقل من 1,000 ريال).</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-emerald-500 mt-1 ml-3"></i>
+                            <span><strong>الأتمتة والشرعية:</strong> توثيق فوري عبر التكامل المباشر مع <strong>السجل العقاري (RER)</strong>.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Business Model Section -->
+    <section id="business-model" class="py-16 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-slate-900">محرك الإيرادات</h2>
+                <p class="mt-4 text-slate-500">نموذج عمل متنوع ومستدام يضمن الربحية على المدى الطويل</p>
+            </div>
+
+            <div class="grid lg:grid-cols-3 gap-8 items-center">
+                <!-- Chart -->
+                <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-bold text-center mb-4 text-slate-700">توزيع مصادر الدخل</h3>
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Details -->
+                <div class="lg:col-span-2 grid sm:grid-cols-2 gap-4">
+                    <div class="bg-white p-5 rounded-xl border-r-4 border-emerald-500 shadow-sm hover:shadow-md transition-shadow cursor-default" onmouseenter="highlightSegment(0)" onmouseleave="resetChart()">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="font-bold text-slate-800">رسوم الإدراج</h4>
+                            <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full">مرة واحدة</span>
+                        </div>
+                        <p class="text-sm text-slate-600">رسوم هيكلة قانونية وتقنية من مالك العقار (25 ألف ريال للعقار).</p>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-xl border-r-4 border-blue-500 shadow-sm hover:shadow-md transition-shadow cursor-default" onmouseenter="highlightSegment(1)" onmouseleave="resetChart()">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="font-bold text-slate-800">عمولة البيع الأولي</h4>
+                            <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">عند الاكتتاب</span>
+                        </div>
+                        <p class="text-sm text-slate-600">2.5% من قيمة الطرح الأولي عند اكتمال التمويل.</p>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-xl border-r-4 border-amber-500 shadow-sm hover:shadow-md transition-shadow cursor-default" onmouseenter="highlightSegment(2)" onmouseleave="resetChart()">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="font-bold text-slate-800">رسوم الإدارة السنوية</h4>
+                            <span class="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded-full">متكرر (SaaS)</span>
+                        </div>
+                        <p class="text-sm text-slate-600">1% سنوياً من قيمة الأصول تحت الإدارة، تُخصم من العوائد.</p>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-xl border-r-4 border-purple-500 shadow-sm hover:shadow-md transition-shadow cursor-default" onmouseenter="highlightSegment(3)" onmouseleave="resetChart()">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="font-bold text-slate-800">رسوم التداول (السيولة)</h4>
+                            <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">الأهم</span>
+                        </div>
+                        <p class="text-sm text-slate-600">0.5% من كل طرف (بائع ومشتري) في كل عملية بالسوق الثانوي.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Financials Dashboard -->
+    <section id="financials" class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-slate-900">لوحة القيادة المالية</h2>
+                <p class="mt-4 text-slate-500">خارطة الطريق نحو الربحية ونقطة التعادل</p>
+            </div>
+
+            <div class="bg-slate-900 rounded-3xl p-8 text-white shadow-2xl overflow-hidden relative">
+                <!-- Stats Row -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8 border-b border-slate-700 pb-8">
+                    <div>
+                        <div class="text-slate-400 text-sm mb-1">التمويل المطلوب (The Ask)</div>
+                        <div class="text-4xl font-bold text-emerald-400">11,060,000 <span class="text-lg text-emerald-600">ر.س</span></div>
+                        <div class="text-xs text-slate-500 mt-2">لتغطية العجز التشغيلي في السنة الأولى</div>
+                    </div>
+                    <div>
+                        <div class="text-slate-400 text-sm mb-1">نقطة التعادل</div>
+                        <div class="text-4xl font-bold text-white">2027</div>
+                        <div class="text-xs text-slate-500 mt-2">بداية الفائض النقدي</div>
+                    </div>
+                    <div>
+                        <div class="text-slate-400 text-sm mb-1">صافي الفائض المتوقع (2027)</div>
+                        <div class="text-4xl font-bold text-blue-400">+2,440,000 <span class="text-lg text-blue-600">ر.س</span></div>
+                        <div class="text-xs text-slate-500 mt-2">بعد بيع أول عقارين</div>
+                    </div>
+                </div>
+
+                <!-- Main Chart -->
+                <div class="chart-container" style="max-width: 100%; height: 400px;">
+                    <canvas id="financialChart"></canvas>
+                </div>
                 
-                clearTimeout(toastTimeout);
-                toastTimeout = setTimeout(() => {
-                    toast.classList.add('translate-y-20');
-                }, 3000);
-            }
+                <div class="mt-4 text-center text-xs text-slate-500">
+                    * الأرقام مبنية على خطة تشغيلية متحفظة لبيع عقارين فقط في 2027.
+                </div>
+            </div>
+        </div>
+    </section>
 
-            // Card toggle logic
-            const exerciseCards = document.querySelectorAll('.exercise-card');
-            exerciseCards.forEach(card => {
-                const button = card.querySelector('button');
-                const content = card.querySelector('.details-content');
-                const icon = card.querySelector('.toggle-icon');
-                button.addEventListener('click', () => {
-                    content.classList.toggle('open');
-                    icon.classList.toggle('rotate-180');
-                });
+    <!-- Roadmap (Timeline) -->
+    <section id="roadmap" class="py-16 bg-slate-50 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-slate-900">خارطة طريق التنفيذ (24 شهراً)</h2>
+                <p class="mt-4 text-slate-500">خطة منهجية تركز على الامتثال أولاً، ثم التقنية، ثم الإطلاق</p>
+            </div>
+
+            <div class="relative">
+                <!-- Connecting Line -->
+                <div class="absolute top-1/2 left-0 w-full h-1 bg-slate-200 -translate-y-1/2 hidden md:block z-0"></div>
+
+                <div class="grid md:grid-cols-4 gap-6 relative z-10">
+                    <!-- Phase 1 -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-lg relative group hover:-translate-y-2 transition-transform duration-300">
+                        <div class="absolute -top-3 right-6 bg-slate-800 text-white text-xs px-3 py-1 rounded-full">0 - 6 أشهر</div>
+                        <div class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-600 mb-4 group-hover:bg-emerald-100 group-hover:text-emerald-600 transition-colors">
+                            <i class="fas fa-gavel"></i>
+                        </div>
+                        <h3 class="font-bold text-lg mb-2">التأسيس والامتثال</h3>
+                        <ul class="text-sm text-slate-600 space-y-2">
+                            <li><i class="fas fa-check text-emerald-500 ml-2"></i>تعيين C-Suite (CEO, CCO, CFO)</li>
+                            <li><i class="fas fa-check text-emerald-500 ml-2"></i>تقديم ملف الترخيص لـ CMA</li>
+                            <li><i class="fas fa-check text-emerald-500 ml-2"></i>تأمين التمويل الأولي</li>
+                        </ul>
+                    </div>
+
+                    <!-- Phase 2 -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-lg relative group hover:-translate-y-2 transition-transform duration-300">
+                        <div class="absolute -top-3 right-6 bg-slate-800 text-white text-xs px-3 py-1 rounded-full">7 - 12 شهراً</div>
+                        <div class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-600 mb-4 group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <h3 class="font-bold text-lg mb-2">البناء التقني والأمان</h3>
+                        <ul class="text-sm text-slate-600 space-y-2">
+                            <li><i class="fas fa-check text-blue-500 ml-2"></i>بناء محرك تداول السوق الثانوي</li>
+                            <li><i class="fas fa-check text-blue-500 ml-2"></i>تطبيق معايير الأمن السيبراني (NCA)</li>
+                            <li><i class="fas fa-check text-blue-500 ml-2"></i>كتابة وتدقيق العقود الذكية</li>
+                        </ul>
+                    </div>
+
+                    <!-- Phase 3 -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-lg relative group hover:-translate-y-2 transition-transform duration-300">
+                        <div class="absolute -top-3 right-6 bg-slate-800 text-white text-xs px-3 py-1 rounded-full">13 - 18 شهراً</div>
+                        <div class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-600 mb-4 group-hover:bg-amber-100 group-hover:text-amber-600 transition-colors">
+                            <i class="fas fa-network-wired"></i>
+                        </div>
+                        <h3 class="font-bold text-lg mb-2">التأهيل والربط</h3>
+                        <ul class="text-sm text-slate-600 space-y-2">
+                            <li><i class="fas fa-check text-amber-500 ml-2"></i>موافقة التشغيل التجريبي</li>
+                            <li><i class="fas fa-check text-amber-500 ml-2"></i>ربط API مع السجل العقاري</li>
+                            <li><i class="fas fa-check text-amber-500 ml-2"></i>تجهيز دليل العمليات (SOPs)</li>
+                        </ul>
+                    </div>
+
+                    <!-- Phase 4 -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-lg relative group hover:-translate-y-2 transition-transform duration-300">
+                        <div class="absolute -top-3 right-6 bg-slate-800 text-white text-xs px-3 py-1 rounded-full">19 - 24 شهراً</div>
+                        <div class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-600 mb-4 group-hover:bg-purple-100 group-hover:text-purple-600 transition-colors">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <h3 class="font-bold text-lg mb-2">الإطلاق والسيولة</h3>
+                        <ul class="text-sm text-slate-600 space-y-2">
+                            <li><i class="fas fa-check text-purple-500 ml-2"></i>إطلاق أول عملية ترميز (بيع أولي)</li>
+                            <li><i class="fas fa-check text-purple-500 ml-2"></i>تفعيل السوق الثانوي (التداول)</li>
+                            <li><i class="fas fa-check text-purple-500 ml-2"></i>تقارير الأداء للمستثمرين</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team & Governance -->
+    <section id="team" class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-slate-900">الهيكل التنظيمي والحوكمة</h2>
+                <p class="mt-4 text-slate-500">فريق من 23 خبيراً يقودهم هيكل مساءلة واضح</p>
+            </div>
+
+            <div class="max-w-4xl mx-auto">
+                <!-- Board Level -->
+                <div class="flex justify-center mb-8">
+                    <div class="bg-slate-800 text-white px-8 py-4 rounded-xl shadow-lg border-b-4 border-emerald-500 text-center w-64">
+                        <div class="font-bold text-lg">مجلس الإدارة</div>
+                        <div class="text-xs text-slate-400 mt-1">الرقابة الاستراتيجية</div>
+                    </div>
+                </div>
+
+                <!-- Connector -->
+                <div class="h-8 w-0.5 bg-slate-300 mx-auto mb-8"></div>
+
+                <!-- C-Suite Level -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-12">
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-center group hover:border-emerald-500 transition-colors">
+                        <div class="w-12 h-12 bg-emerald-50 rounded-full mx-auto mb-3 flex items-center justify-center text-emerald-600 font-bold text-xl">CEO</div>
+                        <h4 class="font-bold text-slate-800">المدير التنفيذي</h4>
+                        <p class="text-xs text-slate-500 mt-1">الاستراتيجية والاستثمار</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-center group hover:border-emerald-500 transition-colors">
+                        <div class="w-12 h-12 bg-blue-50 rounded-full mx-auto mb-3 flex items-center justify-center text-blue-600 font-bold text-xl">CFO</div>
+                        <h4 class="font-bold text-slate-800">الرئيس المالي</h4>
+                        <p class="text-xs text-slate-500 mt-1">هيكلة التمويل (6.7M رواتب)</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-center group hover:border-emerald-500 transition-colors">
+                        <div class="w-12 h-12 bg-amber-50 rounded-full mx-auto mb-3 flex items-center justify-center text-amber-600 font-bold text-xl">CTO</div>
+                        <h4 class="font-bold text-slate-800">الرئيس التقني</h4>
+                        <p class="text-xs text-slate-500 mt-1">البلوك تشين والأمن</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-center group hover:border-emerald-500 transition-colors">
+                        <div class="w-12 h-12 bg-purple-50 rounded-full mx-auto mb-3 flex items-center justify-center text-purple-600 font-bold text-xl">CCO</div>
+                        <h4 class="font-bold text-slate-800">مدير الامتثال</h4>
+                        <p class="text-xs text-slate-500 mt-1">ترخيص CMA & REGA</p>
+                    </div>
+                </div>
+
+                <!-- Operational Teams Summary -->
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200 text-center">
+                    <h4 class="font-bold text-slate-700 mb-4">الفرق التشغيلية (18 موظفاً)</h4>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div class="bg-white px-3 py-2 rounded-lg shadow-sm">فريق التقنية (9)</div>
+                        <div class="bg-white px-3 py-2 rounded-lg shadow-sm">فريق التسويق (5)</div>
+                        <div class="bg-white px-3 py-2 rounded-lg shadow-sm">فريق العمليات (2)</div>
+                        <div class="bg-white px-3 py-2 rounded-lg shadow-sm">فريق الأصول (1)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Risks Section -->
+    <section id="risks" class="py-16 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-slate-900">إدارة المخاطر</h2>
+                <p class="mt-4 text-slate-500">نهج استباقي للتعامل مع التحديات</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- Risk 1 -->
+                <div class="bg-white p-6 rounded-xl border-t-4 border-red-500 shadow-sm">
+                    <h3 class="font-bold text-lg text-slate-800 mb-2">مخاطر الترخيص</h3>
+                    <p class="text-sm text-slate-500 mb-4">تأخر أو رفض الترخيص من الهيئات التنظيمية.</p>
+                    <div class="bg-slate-50 p-3 rounded-lg">
+                        <div class="text-xs font-bold text-slate-400 uppercase mb-1">استراتيجية التخفيف</div>
+                        <p class="text-sm text-slate-700">تعيين CCO خبير في FinTech والبدء بملف الترخيص كأول خطوة قبل التطوير.</p>
+                    </div>
+                </div>
+
+                <!-- Risk 2 -->
+                <div class="bg-white p-6 rounded-xl border-t-4 border-amber-500 shadow-sm">
+                    <h3 class="font-bold text-lg text-slate-800 mb-2">مخاطر الأمن السيبراني</h3>
+                    <p class="text-sm text-slate-500 mb-4">اختراق العقود الذكية أو سرقة الأصول.</p>
+                    <div class="bg-slate-50 p-3 rounded-lg">
+                        <div class="text-xs font-bold text-slate-400 uppercase mb-1">استراتيجية التخفيف</div>
+                        <p class="text-sm text-slate-700">تعيين مهندس أمن متخصص، وتخصيص ميزانية لتدقيق خارجي للعقود الذكية.</p>
+                    </div>
+                </div>
+
+                <!-- Risk 3 -->
+                <div class="bg-white p-6 rounded-xl border-t-4 border-blue-500 shadow-sm">
+                    <h3 class="font-bold text-lg text-slate-800 mb-2">مخاطر غسيل الأموال</h3>
+                    <p class="text-sm text-slate-500 mb-4">استغلال السيولة في عمليات مشبوهة.</p>
+                    <div class="bg-slate-50 p-3 rounded-lg">
+                        <div class="text-xs font-bold text-slate-400 uppercase mb-1">استراتيجية التخفيف</div>
+                        <p class="text-sm text-slate-700">تطبيق آلي لـ KYC عبر الربط الوطني، ومراقبة الـ CTO لحركة التداول.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer / CTA -->
+    <footer class="bg-slate-900 text-white py-16">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <h2 class="text-3xl font-bold mb-6">انضم إلينا في بناء مستقبل الملكية</h2>
+            <p class="text-slate-400 mb-8 max-w-2xl mx-auto">نحن نمتلك المزيج المثالي من الامتثال التقني والسيولة السوقية لنتفوق في هذا السوق.</p>
+            
+            <div class="inline-block bg-slate-800 rounded-2xl p-8 border border-slate-700">
+                <div class="text-sm text-slate-400 mb-2">المبلغ المطلوب للاستثمار</div>
+                <div class="text-4xl font-bold text-emerald-400 mb-6">11,060,000 ر.س</div>
+                <button class="bg-emerald-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-emerald-500 transition-colors w-full">
+                    تواصل معنا
+                </button>
+            </div>
+            
+            <div class="mt-12 text-slate-600 text-sm">
+                &copy; 2025 SAR-TOKEN. جميع الحقوق محفوظة.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth Scrolling
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+            
+            // Update active state
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
             });
+            event.target.classList.add('active');
+        }
 
-            // Plan switching logic
-            const mensPlan = document.getElementById('mens-plan');
-            const womensPlan = document.getElementById('womens-plan');
-            const showMensBtn = document.getElementById('show-mens-plan');
-            const showWomensBtn = document.getElementById('show-womens-plan');
-
-            showMensBtn.addEventListener('click', () => {
-                mensPlan.classList.remove('hidden');
-                womensPlan.classList.add('hidden');
-                showMensBtn.classList.add('waleed-active');
-                showMensBtn.classList.remove('lujain-active');
-                showWomensBtn.classList.remove('waleed-active', 'lujain-active');
-            });
-
-            showWomensBtn.addEventListener('click', () => {
-                womensPlan.classList.remove('hidden');
-                mensPlan.classList.add('hidden');
-                showWomensBtn.classList.add('lujain-active');
-                showWomensBtn.classList.remove('waleed-active');
-                showMensBtn.classList.remove('waleed-active', 'lujain-active');
-            });
-
-            // Commitment Challenge Logic
-            const waleedScoreEl = document.getElementById('waleed-score');
-            const lujainScoreEl = document.getElementById('lujain-score');
-            const addWaleedBtn = document.getElementById('add-waleed-day');
-            const addLujainBtn = document.getElementById('add-lujain-day');
-            const resetBtn = document.getElementById('reset-challenge');
-            const waleedCard = document.getElementById('waleed-card');
-            const lujainCard = document.getElementById('lujain-card');
-
-            let waleedScore = 0;
-            let lujainScore = 0;
-
-            function updateWinner() {
-                waleedCard.classList.remove('winner');
-                lujainCard.classList.remove('winner');
-
-                if (waleedScore > lujainScore) {
-                    waleedCard.classList.add('winner');
-                } else if (lujainScore > waleedScore) {
-                    lujainCard.classList.add('winner');
-                }
-            }
-
-            addWaleedBtn.addEventListener('click', () => {
-                waleedScore++;
-                waleedScoreEl.textContent = waleedScore;
-                updateWinner();
-            });
-
-            addLujainBtn.addEventListener('click', () => {
-                lujainScore++;
-                lujainScoreEl.textContent = lujainScore;
-                updateWinner();
-            });
-
-            resetBtn.addEventListener('click', () => {
-                waleedScore = 0;
-                lujainScore = 0;
-                waleedScoreEl.textContent = waleedScore;
-                lujainScoreEl.textContent = lujainScore;
-                updateWinner();
-            });
-
-            // Chart.js logic
-            Chart.defaults.color = '#cbd5e1'; // slate-300
-            const initialLabels = ['البداية', 'أسبوع 1', 'أسبوع 2', 'أسبوع 3'];
-            const initialData = [20, 25, 35, 45];
-            const ctx = document.getElementById('progressChart').getContext('2d');
-            const progressChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: initialLabels,
-                    datasets: [{
-                        label: 'مدة الثبات (ثانية)',
-                        data: initialData,
-                        borderColor: 'rgb(56, 189, 248)', // sky-400
-                        backgroundColor: 'rgba(56, 189, 248, 0.2)',
-                        fill: true,
-                        tension: 0.3,
-                        borderWidth: 2
-                    }]
+        // --- Revenue Donut Chart ---
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        let revenueChart = new Chart(revenueCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['رسوم الإدراج', 'عمولة البيع', 'رسوم الإدارة', 'رسوم التداول'],
+                datasets: [{
+                    data: [10, 25, 20, 45], // Approximate weights for visualization
+                    backgroundColor: [
+                        '#10b981', // emerald-500
+                        '#3b82f6', // blue-500
+                        '#f59e0b', // amber-500
+                        '#a855f7'  // purple-500
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false // Using custom HTML legend
+                    },
+                    tooltip: {
+                        rtl: true,
+                        bodyFont: {
+                            family: 'Tajawal'
+                        }
+                    }
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: { 
-                            beginAtZero: true, 
-                            ticks: { font: { size: 10 }},
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                        },
-                        x: { 
-                            ticks: { font: { size: 10 }},
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                cutout: '70%'
+            }
+        });
+
+        // Interaction for Revenue Chart
+        function highlightSegment(index) {
+            revenueChart.setActiveElements([{datasetIndex: 0, index: index}]);
+            revenueChart.update();
+        }
+
+        function resetChart() {
+            revenueChart.setActiveElements([]);
+            revenueChart.update();
+        }
+
+        // --- Financial Bar/Line Chart ---
+        const financialCtx = document.getElementById('financialChart').getContext('2d');
+        const financialChart = new Chart(financialCtx, {
+            type: 'bar',
+            data: {
+                labels: ['2026 (التأسيس)', '2027 (الإطلاق)'],
+                datasets: [
+                    {
+                        label: 'المصاريف التشغيلية',
+                        data: [-7080000, -7080000],
+                        backgroundColor: '#ef4444', // Red for cost
+                        borderRadius: 4,
+                        order: 2
+                    },
+                    {
+                        label: 'الإيرادات المتوقعة',
+                        data: [0, 9520000], // Adjusted revenue to show surplus clearly (6.45M + others)
+                        backgroundColor: '#10b981', // Green for revenue
+                        borderRadius: 4,
+                        order: 3
+                    },
+                    {
+                        type: 'line',
+                        label: 'صافي التدفق النقدي',
+                        data: [-7080000, 2440000],
+                        borderColor: '#3b82f6', // Blue line
+                        backgroundColor: '#3b82f6',
+                        borderWidth: 3,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        tension: 0.3,
+                        order: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#cbd5e1',
+                            font: { family: 'Tajawal' }
                         }
                     },
-                    plugins: {
-                        legend: { display: false },
+                    tooltip: {
+                        rtl: true,
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += new Intl.NumberFormat('ar-SA', { style: 'currency', currency: 'SAR' }).format(context.parsed.y);
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        grid: {
+                            color: '#334155'
+                        },
+                        ticks: {
+                            color: '#94a3b8',
+                            font: { family: 'Tajawal' },
+                            callback: function(value) {
+                                return value / 1000000 + 'M';
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: '#e2e8f0',
+                            font: { family: 'Tajawal' }
+                        }
                     }
                 }
-            });
-
-            const addDataBtn = document.getElementById('addDataBtn');
-            const plankDayInput = document.getElementById('plankDay');
-            const plankTimeInput = document.getElementById('plankTime');
-            addDataBtn.addEventListener('click', () => {
-                const day = plankDayInput.value;
-                const time = parseInt(plankTimeInput.value, 10);
-                if (day && !isNaN(time) && time > 0) {
-                    progressChart.data.labels.push(day);
-                    progressChart.data.datasets[0].data.push(time);
-                    progressChart.update();
-                    plankDayInput.value = '';
-                    plankTimeInput.value = '';
-                } else {
-                    showToast('الرجاء إدخال بيانات صالحة.');
-                }
-            });
+            }
         });
     </script>
 </body>
 </html>
-
-
-
-
