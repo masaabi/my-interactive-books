@@ -1,664 +1,765 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAR-TOKEN | التقرير الاستراتيجي التفاعلي</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+// ===== الفصل الأول: العقلية والاستعداد =====
+const Phase1Content = () => {
+  const chapterData = `
+    5 صفات رئيسية لرائد الأعمال: مبتكر، مبادر، مخاطر، مرن، واثق.
+    سلم الإنجاز: الإنجاز الجيد أفضل من التخطيط المثالي المتعثر.
+    دروس ريادية من سام ألتمان: اصنع منتجاً يروق للناس، نفذ بسرعة.
+    عوامل النجاح (محمد النحيت): التجربة، الاستثمار في النفس، الاستمرارية.
+    الجانب النفسي: متلازمة المحتال، الاحتراق الوظيفي، التعامل مع الفشل.
+  `;
 
-    <!-- Chosen Palette: Modern Saudi Fintech (Deep Green, Gold, White, Light Grey) -->
-    <!-- Application Structure Plan: A single-page dashboard designed to tell the investment story linearly but allow non-linear exploration. 
-         Sections: 
-         1. Hero (Vision). 
-         2. Problem/Solution (Interactive Cards). 
-         3. Market & Competitors (Comparison). 
-         4. Business Model (Donut Chart). 
-         5. Roadmap (Interactive Timeline). 
-         6. Team (Org Chart). 
-         7. Financials (Complex Chart). 
-         8. Risks (Expandable Cards). 
-         This structure mirrors the pitch deck logic but adds interactivity to drill down into details like specific tasks per phase or revenue breakdown. -->
-    <!-- Visualization & Content Choices: 
-         - Financials: Combined Bar/Line chart to show the relationship between Costs, Revenue, and Net Flow to highlight the Break-even point clearly.
-         - Business Model: Donut chart to visualize the diversity of revenue streams.
-         - Roadmap: Horizontal scrollable timeline to fit 24 months of detail.
-         - Team: Hierarchical layout to emphasize Governance.
-         - NO SVG/Mermaid used. FontAwesome for icons. Chart.js for data. -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
-
-    <style>
-        body {
-            font-family: 'Tajawal', sans-serif;
-            background-color: #f8fafc;
-            color: #1e293b;
-        }
-        
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1; 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1; 
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8; 
-        }
-
-        /* Chart Container Styling - Mandatory per requirements */
-        .chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 800px; /* Max width for readability */
-            margin-left: auto;
-            margin-right: auto;
-            height: 400px; /* Base height */
-            max-height: 500px;
-        }
-        
-        @media (max-width: 768px) {
-            .chart-container {
-                height: 300px;
-            }
-        }
-
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-
-        .gradient-text {
-            background: linear-gradient(135deg, #10b981 0%, #065f46 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .timeline-connector {
-            position: absolute;
-            top: 2rem;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 2px;
-            height: 100%;
-            background-color: #e2e8f0;
-            z-index: 0;
-        }
-
-        /* Interactive Card Hover Effects */
-        .interactive-card {
-            transition: all 0.3s ease;
-        }
-        .interactive-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            border-color: #10b981;
-        }
-
-        .nav-item.active {
-            color: #10b981;
-            border-bottom: 2px solid #10b981;
-        }
-    </style>
-</head>
-<body class="bg-slate-50">
-
-    <!-- Navigation -->
-    <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16 items-center">
-                <div class="flex items-center">
-                    <div class="text-2xl font-black text-emerald-600 tracking-tighter">SAR-TOKEN</div>
-                </div>
-                <div class="hidden md:flex space-x-8 space-x-reverse">
-                    <button onclick="scrollToSection('vision')" class="nav-item active px-3 py-2 text-sm font-medium hover:text-emerald-600 transition-colors">الرؤية</button>
-                    <button onclick="scrollToSection('business-model')" class="nav-item px-3 py-2 text-sm font-medium hover:text-emerald-600 transition-colors">نموذج العمل</button>
-                    <button onclick="scrollToSection('financials')" class="nav-item px-3 py-2 text-sm font-medium hover:text-emerald-600 transition-colors">البيانات المالية</button>
-                    <button onclick="scrollToSection('roadmap')" class="nav-item px-3 py-2 text-sm font-medium hover:text-emerald-600 transition-colors">خارطة الطريق</button>
-                    <button onclick="scrollToSection('team')" class="nav-item px-3 py-2 text-sm font-medium hover:text-emerald-600 transition-colors">الفريق</button>
-                    <button onclick="scrollToSection('risks')" class="nav-item px-3 py-2 text-sm font-medium hover:text-emerald-600 transition-colors">المخاطر</button>
-                </div>
-                <div class="md:hidden">
-                    <!-- Mobile menu button placeholder -->
-                    <i class="fas fa-bars text-slate-600 text-xl"></i>
-                </div>
+  return (
+    <div className="space-y-8">
+      <ChapterSummary points={["الاستعداد النفسي والذهني.", "صفات رائد الأعمال الناجح.", "تجاوز الخوف من الفشل.", "دروس من رواد أعمال عالميين ومحليين."]} />
+      
+      <GlassCard className="mb-6 bg-gradient-to-r from-emerald-900/20 to-transparent border-emerald-500/30">
+        <h3 className="text-xl font-bold mb-6 text-emerald-400 flex items-center gap-2">
+          <Star size={24} /> 5 صفات رئيسية لرائد الأعمال
+        </h3>
+        <div className="grid gap-4">
+          {[
+            { t: "1. مُبتكِر", d: "يقوم بتحويل الأفكار إلى أعمال مبتكرة على أرض الواقع، ومخرجات ذات قيمة اقتصادية نافعة.", i: <Lightbulb size={20} className="text-yellow-400"/> },
+            { t: "2. مُبادِر", d: "قناص للفرص بل وقادر على صناعتها، ولديه الاستعداد لاتخاذ الخطوة الأولى بكل جرأة.", i: <Rocket size={20} className="text-orange-400"/> },
+            { t: "3. مُخاطِر", d: "يتمتع بقدرة على خوض المخاطر الريادية، وقادر على تحملها، فطريق ريادة الأعمال ليس سهلاً!", i: <TrendingUp size={20} className="text-red-400"/> },
+            { t: "4. مَرِن", d: "قادر على تقييم المواقف والتكيف معها، فليس من السهل مواجهة كافة السيناريوهات اليومية المرهقة.", i: <RefreshCw size={20} className="text-blue-400"/> },
+            { t: "5. واثق", d: "يسخر قدراته الإبداعية والابتكارية، ويقوم بإنشاء المشاريع وتحمل مسؤوليتها بكل ثقة وإصرار.", i: <Shield size={20} className="text-purple-400"/> },
+          ].map((trait, idx) => (
+            <div key={idx} className="flex items-start gap-4 bg-white/5 p-3 rounded-lg border border-white/5">
+              <div className="mt-1 bg-white/5 p-2 rounded-full">{trait.i}</div>
+              <div>
+                <strong className="text-white block mb-1">{trait.t}</strong>
+                <p className="text-xs text-slate-300 leading-relaxed">{trait.d}</p>
+              </div>
             </div>
+          ))}
         </div>
-    </nav>
+      </GlassCard>
 
-    <!-- Hero Section -->
-    <header id="vision" class="relative bg-white overflow-hidden">
-        <div class="absolute inset-0">
-            <div class="absolute inset-0 bg-gradient-to-br from-emerald-50 to-slate-100 opacity-70"></div>
+      <GlassCard className="bg-gradient-to-br from-yellow-900/20 to-orange-900/20 border border-orange-500/30 shadow-lg">
+        <h3 className="text-xl font-bold mb-4 text-orange-400 flex items-center gap-2">
+          <Award size={24} /> سلم الإنجاز
+        </h3>
+        <p className="text-sm text-slate-300 mb-4 text-center italic">"الإنجاز الجيد أفضل من التخطيط المثالي المتعثر"</p>
+        <div className="flex flex-col items-center gap-2 text-xs text-slate-400">
+          <div className="bg-white/5 px-4 py-2 rounded">ابدأ صغيراً</div>
+          <ArrowDown size={16} />
+          <div className="bg-white/5 px-4 py-2 rounded">تعلم بسرعة</div>
+          <ArrowDown size={16} />
+          <div className="bg-white/5 px-4 py-2 rounded">عدّل المسار</div>
+          <ArrowDown size={16} />
+          <div className="font-bold text-orange-300">الوصول للقمة</div>
         </div>
-        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
-            <div class="text-center">
-                <h1 class="text-4xl tracking-tight font-extrabold text-slate-900 sm:text-5xl md:text-6xl">
-                    <span class="block">الاستثمار في مستقبل</span>
-                    <span class="block gradient-text">الملكية العقارية في المملكة</span>
-                </h1>
-                <p class="mt-3 max-w-md mx-auto text-base text-slate-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
-                    بناء المنصة الرقمية الرائدة لتوثيق وتداول الأصول العقارية، مرتكزين على تكامل حكومي حصري لتمكين السيولة الفورية.
-                </p>
-                <div class="mt-10 max-w-sm mx-auto sm:max-w-none sm:flex sm:justify-center gap-4">
-                    <div class="bg-white px-6 py-4 rounded-xl shadow-sm border border-emerald-100 text-center">
-                        <div class="text-3xl font-bold text-emerald-600">11.06M</div>
-                        <div class="text-sm text-slate-500">التمويل المطلوب (ر.س)</div>
-                    </div>
-                    <div class="bg-white px-6 py-4 rounded-xl shadow-sm border border-emerald-100 text-center">
-                        <div class="text-3xl font-bold text-emerald-600">2027</div>
-                        <div class="text-sm text-slate-500">نقطة التعادل</div>
-                    </div>
-                    <div class="bg-white px-6 py-4 rounded-xl shadow-sm border border-emerald-100 text-center">
-                        <div class="text-3xl font-bold text-emerald-600">23</div>
-                        <div class="text-sm text-slate-500">عضو في الفريق</div>
-                    </div>
-                </div>
+      </GlassCard>
+
+      <div className="grid md:grid-cols-2 gap-6">
+        <GlassCard>
+          <h4 className="text-lg font-bold text-purple-400 mb-3 flex items-center gap-2">
+            🎭 متلازمة المحتال (Imposter Syndrome)
+          </h4>
+          <p className="text-sm text-slate-300 mb-4 leading-relaxed">
+            هو ذلك الشعور المزعج بأنك لا تستحق نجاحك، وأنك على وشك أن "تُكشف" كمحتال. شعور شائع جدًا بين الناجحين.
+          </p>
+          <div className="bg-white/5 p-3 rounded-lg text-xs text-slate-400 border border-white/5">
+            <strong className="text-white block mb-1">💡 كيف تتعامل معها؟</strong>
+            وثّق نجاحاتك الصغيرة، تحدث مع رواد أعمال آخرين (لتعرف أنك لست وحدك)، وتذكر أن لا أحد يعرف كل شيء.
+          </div>
+        </GlassCard>
+        <GlassCard>
+          <h4 className="text-lg font-bold text-red-400 mb-3 flex items-center gap-2">
+            <Battery size={20} className="text-red-400" /> إدارة الإرهاق والاحتراق الوظيفي
+          </h4>
+          <p className="text-sm text-slate-300 mb-4 leading-relaxed">
+            العمل لساعات طويلة دون توقف ليس شارة شرف، بل وصفة للاحتراق تقتل الإبداع والقدرة على اتخاذ قرارات جيدة.
+          </p>
+          <div className="bg-white/5 p-3 rounded-lg text-xs text-slate-400 border border-white/5">
+            <strong className="text-white block mb-1">🛡️ اهتم بصحتك النفسية:</strong>
+            ضع حدودًا واضحة، خصص وقتًا للراحة، تعلم قول "لا"، وفوض المهام. صحتك ضرورة وليست رفاهية.
+          </div>
+        </GlassCard>
+      </div>
+
+      <GlassCard className="bg-gradient-to-r from-blue-900/20 to-slate-900/20 border-t border-blue-500/30 shadow-lg">
+        <h3 className="text-xl font-bold mb-4 text-blue-300 flex items-center gap-2">
+          <TrendingUp size={24} /> خلاصة ما تعلمه محمد بن نحيت من لقاءاته مع المليارديرات
+        </h3>
+        <div className="space-y-4">
+          {[
+            { t: "1. التجربة (Experience)", d: "الخبرة العميقة والمعرفة المتراكمة قبل الإطلاق. تمنحك: الخبرة، المعرفة، الثقة، والعلاقات." },
+            { t: "2. الاستثمار في النفس (Self-Investment)", d: "ليس مجرد قراءة، بل 'استثمار عميق' بتطبيق ما تتعلمه وتوظيف العلاقات لتحقيق فائدة ملموسة." },
+            { t: "3. الاستمرارية (Persistence)", d: "القدرة على تجاوز العوائق الكبرى." },
+          ].map((item, i) => (
+            <div key={i} className="bg-white/5 p-4 rounded-lg">
+              <strong className="text-white block mb-2">{item.t}</strong>
+              <p className="text-xs text-slate-300">{item.d}</p>
             </div>
+          ))}
         </div>
-    </header>
+      </GlassCard>
 
-    <!-- Problem & Solution (The Transformation) -->
-    <section class="py-16 bg-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold text-slate-900">نقلة نوعية في الاستثمار</h2>
-                <p class="mt-4 text-slate-500">من الجمود التقليدي إلى السيولة الرقمية</p>
+      <GlassCard className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 shadow-lg">
+        <h3 className="text-xl font-bold mb-6 text-white flex items-center gap-2">
+          <Star size={24} className="text-yellow-400"/> دروس ريادية من سام ألتمان
+        </h3>
+        <div className="grid md:grid-cols-2 gap-4">
+          {[
+            "اصنع منتجًا يروق له الناس بأنفسهم.",
+            "استهدف أسواقًا صغيرة ولكن ذات نمو متسارع.",
+            "ميز الاتجاهات الحقيقية عن الزائفة.",
+            "كوّن فريق مؤسسين متكامل.",
+            "نفّذ بسرعة (السرعة أهم من الخطة المثالية).",
+            "وازن بين الثقة والانفتاح.",
+            "ابن فريق مؤمن بالفكرة ومبادر.",
+            "الزخم هو كل شيء.",
+            "لا تشغل بالك بالمنافسين.",
+            "استفد من مميزات الشركات الناشئة."
+          ].map((lesson, i) => (
+            <div key={i} className="flex gap-2 items-start text-sm text-slate-300 p-2 rounded">
+              <span className="text-yellow-500 font-bold">•</span>
+              <span>{lesson}</span>
             </div>
-
-            <div class="grid md:grid-cols-2 gap-8">
-                <!-- Old Way -->
-                <div class="interactive-card p-8 rounded-2xl bg-slate-50 border border-slate-200">
-                    <div class="flex items-center mb-4">
-                        <div class="w-12 h-12 bg-slate-200 rounded-full flex items-center justify-center text-slate-500 ml-4">
-                            <i class="fas fa-lock text-xl"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-slate-700">التحدي (الوضع الحالي)</h3>
-                    </div>
-                    <ul class="space-y-4 text-slate-600">
-                        <li class="flex items-start">
-                            <i class="fas fa-times-circle text-red-400 mt-1 ml-3"></i>
-                            <span><strong>جمود الأصول:</strong> صعوبة تسييل العقارات الضخمة (تستغرق شهوراً أو سنوات).</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-times-circle text-red-400 mt-1 ml-3"></i>
-                            <span><strong>صعوبة الدخول:</strong> الاستثمار مقتصر على أصحاب رؤوس الأموال الضخمة.</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-times-circle text-red-400 mt-1 ml-3"></i>
-                            <span><strong>غياب الشفافية:</strong> إجراءات ورقية معقدة وبطء في التوثيق.</span>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- New Way -->
-                <div class="interactive-card p-8 rounded-2xl bg-emerald-50 border border-emerald-200">
-                    <div class="flex items-center mb-4">
-                        <div class="w-12 h-12 bg-emerald-200 rounded-full flex items-center justify-center text-emerald-700 ml-4">
-                            <i class="fas fa-bolt text-xl"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-emerald-800">الحل (SAR-TOKEN)</h3>
-                    </div>
-                    <ul class="space-y-4 text-emerald-800">
-                        <li class="flex items-start">
-                            <i class="fas fa-check-circle text-emerald-500 mt-1 ml-3"></i>
-                            <span><strong>السيولة الفورية:</strong> تجزئة الأصول إلى توكنز وتداولها في <strong>سوق ثانوي</strong> نشط.</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-check-circle text-emerald-500 mt-1 ml-3"></i>
-                            <span><strong>سهولة التملك:</strong> ابدأ الاستثمار بمبالغ مرنة (أقل من 1,000 ريال).</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-check-circle text-emerald-500 mt-1 ml-3"></i>
-                            <span><strong>الأتمتة والشرعية:</strong> توثيق فوري عبر التكامل المباشر مع <strong>السجل العقاري (RER)</strong>.</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+          ))}
         </div>
-    </section>
+      </GlassCard>
 
-    <!-- Business Model Section -->
-    <section id="business-model" class="py-16 bg-slate-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold text-slate-900">محرك الإيرادات</h2>
-                <p class="mt-4 text-slate-500">نموذج عمل متنوع ومستدام يضمن الربحية على المدى الطويل</p>
+      <ChapterChatBot chapterTitle="01. العقلية والاستعداد" contentData={chapterData} />
+    </div>
+  );
+};
+
+// ===== الفصل الثاني: الفكرة والتحقق =====
+const Phase2Content = () => {
+  const chapterData = `
+    مصادر الأفكار: المشاكل اليومية، الاتجاهات الجديدة، تحسين الموجود، الخبرة الشخصية.
+    التحقق من الفكرة: مقابلات العملاء، MVP، اختبارات A/B.
+    دراسة الجدوى: 5 خطوات لبناء دراسة جدوى عملية.
+    نموذج العمل: Business Model Canvas.
+  `;
+
+  return (
+    <div className="space-y-8">
+      <ChapterSummary points={["كيف تجد فكرة المشروع.", "التحقق من الفكرة قبل البناء.", "تحديد الشريحة المستهدفة.", "بناء MVP (الحد الأدنى من المنتج)."]} />
+
+      <GlassCard className="bg-gradient-to-r from-blue-900/20 to-transparent border-blue-500/30">
+        <h3 className="text-xl font-bold mb-6 text-blue-400 flex items-center gap-2">
+          <Lightbulb size={24} /> مصادر الأفكار الريادية
+        </h3>
+        <div className="grid md:grid-cols-2 gap-4">
+          {[
+            { t: "المشاكل اليومية", d: "راقب المشاكل التي تواجهك أنت ومن حولك يومياً." },
+            { t: "الاتجاهات الجديدة", d: "تابع التغيرات في التكنولوجيا وسلوك المستهلكين." },
+            { t: "تحسين الموجود", d: "خذ منتجاً موجوداً واجعله أفضل أو أرخص." },
+            { t: "خبرتك الشخصية", d: "استفد من خبرتك في مجال معين لحل مشكلة فيه." },
+          ].map((item, idx) => (
+            <div key={idx} className="bg-white/5 p-4 rounded-lg border border-white/5">
+              <strong className="text-blue-300 block mb-2">{item.t}</strong>
+              <p className="text-xs text-slate-400">{item.d}</p>
             </div>
-
-            <div class="grid lg:grid-cols-3 gap-8 items-center">
-                <!-- Chart -->
-                <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                    <h3 class="text-lg font-bold text-center mb-4 text-slate-700">توزيع مصادر الدخل</h3>
-                    <div class="chart-container" style="height: 300px;">
-                        <canvas id="revenueChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- Details -->
-                <div class="lg:col-span-2 grid sm:grid-cols-2 gap-4">
-                    <div class="bg-white p-5 rounded-xl border-r-4 border-emerald-500 shadow-sm hover:shadow-md transition-shadow cursor-default" onmouseenter="highlightSegment(0)" onmouseleave="resetChart()">
-                        <div class="flex justify-between items-center mb-2">
-                            <h4 class="font-bold text-slate-800">رسوم الإدراج</h4>
-                            <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full">مرة واحدة</span>
-                        </div>
-                        <p class="text-sm text-slate-600">رسوم هيكلة قانونية وتقنية من مالك العقار (25 ألف ريال للعقار).</p>
-                    </div>
-
-                    <div class="bg-white p-5 rounded-xl border-r-4 border-blue-500 shadow-sm hover:shadow-md transition-shadow cursor-default" onmouseenter="highlightSegment(1)" onmouseleave="resetChart()">
-                        <div class="flex justify-between items-center mb-2">
-                            <h4 class="font-bold text-slate-800">عمولة البيع الأولي</h4>
-                            <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">عند الاكتتاب</span>
-                        </div>
-                        <p class="text-sm text-slate-600">2.5% من قيمة الطرح الأولي عند اكتمال التمويل.</p>
-                    </div>
-
-                    <div class="bg-white p-5 rounded-xl border-r-4 border-amber-500 shadow-sm hover:shadow-md transition-shadow cursor-default" onmouseenter="highlightSegment(2)" onmouseleave="resetChart()">
-                        <div class="flex justify-between items-center mb-2">
-                            <h4 class="font-bold text-slate-800">رسوم الإدارة السنوية</h4>
-                            <span class="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded-full">متكرر (SaaS)</span>
-                        </div>
-                        <p class="text-sm text-slate-600">1% سنوياً من قيمة الأصول تحت الإدارة، تُخصم من العوائد.</p>
-                    </div>
-
-                    <div class="bg-white p-5 rounded-xl border-r-4 border-purple-500 shadow-sm hover:shadow-md transition-shadow cursor-default" onmouseenter="highlightSegment(3)" onmouseleave="resetChart()">
-                        <div class="flex justify-between items-center mb-2">
-                            <h4 class="font-bold text-slate-800">رسوم التداول (السيولة)</h4>
-                            <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">الأهم</span>
-                        </div>
-                        <p class="text-sm text-slate-600">0.5% من كل طرف (بائع ومشتري) في كل عملية بالسوق الثانوي.</p>
-                    </div>
-                </div>
-            </div>
+          ))}
         </div>
-    </section>
+      </GlassCard>
 
-    <!-- Financials Dashboard -->
-    <section id="financials" class="py-16 bg-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold text-slate-900">لوحة القيادة المالية</h2>
-                <p class="mt-4 text-slate-500">خارطة الطريق نحو الربحية ونقطة التعادل</p>
+      <GlassCard className="bg-gradient-to-r from-purple-900/20 to-transparent border-purple-500/30">
+        <h3 className="text-xl font-bold mb-4 text-purple-400 flex items-center gap-2">
+          <Target size={24} /> التحقق من الفكرة (Validation)
+        </h3>
+        <p className="text-sm text-slate-300 mb-6">قبل أن تبني منتجك الكامل، تحقق من أن هناك من يريده فعلاً!</p>
+        <div className="space-y-4">
+          {[
+            { t: "1. مقابلات العملاء", d: "تحدث مع 20-50 عميل محتمل. اسأل عن مشاكلهم، لا عن حلولك.", e: "مثال: 'ما أكبر تحدٍ تواجهه في إدارة مشروعك؟'" },
+            { t: "2. الحد الأدنى من المنتج (MVP)", d: "ابنِ أبسط نسخة تحل المشكلة الأساسية فقط.", e: "مثال: صفحة هبوط + نموذج تسجيل قبل بناء التطبيق الكامل." },
+            { t: "3. اختبارات A/B", d: "جرب نسختين مختلفتين وقارن النتائج.", e: "مثال: جرب سعرين مختلفين وانظر أيهما يجذب أكثر." },
+          ].map((step, i) => (
+            <div key={i} className="bg-white/5 p-4 rounded-lg border border-white/10">
+              <strong className="text-purple-200 text-sm block mb-1">{step.t}</strong>
+              <p className="text-xs text-slate-300 mb-2">{step.d}</p>
+              <div className="text-[10px] bg-black/20 p-2 rounded text-slate-400">💡 {step.e}</div>
             </div>
-
-            <div class="bg-slate-900 rounded-3xl p-8 text-white shadow-2xl overflow-hidden relative">
-                <!-- Stats Row -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8 border-b border-slate-700 pb-8">
-                    <div>
-                        <div class="text-slate-400 text-sm mb-1">التمويل المطلوب (The Ask)</div>
-                        <div class="text-4xl font-bold text-emerald-400">11,060,000 <span class="text-lg text-emerald-600">ر.س</span></div>
-                        <div class="text-xs text-slate-500 mt-2">لتغطية العجز التشغيلي في السنة الأولى</div>
-                    </div>
-                    <div>
-                        <div class="text-slate-400 text-sm mb-1">نقطة التعادل</div>
-                        <div class="text-4xl font-bold text-white">2027</div>
-                        <div class="text-xs text-slate-500 mt-2">بداية الفائض النقدي</div>
-                    </div>
-                    <div>
-                        <div class="text-slate-400 text-sm mb-1">صافي الفائض المتوقع (2027)</div>
-                        <div class="text-4xl font-bold text-blue-400">+2,440,000 <span class="text-lg text-blue-600">ر.س</span></div>
-                        <div class="text-xs text-slate-500 mt-2">بعد بيع أول عقارين</div>
-                    </div>
-                </div>
-
-                <!-- Main Chart -->
-                <div class="chart-container" style="max-width: 100%; height: 400px;">
-                    <canvas id="financialChart"></canvas>
-                </div>
-                
-                <div class="mt-4 text-center text-xs text-slate-500">
-                    * الأرقام مبنية على خطة تشغيلية متحفظة لبيع عقارين فقط في 2027.
-                </div>
-            </div>
+          ))}
         </div>
-    </section>
+      </GlassCard>
 
-    <!-- Roadmap (Timeline) -->
-    <section id="roadmap" class="py-16 bg-slate-50 overflow-hidden">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold text-slate-900">خارطة طريق التنفيذ (24 شهراً)</h2>
-                <p class="mt-4 text-slate-500">خطة منهجية تركز على الامتثال أولاً، ثم التقنية، ثم الإطلاق</p>
+      <GlassCard className="bg-gradient-to-r from-teal-900/20 to-transparent border-teal-500/30">
+        <h3 className="text-xl font-bold mb-4 text-teal-400 flex items-center gap-2">
+          <FileText size={24} /> دراسة الجدوى العملية (5 خطوات)
+        </h3>
+        <div className="space-y-3">
+          {[
+            { t: "1. افهم العميل جيداً (تحليل السوق)", d: "من هو عميلك؟ ما حجم السوق؟ من منافسوك؟", e: "مثال: 'عميلي هو صاحب مقهى صغير في الرياض يعاني من إدارة المخزون.'" },
+            { t: "2. حدد تكاليفك الحقيقية (التكاليف)", d: "التكاليف الثابتة والمتغيرة. لا تنسَ الرواتب والإيجارات!", e: "مثال: إيجار + رواتب + مواد خام + تسويق = التكاليف الشهرية." },
+            { t: "3. ارسم طريقة كسب المال (الإيرادات)", d: "من أين ستأتي الأموال؟ اشتراك؟ بيع مباشر؟ عمولة؟", e: "مثال: اشتراك شهري 99 ريال/مستخدم." },
+            { t: "4. اعرف متى ستعود أموالك (نقطة التعادل)", d: "متى أسترد رأس المال؟", e: "مثال: تكاليفك 10,000 وربحك 10 ريال/وحدة؟ تحتاج بيع 1000 وحدة." },
+            { t: "5. الاستعداد للأسوأ (تحليل الحساسية)", d: "وضع سيناريوهات للأزمات.", e: "مثال: لو ارتفع سعر المواد الخام 20%، هل يظل مربحاً؟" },
+          ].map((step, i) => (
+            <div key={i} className="bg-white/5 p-3 rounded-lg border border-white/10">
+              <strong className="text-teal-200 text-sm block mb-1">{step.t}</strong>
+              <p className="text-xs text-slate-300 mb-2">{step.d}</p>
+              <div className="text-[10px] bg-black/20 p-2 rounded text-slate-400">💡 {step.e}</div>
             </div>
-
-            <div class="relative">
-                <!-- Connecting Line -->
-                <div class="absolute top-1/2 left-0 w-full h-1 bg-slate-200 -translate-y-1/2 hidden md:block z-0"></div>
-
-                <div class="grid md:grid-cols-4 gap-6 relative z-10">
-                    <!-- Phase 1 -->
-                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-lg relative group hover:-translate-y-2 transition-transform duration-300">
-                        <div class="absolute -top-3 right-6 bg-slate-800 text-white text-xs px-3 py-1 rounded-full">0 - 6 أشهر</div>
-                        <div class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-600 mb-4 group-hover:bg-emerald-100 group-hover:text-emerald-600 transition-colors">
-                            <i class="fas fa-gavel"></i>
-                        </div>
-                        <h3 class="font-bold text-lg mb-2">التأسيس والامتثال</h3>
-                        <ul class="text-sm text-slate-600 space-y-2">
-                            <li><i class="fas fa-check text-emerald-500 ml-2"></i>تعيين C-Suite (CEO, CCO, CFO)</li>
-                            <li><i class="fas fa-check text-emerald-500 ml-2"></i>تقديم ملف الترخيص لـ CMA</li>
-                            <li><i class="fas fa-check text-emerald-500 ml-2"></i>تأمين التمويل الأولي</li>
-                        </ul>
-                    </div>
-
-                    <!-- Phase 2 -->
-                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-lg relative group hover:-translate-y-2 transition-transform duration-300">
-                        <div class="absolute -top-3 right-6 bg-slate-800 text-white text-xs px-3 py-1 rounded-full">7 - 12 شهراً</div>
-                        <div class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-600 mb-4 group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors">
-                            <i class="fas fa-code"></i>
-                        </div>
-                        <h3 class="font-bold text-lg mb-2">البناء التقني والأمان</h3>
-                        <ul class="text-sm text-slate-600 space-y-2">
-                            <li><i class="fas fa-check text-blue-500 ml-2"></i>بناء محرك تداول السوق الثانوي</li>
-                            <li><i class="fas fa-check text-blue-500 ml-2"></i>تطبيق معايير الأمن السيبراني (NCA)</li>
-                            <li><i class="fas fa-check text-blue-500 ml-2"></i>كتابة وتدقيق العقود الذكية</li>
-                        </ul>
-                    </div>
-
-                    <!-- Phase 3 -->
-                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-lg relative group hover:-translate-y-2 transition-transform duration-300">
-                        <div class="absolute -top-3 right-6 bg-slate-800 text-white text-xs px-3 py-1 rounded-full">13 - 18 شهراً</div>
-                        <div class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-600 mb-4 group-hover:bg-amber-100 group-hover:text-amber-600 transition-colors">
-                            <i class="fas fa-network-wired"></i>
-                        </div>
-                        <h3 class="font-bold text-lg mb-2">التأهيل والربط</h3>
-                        <ul class="text-sm text-slate-600 space-y-2">
-                            <li><i class="fas fa-check text-amber-500 ml-2"></i>موافقة التشغيل التجريبي</li>
-                            <li><i class="fas fa-check text-amber-500 ml-2"></i>ربط API مع السجل العقاري</li>
-                            <li><i class="fas fa-check text-amber-500 ml-2"></i>تجهيز دليل العمليات (SOPs)</li>
-                        </ul>
-                    </div>
-
-                    <!-- Phase 4 -->
-                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-lg relative group hover:-translate-y-2 transition-transform duration-300">
-                        <div class="absolute -top-3 right-6 bg-slate-800 text-white text-xs px-3 py-1 rounded-full">19 - 24 شهراً</div>
-                        <div class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-600 mb-4 group-hover:bg-purple-100 group-hover:text-purple-600 transition-colors">
-                            <i class="fas fa-rocket"></i>
-                        </div>
-                        <h3 class="font-bold text-lg mb-2">الإطلاق والسيولة</h3>
-                        <ul class="text-sm text-slate-600 space-y-2">
-                            <li><i class="fas fa-check text-purple-500 ml-2"></i>إطلاق أول عملية ترميز (بيع أولي)</li>
-                            <li><i class="fas fa-check text-purple-500 ml-2"></i>تفعيل السوق الثانوي (التداول)</li>
-                            <li><i class="fas fa-check text-purple-500 ml-2"></i>تقارير الأداء للمستثمرين</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
+          ))}
         </div>
-    </section>
+      </GlassCard>
 
-    <!-- Team & Governance -->
-    <section id="team" class="py-16 bg-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold text-slate-900">الهيكل التنظيمي والحوكمة</h2>
-                <p class="mt-4 text-slate-500">فريق من 23 خبيراً يقودهم هيكل مساءلة واضح</p>
+      <GlassCard className="bg-gradient-to-r from-purple-900/10 to-transparent border-purple-500/30">
+        <h3 className="text-xl font-bold mb-4 text-purple-400 flex items-center gap-2">
+          <Layout size={24} /> مخطط نموذج العمل (Business Model Canvas)
+        </h3>
+        <p className="text-sm text-slate-300 mb-6">أداة تصورية لتصميم نموذج عملك على صفحة واحدة. تتكون من 9 أحجار أساسية:</p>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          {[
+            { n: "شرائح العملاء", d: "من هم عملاؤك المستهدفون؟" },
+            { n: "القيمة المقترحة", d: "ما المشكلة التي تحلها؟" },
+            { n: "القنوات", d: "كيف تصل لعملائك؟" },
+            { n: "علاقات العملاء", d: "كيف تتفاعل معهم؟" },
+            { n: "مصادر الإيراد", d: "كيف تجني المال؟" },
+            { n: "الموارد الرئيسية", d: "ما الأصول الضرورية؟" },
+            { n: "الأنشطة الرئيسية", d: "ما أهم ما تفعله؟" },
+            { n: "الشراكات الرئيسية", d: "من يساعدك على النجاح؟" },
+            { n: "هيكل التكاليف", d: "ما أبرز تكاليفك؟" },
+          ].map((block, i) => (
+            <div key={i} className="bg-white/5 p-3 rounded-lg border border-purple-500/20 text-center">
+              <strong className="text-purple-300 text-xs block mb-1">{block.n}</strong>
+              <p className="text-[10px] text-slate-400">{block.d}</p>
             </div>
-
-            <div class="max-w-4xl mx-auto">
-                <!-- Board Level -->
-                <div class="flex justify-center mb-8">
-                    <div class="bg-slate-800 text-white px-8 py-4 rounded-xl shadow-lg border-b-4 border-emerald-500 text-center w-64">
-                        <div class="font-bold text-lg">مجلس الإدارة</div>
-                        <div class="text-xs text-slate-400 mt-1">الرقابة الاستراتيجية</div>
-                    </div>
-                </div>
-
-                <!-- Connector -->
-                <div class="h-8 w-0.5 bg-slate-300 mx-auto mb-8"></div>
-
-                <!-- C-Suite Level -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-12">
-                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-center group hover:border-emerald-500 transition-colors">
-                        <div class="w-12 h-12 bg-emerald-50 rounded-full mx-auto mb-3 flex items-center justify-center text-emerald-600 font-bold text-xl">CEO</div>
-                        <h4 class="font-bold text-slate-800">المدير التنفيذي</h4>
-                        <p class="text-xs text-slate-500 mt-1">الاستراتيجية والاستثمار</p>
-                    </div>
-                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-center group hover:border-emerald-500 transition-colors">
-                        <div class="w-12 h-12 bg-blue-50 rounded-full mx-auto mb-3 flex items-center justify-center text-blue-600 font-bold text-xl">CFO</div>
-                        <h4 class="font-bold text-slate-800">الرئيس المالي</h4>
-                        <p class="text-xs text-slate-500 mt-1">هيكلة التمويل (6.7M رواتب)</p>
-                    </div>
-                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-center group hover:border-emerald-500 transition-colors">
-                        <div class="w-12 h-12 bg-amber-50 rounded-full mx-auto mb-3 flex items-center justify-center text-amber-600 font-bold text-xl">CTO</div>
-                        <h4 class="font-bold text-slate-800">الرئيس التقني</h4>
-                        <p class="text-xs text-slate-500 mt-1">البلوك تشين والأمن</p>
-                    </div>
-                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-center group hover:border-emerald-500 transition-colors">
-                        <div class="w-12 h-12 bg-purple-50 rounded-full mx-auto mb-3 flex items-center justify-center text-purple-600 font-bold text-xl">CCO</div>
-                        <h4 class="font-bold text-slate-800">مدير الامتثال</h4>
-                        <p class="text-xs text-slate-500 mt-1">ترخيص CMA & REGA</p>
-                    </div>
-                </div>
-
-                <!-- Operational Teams Summary -->
-                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200 text-center">
-                    <h4 class="font-bold text-slate-700 mb-4">الفرق التشغيلية (18 موظفاً)</h4>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                        <div class="bg-white px-3 py-2 rounded-lg shadow-sm">فريق التقنية (9)</div>
-                        <div class="bg-white px-3 py-2 rounded-lg shadow-sm">فريق التسويق (5)</div>
-                        <div class="bg-white px-3 py-2 rounded-lg shadow-sm">فريق العمليات (2)</div>
-                        <div class="bg-white px-3 py-2 rounded-lg shadow-sm">فريق الأصول (1)</div>
-                    </div>
-                </div>
-            </div>
+          ))}
         </div>
-    </section>
+      </GlassCard>
 
-    <!-- Risks Section -->
-    <section id="risks" class="py-16 bg-slate-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold text-slate-900">إدارة المخاطر</h2>
-                <p class="mt-4 text-slate-500">نهج استباقي للتعامل مع التحديات</p>
+      <ChapterChatBot chapterTitle="02. الفكرة والتحقق" contentData={chapterData} />
+    </div>
+  );
+};
+
+// ===== الفصل الثالث: الفريق والتأسيس =====
+const Phase3Content = () => {
+  const chapterData = `
+    بناء الفريق: الأدوار الأساسية (Visionary, Operator, CFO).
+    الشريك المثالي: المهارات التكاملية، القيم المشتركة.
+    اتفاقية المؤسسين: نسب الأسهم، Vesting، صنع القرار.
+    الحوكمة: مراقبة الأموال، منع النزاعات.
+  `;
+
+  return (
+    <div className="space-y-8">
+      <ChapterSummary points={[
+        "كيف تبني فريق مؤسسين قوياً.",
+        "الأدوار الثلاثة الأساسية في أي شركة ناشئة.",
+        "اتفاقية المؤسسين (وثيقة الدستور).",
+        "حوكمة الشركة منذ اليوم الأول."
+      ]} />
+
+      <GlassCard className="bg-gradient-to-r from-indigo-900/20 to-transparent border-indigo-500/30 shadow-lg">
+        <h3 className="text-xl font-bold mb-4 text-indigo-400 flex items-center gap-2">
+          <Users size={24} /> الفريق المثالي: الأدوار الثلاثة الأساسية
+        </h3>
+        <div className="grid md:grid-cols-3 gap-4">
+          {[
+            { role: "الرؤيوي (Visionary)", desc: "يحلم ويضع الاستراتيجية. يرى الصورة الكبيرة.", color: "text-purple-400", bg: "bg-purple-900/20" },
+            { role: "المُشغّل (Operator)", desc: "ينفذ ويدير العمليات اليومية. يحول الرؤية لواقع.", color: "text-blue-400", bg: "bg-blue-900/20" },
+            { role: "المالي (CFO)", desc: "يحافظ على الأموال ويضمن الاستدامة المالية.", color: "text-green-400", bg: "bg-green-900/20" },
+          ].map((r, i) => (
+            <div key={i} className={`${r.bg} p-4 rounded-xl border border-white/10 text-center`}>
+              <strong className={`${r.color} block mb-2`}>{r.role}</strong>
+              <p className="text-xs text-slate-400">{r.desc}</p>
             </div>
-
-            <div class="grid md:grid-cols-3 gap-6">
-                <!-- Risk 1 -->
-                <div class="bg-white p-6 rounded-xl border-t-4 border-red-500 shadow-sm">
-                    <h3 class="font-bold text-lg text-slate-800 mb-2">مخاطر الترخيص</h3>
-                    <p class="text-sm text-slate-500 mb-4">تأخر أو رفض الترخيص من الهيئات التنظيمية.</p>
-                    <div class="bg-slate-50 p-3 rounded-lg">
-                        <div class="text-xs font-bold text-slate-400 uppercase mb-1">استراتيجية التخفيف</div>
-                        <p class="text-sm text-slate-700">تعيين CCO خبير في FinTech والبدء بملف الترخيص كأول خطوة قبل التطوير.</p>
-                    </div>
-                </div>
-
-                <!-- Risk 2 -->
-                <div class="bg-white p-6 rounded-xl border-t-4 border-amber-500 shadow-sm">
-                    <h3 class="font-bold text-lg text-slate-800 mb-2">مخاطر الأمن السيبراني</h3>
-                    <p class="text-sm text-slate-500 mb-4">اختراق العقود الذكية أو سرقة الأصول.</p>
-                    <div class="bg-slate-50 p-3 rounded-lg">
-                        <div class="text-xs font-bold text-slate-400 uppercase mb-1">استراتيجية التخفيف</div>
-                        <p class="text-sm text-slate-700">تعيين مهندس أمن متخصص، وتخصيص ميزانية لتدقيق خارجي للعقود الذكية.</p>
-                    </div>
-                </div>
-
-                <!-- Risk 3 -->
-                <div class="bg-white p-6 rounded-xl border-t-4 border-blue-500 shadow-sm">
-                    <h3 class="font-bold text-lg text-slate-800 mb-2">مخاطر غسيل الأموال</h3>
-                    <p class="text-sm text-slate-500 mb-4">استغلال السيولة في عمليات مشبوهة.</p>
-                    <div class="bg-slate-50 p-3 rounded-lg">
-                        <div class="text-xs font-bold text-slate-400 uppercase mb-1">استراتيجية التخفيف</div>
-                        <p class="text-sm text-slate-700">تطبيق آلي لـ KYC عبر الربط الوطني، ومراقبة الـ CTO لحركة التداول.</p>
-                    </div>
-                </div>
-            </div>
+          ))}
         </div>
-    </section>
+      </GlassCard>
 
-    <!-- Footer / CTA -->
-    <footer class="bg-slate-900 text-white py-16">
-        <div class="max-w-4xl mx-auto px-4 text-center">
-            <h2 class="text-3xl font-bold mb-6">انضم إلينا في بناء مستقبل الملكية</h2>
-            <p class="text-slate-400 mb-8 max-w-2xl mx-auto">نحن نمتلك المزيج المثالي من الامتثال التقني والسيولة السوقية لنتفوق في هذا السوق.</p>
-            
-            <div class="inline-block bg-slate-800 rounded-2xl p-8 border border-slate-700">
-                <div class="text-sm text-slate-400 mb-2">المبلغ المطلوب للاستثمار</div>
-                <div class="text-4xl font-bold text-emerald-400 mb-6">11,060,000 ر.س</div>
-                <button class="bg-emerald-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-emerald-500 transition-colors w-full">
-                    تواصل معنا
-                </button>
+      <GlassCard className="shadow-lg">
+        <h3 className="text-xl font-bold mb-4 text-white flex items-center gap-2">
+          <Handshake size={24} className="text-cyan-400"/> كيف تختار الشريك المثالي؟
+        </h3>
+        <div className="space-y-3">
+          {[
+            { t: "مهارات تكاملية لا متشابهة", d: "تحتاج شريكاً يُكمل نقاط ضعفك، لا يكررها. أنت التقني؟ ابحث عن الخبير التسويقي." },
+            { t: "قيم ومبادئ مشتركة", d: "هل تتفقان على الأمانة؟ طريقة التعامل مع الموظفين؟ هذه الأسئلة تكشف التوافق العميق." },
+            { t: "تقييم الأداء تحت الضغط", d: "اعمل معه على مشروع صغير أولاً. كيف يتصرف في الأزمات؟" },
+          ].map((item, i) => (
+            <div key={i} className="flex gap-3 bg-white/5 p-3 rounded-lg border border-white/5 shadow-inner">
+              <CheckCircle size={18} className="text-cyan-400 mt-1 shrink-0" />
+              <div>
+                <strong className="text-white text-sm block">{item.t}</strong>
+                <p className="text-xs text-slate-400">{item.d}</p>
+              </div>
             </div>
-            
-            <div class="mt-12 text-slate-600 text-sm">
-                &copy; 2025 SAR-TOKEN. جميع الحقوق محفوظة.
-            </div>
+          ))}
         </div>
-    </footer>
+      </GlassCard>
 
-    <script>
-        // Smooth Scrolling
-        function scrollToSection(id) {
-            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
-            
-            // Update active state
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            event.target.classList.add('active');
-        }
+      <GlassCard className="bg-gradient-to-r from-emerald-900/20 to-transparent border-emerald-500/30 shadow-lg">
+        <h3 className="text-xl font-bold mb-4 text-emerald-400 flex items-center gap-2">
+          <DollarSign size={24} /> الحوكمة المالية منذ اليوم الأول
+        </h3>
+        <div className="grid md:grid-cols-3 gap-4">
+          {[
+            { title: "افتح حساباً بنكياً مستقلاً", desc: "لا تخلط أموال الشركة بأموالك الشخصية أبداً." },
+            { title: "حدد رواتب المؤسسين", desc: "حتى لو رمزية في البداية. يمنع النزاعات لاحقاً." },
+            { title: "وظّف محاسباً من البداية", desc: "تكلفته أقل بكثير من الفوضى المالية لاحقاً." },
+          ].map((item, i) => (
+            <div key={i} className="bg-white/5 p-3 rounded-lg border border-white/10 shadow-inner">
+              <strong className="text-emerald-300 block text-sm mb-1">{item.title}</strong>
+              <p className="text-xs text-slate-400">{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </GlassCard>
 
-        // --- Revenue Donut Chart ---
-        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-        let revenueChart = new Chart(revenueCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['رسوم الإدراج', 'عمولة البيع', 'رسوم الإدارة', 'رسوم التداول'],
-                datasets: [{
-                    data: [10, 25, 20, 45], // Approximate weights for visualization
-                    backgroundColor: [
-                        '#10b981', // emerald-500
-                        '#3b82f6', // blue-500
-                        '#f59e0b', // amber-500
-                        '#a855f7'  // purple-500
-                    ],
-                    borderWidth: 0,
-                    hoverOffset: 10
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false // Using custom HTML legend
-                    },
-                    tooltip: {
-                        rtl: true,
-                        bodyFont: {
-                            family: 'Tajawal'
-                        }
-                    }
-                },
-                cutout: '70%'
-            }
-        });
+      <GlassCard className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 shadow-lg">
+        <h3 className="text-xl font-bold mb-4 text-blue-400 flex items-center gap-2">
+          <FileText size={24} /> وثيقة الدستور (اتفاقية المؤسسين)
+        </h3>
+        <p className="text-sm text-slate-300 mb-6">هذه الوثيقة هي "بوليصة التأمين" لعلاقتكم. لا تبدأوا العمل بدونها:</p>
+        <div className="space-y-4">
+          {[
+            { t: "1. نسب الأسهم (Equity Splits)", d: "لا تقسموها بالتساوي (50/50) لمجرد 'المحبة'. قسّموا بناءً على القيمة والمخاطرة." },
+            { t: "2. الاستحقاق (Vesting Schedule)", d: "يحمي الشركة من خروج أحد الشركاء مبكراً. الأسهم تُكتسب عبر الزمن.", e: "مثال (Cliff): فترة تجربة سنة واحدة. إذا غادر الشريك قبلها، يخرج بصفر أسهم." },
+            { t: "3. صنع القرار (Decision Making)", d: "من يملك الكلمة الفصل في التقنية؟ ومن في المالية؟" },
+            { t: "4. سيناريوهات المغادرة (Exit Scenarios)", d: "ماذا لو أراد أحد الشركاء الخروج؟" },
+          ].map((item, i) => (
+            <div key={i} className="bg-white/5 p-4 rounded-lg shadow-inner">
+              <strong className="text-white block text-sm mb-2">{item.t}</strong>
+              <p className="text-xs text-slate-400">{item.d}</p>
+              {item.e && <div className="text-[10px] bg-black/30 p-2 rounded text-purple-200 mt-2"><strong>مثال:</strong> {item.e}</div>}
+            </div>
+          ))}
+        </div>
+      </GlassCard>
 
-        // Interaction for Revenue Chart
-        function highlightSegment(index) {
-            revenueChart.setActiveElements([{datasetIndex: 0, index: index}]);
-            revenueChart.update();
-        }
+      <ChapterChatBot chapterTitle="03. الفريق والتأسيس" contentData={chapterData} />
+    </div>
+  );
+};
 
-        function resetChart() {
-            revenueChart.setActiveElements([]);
-            revenueChart.update();
-        }
+// ===== الفصل الرابع: المنتج والإطلاق =====
+const Phase4Content = () => {
+  const [ltv, setLtv] = useState(100);
+  const [cac, setCac] = useState(30);
+  const ratio = cac > 0 ? (ltv / cac).toFixed(1) : "0";
+  const status = Number(ratio) >= 3 ? 'healthy' : Number(ratio) < 1 ? 'critical' : 'warning';
 
-        // --- Financial Bar/Line Chart ---
-        const financialCtx = document.getElementById('financialChart').getContext('2d');
-        const financialChart = new Chart(financialCtx, {
-            type: 'bar',
-            data: {
-                labels: ['2026 (التأسيس)', '2027 (الإطلاق)'],
-                datasets: [
-                    {
-                        label: 'المصاريف التشغيلية',
-                        data: [-7080000, -7080000],
-                        backgroundColor: '#ef4444', // Red for cost
-                        borderRadius: 4,
-                        order: 2
-                    },
-                    {
-                        label: 'الإيرادات المتوقعة',
-                        data: [0, 9520000], // Adjusted revenue to show surplus clearly (6.45M + others)
-                        backgroundColor: '#10b981', // Green for revenue
-                        borderRadius: 4,
-                        order: 3
-                    },
-                    {
-                        type: 'line',
-                        label: 'صافي التدفق النقدي',
-                        data: [-7080000, 2440000],
-                        borderColor: '#3b82f6', // Blue line
-                        backgroundColor: '#3b82f6',
-                        borderWidth: 3,
-                        pointRadius: 6,
-                        pointHoverRadius: 8,
-                        tension: 0.3,
-                        order: 1
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: '#cbd5e1',
-                            font: { family: 'Tajawal' }
-                        }
-                    },
-                    tooltip: {
-                        rtl: true,
-                        callbacks: {
-                            label: function(context) {
-                                let label = context.dataset.label || '';
-                                if (label) {
-                                    label += ': ';
-                                }
-                                if (context.parsed.y !== null) {
-                                    label += new Intl.NumberFormat('ar-SA', { style: 'currency', currency: 'SAR' }).format(context.parsed.y);
-                                }
-                                return label;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        grid: {
-                            color: '#334155'
-                        },
-                        ticks: {
-                            color: '#94a3b8',
-                            font: { family: 'Tajawal' },
-                            callback: function(value) {
-                                return value / 1000000 + 'M';
-                            }
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        },
-                        ticks: {
-                            color: '#e2e8f0',
-                            font: { family: 'Tajawal' }
-                        }
-                    }
-                }
-            }
-        });
-    </script>
-</body>
-</html>
+  const chapterData = `
+    خطوات نجاح المشاريع: تحديد الهدف، الجدوى، التخطيط.
+    كسب أول 10 مستخدمين.
+    معادلة LTV/CAC.
+    فن التحول (Pivot).
+  `;
+
+  return (
+    <div className="space-y-8">
+      <ChapterSummary points={[
+        "إدارة المشاريع والتنفيذ الفعلي.",
+        "استراتيجيات اكتساب العملاء الأوائل.",
+        "قياس نجاح المنتج (LTV/CAC).",
+        "المرونة وفن التحول (Pivot)."
+      ]} />
+
+      <GlassCard className="bg-gradient-to-r from-teal-900/20 to-cyan-900/20 border-teal-500/30 shadow-lg">
+        <h3 className="text-xl font-bold mb-4 text-teal-400 flex items-center gap-2">
+          <List size={24} /> كيف تكسب أول 10 مستخدمين؟
+        </h3>
+        <div className="grid md:grid-cols-2 gap-4">
+          {[
+            { s: "استهدف شبكة معارفك أولاً", d: "ابدأ بزملائك ومعارفك لتجربة المنتج." },
+            { s: "قدم قيمة مجانية", d: "اعرض فترة تجريبية أو نسخة مجانية." },
+            { s: "تواجد حيث يتواجد عملاؤك", d: "المنتديات، المجموعات، المؤتمرات." },
+            { s: "اطلب التوصيات", d: "كل عميل سعيد يمكن أن يجلب عميلاً آخر." },
+          ].map((item, idx) => (
+            <div key={idx} className="bg-white/5 p-3 rounded-lg border border-white/5">
+              <strong className="text-teal-200 block text-sm mb-1">{item.s}</strong>
+              <p className="text-xs text-slate-400">{item.d}</p>
+            </div>
+          ))}
+        </div>
+      </GlassCard>
+
+      <GlassCard className="bg-gradient-to-br from-violet-900/30 to-purple-900/30 border-violet-500/30 shadow-lg">
+        <h3 className="text-xl font-bold mb-4 text-violet-400 flex items-center gap-2">
+          <PieChart size={24} /> حاسبة LTV/CAC التفاعلية
+        </h3>
+        <p className="text-sm text-slate-300 mb-6">
+          <strong>LTV</strong> = قيمة العميل مدى الحياة | <strong>CAC</strong> = تكلفة اكتساب العميل
+        </p>
+        <div className="grid md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <label className="text-sm text-slate-300 block mb-2">قيمة العميل (LTV) - ريال</label>
+            <input type="range" min="10" max="500" value={ltv} onChange={(e) => setLtv(Number(e.target.value))} className="w-full accent-violet-500" />
+            <div className="text-center text-2xl font-bold text-violet-400 mt-2">{ltv}</div>
+          </div>
+          <div>
+            <label className="text-sm text-slate-300 block mb-2">تكلفة الاكتساب (CAC) - ريال</label>
+            <input type="range" min="1" max="200" value={cac} onChange={(e) => setCac(Number(e.target.value))} className="w-full accent-violet-500" />
+            <div className="text-center text-2xl font-bold text-violet-400 mt-2">{cac}</div>
+          </div>
+        </div>
+        <div className={`text-center p-6 rounded-xl border ${status === 'healthy' ? 'bg-green-500/10 border-green-500/30' : status === 'warning' ? 'bg-yellow-500/10 border-yellow-500/30' : 'bg-red-500/10 border-red-500/30'}`}>
+          <div className="text-4xl font-bold mb-2" style={{color: status === 'healthy' ? '#4ade80' : status === 'warning' ? '#facc15' : '#f87171'}}>{ratio}x</div>
+          <div className={`text-sm ${status === 'healthy' ? 'text-green-300' : status === 'warning' ? 'text-yellow-300' : 'text-red-300'}`}>
+            {status === 'healthy' ? '✅ نموذج عمل صحي ومستدام!' : status === 'warning' ? '⚠️ تحتاج لتحسين الوحدات الاقتصادية' : '❌ تكلفة الاكتساب أعلى من قيمة العميل!'}
+          </div>
+        </div>
+        <div className="mt-4 text-xs text-slate-400 text-center">القاعدة الذهبية: LTV/CAC يجب أن يكون 3 أو أكثر للنمو المستدام</div>
+      </GlassCard>
+
+      <GlassCard className="bg-gradient-to-r from-orange-900/20 to-red-900/20 border-orange-500/30 shadow-lg">
+        <h3 className="text-xl font-bold mb-4 text-orange-400 flex items-center gap-2">
+          <Shuffle size={24} /> فن التحول (Pivot)
+        </h3>
+        <p className="text-sm text-slate-300 mb-4">التحول ليس فشلاً، بل هو تعديل المسار بناءً على ما تعلمته من السوق.</p>
+        <div className="space-y-3">
+          {[
+            { t: "تحول الشريحة", d: "نفس المنتج لشريحة عملاء مختلفة." },
+            { t: "تحول المنصة", d: "من تطبيق إلى ويب، أو العكس." },
+            { t: "تحول القيمة", d: "تغيير الميزة الأساسية التي تقدمها." },
+            { t: "تحول نموذج العمل", d: "من بيع مباشر إلى اشتراك، مثلاً." },
+          ].map((item, idx) => (
+            <div key={idx} className="flex gap-3 bg-white/5 p-3 rounded-lg border border-white/10">
+              <div className="mt-1 text-orange-400"><GitMerge size={16} /></div>
+              <div>
+                <strong className="text-white text-sm block">{item.t}</strong>
+                <p className="text-xs text-slate-400">{item.d}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </GlassCard>
+
+      <ChapterChatBot chapterTitle="04. المنتج والإطلاق" contentData={chapterData} />
+    </div>
+  );
+};
+
+// ===== الفصل الخامس: التمويل والاستثمار =====
+const Phase5Content = () => {
+  const chapterData = `
+    مراحل التمويل: Bootstrapping، FFF، Seed، Series A+.
+    متى تبحث عن مستثمر؟
+    ما يبحث عنه المستثمر الجريء.
+    الحاضنات والمسرعات.
+  `;
+
+  return (
+    <div className="space-y-8">
+      <ChapterSummary points={[
+        "مراحل التمويل المختلفة.",
+        "متى وكيف تبحث عن مستثمر.",
+        "ما الذي يبحث عنه المستثمر الجريء.",
+        "الفرق بين الحاضنات والمسرعات."
+      ]} />
+
+      <GlassCard className="bg-gradient-to-r from-yellow-900/20 to-amber-900/20 border-yellow-500/30 shadow-lg">
+        <h3 className="text-xl font-bold mb-4 text-yellow-400 flex items-center gap-2">
+          <Coins size={24} /> مراحل التمويل
+        </h3>
+        <div className="relative border-r-2 border-yellow-500/30 pr-6 mr-2 space-y-6">
+          {[
+            { t: 'التمويل الذاتي (Bootstrapping)', d: 'أموالك الخاصة ومدخراتك. أنت المتحكم الوحيد.' },
+            { t: 'الأهل والأصدقاء (FFF)', d: 'تمويل من المقربين بشروط مرنة.' },
+            { t: 'مستثمر ملائكي (Angel)', d: 'أفراد أثرياء يقدمون المال والخبرة مقابل حصة.' },
+            { t: 'رأس مال جريء (VC)', d: 'مؤسسات تضخ الملايين لتسريع النمو الهائل.' }
+          ].map((step, i) => (
+            <div key={i} className="relative">
+              <div className="absolute -right-[31px] top-1 w-4 h-4 rounded-full bg-slate-800 border-2 border-yellow-500"></div>
+              <h4 className="text-white font-bold">{step.t}</h4>
+              <p className="text-sm text-slate-400">{step.d}</p>
+            </div>
+          ))}
+        </div>
+      </GlassCard>
+
+      <GlassCard className="shadow-lg">
+        <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+          <HelpCircle size={20} className="text-yellow-400"/> فهم الجولات الاستثمارية
+        </h3>
+        <div className="space-y-4">
+          {[
+            { q: "ما هي الجولة الاستثمارية؟", a: "مرحلة تحصل فيها الشركة على تمويل مقابل بيع جزء من أسهمها." },
+            { q: "ما الفرق بين Seed و Series A؟", a: "Seed: لإثبات الفكرة. Series A: للنمو بعد إثبات النجاح." },
+            { q: "هل يبقى المستثمر معي للأبد؟", a: "لا، يهدف للخروج (Exit) خلال 5-10 سنوات." }
+          ].map((item, i) => (
+            <div key={i} className="bg-white/5 p-3 rounded-lg shadow-inner">
+              <strong className="text-white text-sm block mb-1">{item.q}</strong>
+              <span className="text-slate-400 text-xs">{item.a}</span>
+            </div>
+          ))}
+        </div>
+      </GlassCard>
+
+      <GlassCard className="bg-gradient-to-r from-pink-900/20 to-purple-900/20 border-pink-500/30 shadow-lg">
+        <h3 className="text-xl font-bold mb-4 text-pink-400 flex items-center gap-2">
+          <Heart size={24} /> كيف يفكر المستثمر الجريء؟
+        </h3>
+        <div className="space-y-4">
+          {[
+            { t: "1️⃣ راهن على الفريق قبل الفكرة", d: "80% من النجاح هو 'ملاءمة المؤسس للسوق'." },
+            { t: "2️⃣ افهم المشكلة لا الحل", d: "هل هناك ألم حقيقي؟ 40% من الشركات تفشل بسبب غياب الحاجة." },
+            { t: "3️⃣ راقب التنفيذ لا الوعود", d: "ماذا أنجزت فعلياً؟ مبيعات حقيقية؟" },
+            { t: "4️⃣ السوق الكبير بمدخل صغير", d: "ابدأ بتركيز شديد (نيش) ثم توسع." }
+          ].map((item, i) => (
+            <div key={i} className="bg-white/5 p-3 rounded-lg shadow-inner">
+              <strong className="block text-pink-200 text-sm mb-1">{item.t}</strong>
+              <span className="text-slate-400 text-xs">{item.d}</span>
+            </div>
+          ))}
+        </div>
+      </GlassCard>
+
+      <GlassCard className="bg-gradient-to-r from-teal-900/20 to-emerald-900/20 border-teal-500/30 shadow-lg">
+        <h3 className="text-xl font-bold mb-4 text-teal-400 flex items-center gap-2">
+          <Zap size={24} /> الحاضنات مقابل المسرعات
+        </h3>
+        <div className="grid grid-cols-3 text-xs md:text-sm gap-4 p-2 rounded-xl">
+          <div className="p-3 text-slate-400 border-b border-white/10">المقارنة</div>
+          <div className="p-3 text-teal-300 font-bold border-b border-white/10">حاضنة الأعمال</div>
+          <div className="p-3 text-purple-300 font-bold border-b border-white/10">مسرّعة الأعمال</div>
+          <div className="p-3 font-bold text-slate-300 border-b border-white/5">المرحلة</div>
+          <div className="p-3 text-slate-400 border-b border-white/5">فكرة أو بحث</div>
+          <div className="p-3 text-slate-400 border-b border-white/5">شركة قائمة بـ MVP</div>
+          <div className="p-3 font-bold text-slate-300">الهدف</div>
+          <div className="p-3 text-slate-400">بناء الأساس</div>
+          <div className="p-3 text-slate-400">تسريع النمو</div>
+        </div>
+      </GlassCard>
+
+      <ChapterChatBot chapterTitle="05. التمويل والاستثمار" contentData={chapterData} />
+    </div>
+  );
+};
+
+// ===== الفصل السادس: القيادة والنمو =====
+const Phase6Content = () => {
+  const chapterData = `محرك النمو، التوسع، اتخاذ القرارات، التحول، دروس من الخبراء.`;
+
+  return (
+    <div className="space-y-8">
+      <ChapterSummary points={[
+        "ركائز محرك النمو والتوسع (Scaling).",
+        "اتخاذ القرارات الصعبة وفن التحول.",
+        "التحسين المستمر (اقرن) والاجتماعات.",
+        "دروس ريادية من الخبراء."
+      ]} />
+
+      <GlassCard className="bg-gradient-to-r from-violet-900/20 to-fuchsia-900/20 border-violet-500/30 shadow-lg">
+        <h3 className="text-xl font-bold mb-4 text-violet-400 flex items-center gap-2">
+          <Settings size={24} /> محرك النمو: الركائز الأساسية للتوسع
+        </h3>
+        <div className="grid md:grid-cols-3 gap-4">
+          {[
+            { t: "الفريق والثقافة", d: "الثقافة هي الميزة التنافسية. ابنِ 'حديقة لجذب الفراشات'." },
+            { t: "استراتيجيات التوسع", d: "استكشف نماذج مثل الأصول الخفيفة (Asset-Light)." },
+            { t: "اقتصاديات الوحدة", d: "تأكد من أن LTV > CAC قبل التوسع الكبير." }
+          ].map((item, i) => (
+            <div key={i} className="bg-white/5 p-3 rounded-lg border border-white/5 shadow-inner">
+              <strong className="text-violet-300 text-sm block mb-2">{item.t}</strong>
+              <p className="text-xs text-slate-400">{item.d}</p>
+            </div>
+          ))}
+        </div>
+      </GlassCard>
+
+      <div className="grid md:grid-cols-2 gap-6">
+        <GlassCard className="border-orange-500/30 shadow-lg">
+          <h3 className="text-xl font-bold mb-4 text-orange-400 flex items-center gap-2">
+            <Briefcase size={20} /> التوسع في العمليات
+          </h3>
+          <div className="grid gap-3">
+            {[
+              { title: "من مؤسس إلى مدير", desc: "انتقل من 'العمل في الشركة' إلى 'العمل على الشركة'." },
+              { title: "بناء الأنظمة", desc: "حوّل العمليات لأنظمة قابلة للتكرار." }
+            ].map((item, idx) => (
+              <div key={idx} className="bg-white/5 p-2 rounded-lg border border-white/5">
+                <strong className="block text-white mb-1 text-xs">{item.title}</strong>
+                <span className="text-[10px] text-slate-400">{item.desc}</span>
+              </div>
+            ))}
+          </div>
+        </GlassCard>
+
+        <GlassCard className="shadow-lg">
+          <h3 className="text-xl font-bold mb-4 text-white flex items-center gap-2">
+            <Activity size={24} /> اتخاذ القرارات الصعبة
+          </h3>
+          <div className="grid gap-3">
+            {[
+              { t: "اجمع البيانات، لا الآراء", d: "ابحث عن الحقائق قبل اتخاذ القرار." },
+              { t: "لا تسعَ للمثالية", d: "قرار 'جيد بما يكفي' وسريع أفضل من قرار متأخر." }
+            ].map((item, i) => (
+              <div key={i} className="flex gap-3 items-start p-2 rounded bg-white/5 border border-white/5">
+                <div className="mt-1 text-slate-400">⚡</div>
+                <div>
+                  <strong className="text-white text-xs block">{item.t}</strong>
+                  <p className="text-[10px] text-slate-400">{item.d}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </GlassCard>
+      </div>
+
+      <GlassCard className="border-cyan-500/30 shadow-lg">
+        <h3 className="text-xl font-bold mb-4 text-cyan-400 flex items-center gap-2">
+          <RefreshCw size={20} /> منهجية "اقرن": دورة التحسين المستمر
+        </h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+          {[
+            { step: "1", title: "ابحث واسأل", desc: "عن المصادر" },
+            { step: "2", title: "قارن", desc: "بين ما لديك ولدى الآخرين" },
+            { step: "3", title: "راقب", desc: "الأسواق" },
+            { step: "4", title: "نفّذ", desc: "حوّل المعرفة لعمل" },
+          ].map((item) => (
+            <div key={item.step} className="relative p-3 bg-cyan-900/20 rounded-xl border border-cyan-500/20 shadow-inner">
+              <div className="absolute -top-3 -right-2 w-6 h-6 bg-cyan-500 rounded-full text-black font-bold flex items-center justify-center text-xs border-2 border-slate-900">{item.step}</div>
+              <div className="font-bold text-white mb-1">{item.title}</div>
+              <div className="text-xs text-cyan-200/70">{item.desc}</div>
+            </div>
+          ))}
+        </div>
+      </GlassCard>
+
+      <ChapterChatBot chapterTitle="06. القيادة والنمو" contentData={chapterData} />
+    </div>
+  );
+};
+
+// ===== الفصل السابع: الأدوات والمصادر =====
+const Phase7Content = () => {
+  const chapterData = `
+    كيف يتعلم رائد الأعمال: الدراسة، الكتب، البودكاست، النشرات، الذكاء الاصطناعي.
+    أهم المعارض: LEAP, Biban, GITEX.
+    أدوات التشغيل اليومي.
+  `;
+
+  const zeroToOneTools = [
+    {
+      category: "مرحلة التأسيس",
+      icon: <Rocket size={20} className="text-purple-400"/>,
+      desc: "أدوات تهم المؤسسين في البداية.",
+      tools: [
+        { name: "Venturekit", desc: "توليد خطط أعمال ونماذج مالية.", url: "https://venturekit.ai" },
+        { name: "Perplexity AI", desc: "محرك بحث ذكي بإجابات موثقة.", url: "https://www.perplexity.ai" },
+        { name: "Miro AI", desc: "خرائط ذهنية وتفكير جماعي.", url: "https://miro.com/ai" },
+        { name: "Brandmark", desc: "تصميم شعارات وهويات تجارية.", url: "https://brandmark.io" },
+        { name: "Durable AI", desc: "صناعة المواقع بلا برمجة.", url: "https://durable.co" }
+      ]
+    },
+    {
+      category: "العمليات وتطوير المنتجات",
+      icon: <Cpu size={20} className="text-cyan-400"/>,
+      desc: "تنظيم بيانات المستخدمين وتطوير المنتجات.",
+      tools: [
+        { name: "Zoho CRM", desc: "أتمتة المبيعات وإدارة العملاء.", url: "https://www.zoho.com/crm" },
+        { name: "GPTExcel", desc: "صناعة المعادلات في الإكسل.", url: "https://gptexcel.uk" },
+        { name: "Hotjar", desc: "تحليل تفاعل الزوار (Heatmaps).", url: "https://www.hotjar.com" },
+      ]
+    },
+    {
+      category: "التسويق والنمو",
+      icon: <TrendingUp size={20} className="text-green-400"/>,
+      desc: "التصاميم، الفيديوهات، وكتابة المحتوى.",
+      tools: [
+        { name: "Runway", desc: "تحرير وتوليد الصور والفيديوهات.", url: "https://runwayml.com" },
+        { name: "Quickads", desc: "صناعة الإعلانات للجمهور المستهدف.", url: "https://www.quickads.ai" },
+      ]
+    }
+  ];
+
+  return (
+    <div className="space-y-8">
+      <ChapterSummary points={["مصادر التعلم المستمر.", "المعارض والمؤتمرات الهامة.", "أدوات التشغيل اليومية."]} />
+
+      <GlassCard className="border-yellow-500/30 shadow-lg">
+        <h3 className="text-xl font-bold text-yellow-400 mb-4 flex items-center gap-2">
+          <BookOpen size={24} /> كيف يتعلم رائد الأعمال؟
+        </h3>
+        <div className="space-y-4">
+          {[
+            { icon: <Award size={20}/>, color: "text-yellow-400", bg: "bg-yellow-500/20", t: "1. هل الدراسة مهمة؟", d: "نعم، سواء جامعية أو دورات قصيرة. التعليم اليوم يعتمد على الممارسة." },
+            { icon: <Bot size={20}/>, color: "text-cyan-400", bg: "bg-cyan-500/20", t: "2. الذكاء الاصطناعي كمعلم", d: "استخدم ChatGPT وGemini كمعلم شخصي متاح 24/7." },
+            { icon: <BookOpen size={20}/>, color: "text-purple-400", bg: "bg-purple-500/20", t: "3. الكتب والبودكاست", d: "أفضل الكتب: Zero to One، The Lean Startup، Good to Great." },
+          ].map((item, i) => (
+            <div key={i} className="flex gap-4 items-start bg-white/5 p-3 rounded-lg shadow-inner">
+              <div className={`p-2 ${item.bg} rounded-lg ${item.color}`}>{item.icon}</div>
+              <div>
+                <strong className="text-white text-sm block mb-1">{item.t}</strong>
+                <p className="text-xs text-slate-400">{item.d}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </GlassCard>
+
+      <GlassCard className="border-blue-500/30 shadow-lg">
+        <h3 className="text-xl font-bold text-blue-400 mb-4 flex items-center gap-2">
+          <Globe size={24} /> أهم المعارض والمؤتمرات
+        </h3>
+        <div className="grid md:grid-cols-3 gap-4">
+          {[
+            { name: "LEAP", loc: "الرياض، السعودية", desc: "أكبر مؤتمر تقني في المنطقة." },
+            { name: "Biban", loc: "الرياض، السعودية", desc: "منتدى رواد الأعمال والمنشآت الصغيرة." },
+            { name: "GITEX", loc: "دبي، الإمارات", desc: "معرض التكنولوجيا الأكبر في الشرق الأوسط." },
+          ].map((event, i) => (
+            <div key={i} className="bg-white/5 p-4 rounded-lg border border-blue-500/20 text-center">
+              <strong className="text-blue-300 block text-lg mb-1">{event.name}</strong>
+              <p className="text-xs text-cyan-400 mb-2">{event.loc}</p>
+              <p className="text-xs text-slate-400">{event.desc}</p>
+            </div>
+          ))}
+        </div>
+      </GlassCard>
+
+      <div className="space-y-6">
+        {zeroToOneTools.map((category, ci) => (
+          <GlassCard key={ci} className="shadow-lg">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-white/5 rounded-lg">{category.icon}</div>
+              <div>
+                <h3 className="text-lg font-bold text-white">{category.category}</h3>
+                <p className="text-xs text-slate-400">{category.desc}</p>
+              </div>
+            </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {category.tools.map((tool, ti) => (
+                <a key={ti} href={tool.url} target="_blank" rel="noopener noreferrer"
+                  className="bg-white/5 p-3 rounded-lg border border-white/10 flex items-start gap-2 group hover-elevate">
+                  <ExternalLink size={14} className="text-slate-500 group-hover:text-cyan-400 mt-0.5 shrink-0" />
+                  <div>
+                    <strong className="text-white text-xs block group-hover:text-cyan-300">{tool.name}</strong>
+                    <p className="text-[10px] text-slate-400">{tool.desc}</p>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </GlassCard>
+        ))}
+      </div>
+
+      <ChapterChatBot chapterTitle="07. الأدوات والمصادر" contentData={chapterData} />
+    </div>
+  );
+};
+
+// ===== الفصل الثامن: الملحق والخاتمة =====
+const AppendixContent = () => {
+  const chapterData = `خلاصة رحلة ريادة الأعمال، الدروس المستفادة، نصائح ختامية.`;
+
+  return (
+    <div className="space-y-8">
+      <GlassCard className="bg-gradient-to-br from-cyan-900/30 to-purple-900/30 border-cyan-500/30 shadow-lg text-center">
+        <div className="mb-6">
+          <div className="inline-flex p-4 bg-gradient-to-br from-cyan-500/20 to-purple-500/20 rounded-full mb-4">
+            <Flag size={40} className="text-cyan-400" />
+          </div>
+          <h3 className="text-2xl font-bold text-white mb-3">أنت الآن جاهز للانطلاق!</h3>
+          <p className="text-slate-300 max-w-xl mx-auto leading-relaxed">
+            لقد قطعت رحلة طويلة عبر هذا الدليل. من العقلية الريادية، إلى الفكرة، إلى الفريق، إلى المنتج، إلى التمويل، إلى النمو. الآن حان وقت التنفيذ.
+          </p>
+        </div>
+        <div className="grid md:grid-cols-3 gap-4 mb-8">
+          {[
+            { n: "01", t: "ابدأ صغيراً", d: "لا تنتظر الظروف المثالية. ابدأ بما لديك الآن." },
+            { n: "02", t: "تعلم بسرعة", d: "كل فشل هو درس. كل خطأ هو بيانات ثمينة." },
+            { n: "03", t: "استمر دائماً", d: "المستمر هو من يصل، ليس الأذكى أو الأسرع." },
+          ].map((item) => (
+            <div key={item.n} className="bg-white/5 p-4 rounded-xl border border-white/10">
+              <div className="text-3xl font-black text-cyan-500/30 mb-2">{item.n}</div> **...**
+
+_This response is too long to display in full._
