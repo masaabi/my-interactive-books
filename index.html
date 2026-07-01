@@ -32,33 +32,38 @@
         const { useState, useEffect, useRef } = React;
 
         // =============================================================
-        // CONFIG — عدّل المفتاح هنا فقط
-        // ⚠️ تحذير: المفتاح مكشوف في السورس. قيّده بنطاق موقعك فقط
-        //    من Google AI Studio → API Keys → HTTP referrer restriction
+        // CONFIG — لا حاجة لمفتاح API، الاتصال يتم مباشرة عبر Claude
         // =============================================================
         const CONFIG = {
-            GEMINI_API_KEY: "AIzaSyAXtZzTkxP0x2LvrZQgxSqcnu_QtZeP5II",
-            MODEL: "gemini-2.5-flash",
+            MODEL: "claude-sonnet-4-6",
+            // ⚠️ عدّل هذا الرابط بعد نشر الـ Worker على Cloudflare
+            // شكل الرابط عادة: https://entrepreneur-guide-proxy.YOUR-SUBDOMAIN.workers.dev
+            PROXY_URL: "https://entrepreneur-guide-proxy.YOUR-SUBDOMAIN.workers.dev",
         };
 
-        // ── Gemini API caller ──
-        const callGeminiAPI = async (userMessage, systemPrompt) => {
-            if (!CONFIG.GEMINI_API_KEY) return "⚠️ لم يتم ضبط مفتاح Gemini.";
+        // ── Claude API caller (عبر بروكسي Cloudflare Worker) ──
+        const callClaudeAPI = async (userMessage, systemPrompt) => {
+            if (!CONFIG.PROXY_URL || CONFIG.PROXY_URL.includes("YOUR-SUBDOMAIN")) {
+                return "⚠️ لم يتم ضبط رابط الـ Worker بعد. عدّل PROXY_URL في أعلى الملف بعد نشر الـ Worker على Cloudflare.";
+            }
             try {
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/${CONFIG.MODEL}:generateContent?key=${CONFIG.GEMINI_API_KEY}`;
-                const res = await fetch(url, {
+                const res = await fetch(CONFIG.PROXY_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ role:'user', parts:[{text:userMessage}] }],
-                        systemInstruction: { parts:[{text:systemPrompt}] },
-                        tools: [{ google_search:{} }],
-                        generationConfig: { temperature:0.7, maxOutputTokens:2048 }
+                        model: CONFIG.MODEL,
+                        max_tokens: 2048,
+                        system: systemPrompt,
+                        messages: [{ role: 'user', content: userMessage }],
+                        tools: [{ type: "web_search_20250305", name: "web_search" }]
                     })
                 });
                 const data = await res.json();
                 if (!res.ok) return `خطأ: ${data?.error?.message || res.status}`;
-                const text = data?.candidates?.[0]?.content?.parts?.map(p=>p.text).filter(Boolean).join("\n");
+                const text = (data.content || [])
+                    .map(item => (item.type === "text" ? item.text : ""))
+                    .filter(Boolean)
+                    .join("\n");
                 return text || "عذراً، لم أستطع المعالجة حالياً.";
             } catch (e) { console.error(e); return "عذراً، حدث خطأ في الاتصال. تحقق من الإنترنت."; }
         };
@@ -153,7 +158,7 @@
                 if (!input.trim()||loading) return;
                 const userMsg=input; setMessages(p=>[...p,{role:'user',text:userMsg}]); setInput(""); setLoading(true);
                 const sp=`${selectedTool.prompt}\n\nتعليمات التنسيق:\n1. استخدم العناوين والقوائم النقطية.\n2. اجعل الإجابة مركزة وعملية.\n3. استخدم البحث عبر الإنترنت إن لزم.\n4. اكتب الأرقام بالصيغة اللاتينية (0-9).`;
-                const r=await callGeminiAPI(userMsg,sp); setLoading(false); setMessages(p=>[...p,{role:'model',text:r}]);
+                const r=await callClaudeAPI(userMsg,sp); setLoading(false); setMessages(p=>[...p,{role:'model',text:r}]);
             };
             return (
                 <div className="space-y-6">
@@ -176,7 +181,7 @@
                             <div className="p-4 border-b border-white/10 flex justify-between items-center bg-white/5">
                                 <div className="flex items-center gap-3">
                                     <div className="p-2 bg-cyan-500/20 rounded-lg text-cyan-400 border border-cyan-500/30">{selectedTool.icon}</div>
-                                    <div><h4 className="text-white font-bold text-sm md:text-base">{selectedTool.name}</h4><span className="text-[10px] text-slate-400 hidden md:inline-block">مدعوم بـ Google Gemini</span></div>
+                                    <div><h4 className="text-white font-bold text-sm md:text-base">{selectedTool.name}</h4><span className="text-[10px] text-slate-400 hidden md:inline-block">مدعوم بـ Claude AI</span></div>
                                 </div>
                                 <button onClick={()=>setSelectedTool(null)} className="flex items-center gap-1 text-slate-400 hover:text-white text-xs px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors">العودة للأدوات <ArrowRight size={14}/></button>
                             </div>
@@ -213,7 +218,7 @@
         const handleSend=async()=>{
             if(!inputValue.trim()||isTyping)return;const um=inputValue;setMessages(p=>[...p,{type:'user',text:um}]);setInputValue("");setIsTyping(true);
             const sp=`أنت مساعد ذكي ومستشار لرائد أعمال. الموضوع: "${chapterTitle}". السياق: "${contentData}".\nتعليمات: استخدم بحث Google للمعلومات الحديثة. استخدم العناوين والقوائم النقطية. كن مهنياً ومباشراً. اكتب الأرقام بالصيغة اللاتينية.`;
-            const r=await callGeminiAPI(um,sp);setIsTyping(false);setMessages(p=>[...p,{type:'bot',text:r}]);
+            const r=await callClaudeAPI(um,sp);setIsTyping(false);setMessages(p=>[...p,{type:'bot',text:r}]);
         };
         return (
             <div className="mt-8 border border-white/10 rounded-2xl overflow-hidden bg-black/20 backdrop-blur-md flex flex-col h-[500px]">
@@ -237,7 +242,7 @@
         const handleToolAction=async(input,setOutput,setLoading,promptType)=>{
             if(!input.trim())return;setLoading(true);setOutput("");
             const sp=promptType==='refine'?`أنت خبير ريادة أعمال. حلل الفكرة في 3 نقاط: المشكلة، الحل، القيمة المقترحة.`:`أنت مستشار أعمال ذكي. ضع خارطة طريق من 5 خطوات عملية للبدء.`;
-            const r=await callGeminiAPI(input,sp);setLoading(false);setOutput(r);
+            const r=await callClaudeAPI(input,sp);setLoading(false);setOutput(r);
         };
         return (
             <div className="grid md:grid-cols-2 gap-6 w-full max-w-5xl mt-12 px-4 animate-slideUp">
