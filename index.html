@@ -1,25 +1,27 @@
+html
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>دليل رائد الأعمال | Liquid Guide</title>
-    
-    <!-- 1. استدعاء Tailwind CSS للتصميم -->
+
+    <!-- 1. Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- 2. استدعاء خط Cairo -->
+
+    <!-- 2. خط Cairo -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
-    
-    <!-- 3. استدعاء React و ReactDOM -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    
-    <!-- 4. استدعاء Babel لترجمة كود React داخل المتصفح -->
+
+    <!-- 3. React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+    <!-- 4. Babel لترجمة JSX داخل المتصفح -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    <!-- 5. استدعاء مكتبة الأيقونات Lucide (النسخة العالمية) -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- 5. مكتبة الأيقونات Lucide -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 
     <style>
         body {
@@ -36,14 +38,15 @@
         }
         .animate-blob { animation: blob 10s infinite; }
         .animation-delay-2000 { animation-delay: 2s; }
+        .animation-delay-3000 { animation-delay: 3s; }
         .animation-delay-4000 { animation-delay: 4s; }
-        
+
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fadeIn { animation: fadeIn 0.5s ease-out forwards; }
 
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         .animate-slideUp { animation: slideUp 0.6s ease-out forwards; }
-        
+
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
         html { scroll-behavior: smooth; }
@@ -57,25 +60,111 @@
         // تعريف React Hooks من الكائن العام
         const { useState, useEffect, useRef } = React;
 
-        // إعداد الأيقونات: دالة مساعدة لتحويل أيقونات Lucide لاستخدامها في React
-        const Icon = ({ name, size = 24, className, ...props }) => {
-            const iconName = name.charAt(0).toLowerCase() + name.slice(1).replace(/([A-Z])/g, '-$1').toLowerCase();
-            // Lucide icons are available globally via window.lucide.icons
-            if (window.lucide && window.lucide.icons[iconName]) {
-                 // Create SVG element
-                 const svg = window.lucide.icons[iconName].toSvg({
-                     width: size,
-                     height: size,
-                     class: className,
-                     ...props
-                 });
-                 return <span dangerouslySetInnerHTML={{ __html: svg }} style={{ display: 'inline-flex', alignItems: 'center' }} />;
-            }
-            // Fallback for names that might not match exactly or if missing
-            return null;
+        // =============================================================================
+        //  ⚙️  الإعدادات (CONFIG) — عدّل من هنا فقط
+        // =============================================================================
+        //
+        //  ⚠️ تنبيه أمني مهم جداً حول مفتاح Gemini:
+        //  هذا المفتاح مكتوب داخل صفحة الويب، وأي شخص يفتح الصفحة يقدر يشوفه عن طريق
+        //  "View Source". لذلك:
+        //   1) بما إن هذا المفتاح انكتب ونُشر، يُفضّل أن تُنشئ مفتاحاً جديداً (Regenerate)
+        //      من Google AI Studio وتحذف القديم.
+        //   2) قبل ما تنشر الصفحة على الإنترنت، ادخل على إعدادات المفتاح في Google AI Studio
+        //      وقيّده بنطاق موقعك فقط (HTTP referrer restriction) حتى ما يقدر أحد يستخدمه
+        //      من موقع ثاني.
+        //   3) للتشغيل المحلي على اللابتوب، اترك المفتاح بدون تقييد (أو أضف localhost).
+        //
+        const CONFIG = {
+            // ← ضع مفتاح Gemini الخاص بك هنا (من Google AI Studio)
+            GEMINI_API_KEY: "AIzaSyAXtZzTkxP0x2LvrZQgxSqcnu_QtZeP5II",
+
+            // موديل مستقر ومدعوم. بدائل: "gemini-flash-latest" (أحدث)، "gemini-3.1-flash-lite" (أسرع/أرخص)
+            MODEL: "gemini-2.5-flash",
         };
 
-        // تعريف مكونات الأيقونات بشكل فردي لتتناسب مع الكود الأصلي
+        // -----------------------------------------------------------------------------
+        //  استدعاء Gemini API
+        // -----------------------------------------------------------------------------
+        const callGeminiAPI = async (userMessage, systemPrompt) => {
+            if (!CONFIG.GEMINI_API_KEY || CONFIG.GEMINI_API_KEY.includes("ضع") ) {
+                return "⚠️ لم يتم ضبط مفتاح Gemini. افتح ملف الصفحة وضع مفتاحك داخل CONFIG.GEMINI_API_KEY.";
+            }
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/${CONFIG.MODEL}:generateContent?key=${CONFIG.GEMINI_API_KEY}`;
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ role: 'user', parts: [{ text: userMessage }] }],
+                        systemInstruction: { parts: [{ text: systemPrompt }] },
+                        tools: [{ google_search: {} }],
+                        generationConfig: {
+                            temperature: 0.7,
+                            maxOutputTokens: 2048,
+                        }
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    const msg = data?.error?.message || `HTTP ${response.status}`;
+                    console.error("Gemini API error:", data);
+                    return `عذراً، رفض الخادم الطلب: ${msg}\n\nتأكد من صلاحية المفتاح وإعداداته.`;
+                }
+
+                // التعامل مع حظر المحتوى أو الردود الفارغة
+                const candidate = data?.candidates?.[0];
+                const text = candidate?.content?.parts?.map(p => p.text).filter(Boolean).join("\n");
+                if (!text) {
+                    const reason = candidate?.finishReason || data?.promptFeedback?.blockReason;
+                    return reason
+                        ? `تعذّر إكمال الرد (السبب: ${reason}). حاول إعادة صياغة سؤالك.`
+                        : "عذراً، لم أستطع المعالجة حالياً. حاول مرة أخرى.";
+                }
+                return text;
+            } catch (error) {
+                console.error("AI Service Error:", error);
+                return "عذراً، حدث خطأ في الاتصال بخدمة الذكاء الاصطناعي. يرجى التحقق من الإنترنت والمحاولة مجدداً.";
+            }
+        };
+
+        // -----------------------------------------------------------------------------
+        //  مكوّن الأيقونات (Lucide) — نسخة مُصححة تقرأ IconNode مباشرةً
+        // -----------------------------------------------------------------------------
+        const toPascal = (name) =>
+            name.split('-').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join('');
+        const toCamel = (k) => k.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+
+        const Icon = ({ name, size = 24, className = "", ...props }) => {
+            const pascal = toPascal(name);
+            const lib = window.lucide || {};
+            const node = lib[pascal] || (lib.icons && lib.icons[pascal]) || null;
+            if (!node || !Array.isArray(node)) return null;
+            return (
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width={size}
+                    height={size}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className={className}
+                    {...props}
+                >
+                    {node.map(([tag, attrs], i) => {
+                        const reactAttrs = {};
+                        for (const k in attrs) reactAttrs[toCamel(k)] = attrs[k];
+                        return React.createElement(tag, { key: i, ...reactAttrs });
+                    })}
+                </svg>
+            );
+        };
+
+        // تعريف مكونات الأيقونات بشكل فردي
         const Rocket = (p) => <Icon name="rocket" {...p} />;
         const Users = (p) => <Icon name="users" {...p} />;
         const DollarSign = (p) => <Icon name="dollar-sign" {...p} />;
@@ -94,7 +183,7 @@
         const Layout = (p) => <Icon name="layout" {...p} />;
         const RefreshCw = (p) => <Icon name="refresh-cw" {...p} />;
         const Briefcase = (p) => <Icon name="briefcase" {...p} />;
-        const Battery = (p) => <Icon name="battery" {...p} />; // battery not always full/empty in lucide names, checking mapping
+        const Battery = (p) => <Icon name="battery" {...p} />;
         const BookOpen = (p) => <Icon name="book-open" {...p} />;
         const Bot = (p) => <Icon name="bot" {...p} />;
         const FileText = (p) => <Icon name="file-text" {...p} />;
@@ -122,7 +211,7 @@
         const Copy = (p) => <Icon name="copy" {...p} />;
         const Check = (p) => <Icon name="check" {...p} />;
         const Stethoscope = (p) => <Icon name="stethoscope" {...p} />;
-        const ListCheck = (p) => <Icon name="list-check" {...p} />; // Lucide uses list-checks? or list-todo? Let's try list-checks
+        const ListCheck = (p) => <Icon name="list-check" {...p} />;
         const Cpu = (p) => <Icon name="cpu" {...p} />;
         const Microscope = (p) => <Icon name="microscope" {...p} />;
         const AlertOctagon = (p) => <Icon name="alert-octagon" {...p} />;
@@ -132,39 +221,6 @@
         const GanttChartSquare = (p) => <Icon name="gantt-chart-square" {...p} />;
         const Type = (p) => <Icon name="type" {...p} />;
         const ExternalLink = (p) => <Icon name="external-link" {...p} />;
-
-
-        // -----------------------------------------------------------------------------
-        // 0. CONFIGURATION & UTILS
-        // -----------------------------------------------------------------------------
-
-        // API Key
-        const API_KEY = "AIzaSyAXtZzTkxP0x2LvrZQgxSqcnu_QtZeP5II";
-
-        // Helper function to call Gemini API
-        const callGeminiAPI = async (userMessage, systemPrompt) => {
-        try {
-            const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${API_KEY}`,
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                contents: [{ parts: [{ text: userMessage }] }],
-                systemInstruction: { parts: [{ text: systemPrompt }] },
-                tools: [{ google_search: {} }]
-                })
-            }
-            );
-
-            if (!response.ok) throw new Error('Network error');
-            const data = await response.json();
-            return data.candidates?.[0]?.content?.parts?.[0]?.text || "عذراً، لم أستطع المعالجة حالياً.";
-        } catch (error) {
-            console.error("AI Service Error:", error);
-            return "عذراً، حدث خطأ في الاتصال بخدمة الذكاء الاصطناعي. يرجى التحقق من الإنترنت.";
-        }
-        };
 
         // -----------------------------------------------------------------------------
         // 1. BASE COMPONENTS
@@ -181,13 +237,13 @@
 
         const GlassCard = ({ children, className = "", hoverEffect = false }) => (
         <div className={`
-            bg-white/10 
-            backdrop-blur-lg 
-            border border-white/20 
-            shadow-xl 
-            rounded-2xl 
-            p-6 
-            text-white 
+            bg-white/10
+            backdrop-blur-lg
+            border border-white/20
+            shadow-xl
+            rounded-2xl
+            p-6
+            text-white
             ${hoverEffect ? 'transition-transform duration-300 hover:scale-[1.02] hover:bg-white/15' : ''}
             ${className}
         `}>
@@ -218,7 +274,7 @@
         const SmartAIAdvisor = () => {
             const [selectedTool, setSelectedTool] = useState(null);
             const [input, setInput] = useState("");
-            const [messages, setMessages] = useState([]); 
+            const [messages, setMessages] = useState([]);
             const [loading, setLoading] = useState(false);
             const [copiedIndex, setCopiedIndex] = useState(null);
             const chatEndRef = useRef(null);
@@ -253,15 +309,15 @@
                 textArea.value = text;
                 document.body.appendChild(textArea);
                 textArea.select();
-                document.execCommand('copy');
+                try { document.execCommand('copy'); } catch (e) {}
                 document.body.removeChild(textArea);
                 setCopiedIndex(index);
                 setTimeout(() => setCopiedIndex(null), 2000);
             };
 
             const handleSend = async () => {
-                if (!input.trim()) return;
-                
+                if (!input.trim() || loading) return;
+
                 const userMsg = input;
                 setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
                 setInput("");
@@ -269,12 +325,13 @@
 
                 const systemPrompt = `
                     ${selectedTool.prompt}
-                    
+
                     تعليمات التنسيق الصارمة:
                     1. استخدم العناوين الرئيسية والفرعية (Bold).
                     2. استخدم القوائم النقطية (Bullet Points) لتبسيط المعلومات.
                     3. اجعل الإجابة مركزة ومباشرة وعملية.
                     4. استخدم البحث عبر الإنترنت لتقديم أمثلة واقعية وحديثة إن لزم الأمر.
+                    5. اكتب الأرقام بالصيغة اللاتينية (0-9).
                 `;
 
                 const botResponse = await callGeminiAPI(userMsg, systemPrompt);
@@ -293,7 +350,7 @@
                                 <p className="text-slate-400 text-sm mt-2">اختر الأداة المناسبة لاحتياجك الحالي، وسيقوم الذكاء الاصطناعي بلعب دور الخبير المتخصص لمساعدتك.</p>
                             </div>
                             {tools.map(tool => (
-                                <button 
+                                <button
                                     key={tool.id}
                                     onClick={() => setSelectedTool(tool)}
                                     className="bg-white/5 border border-white/10 p-5 rounded-2xl hover:bg-white/10 hover:border-cyan-500/50 hover:-translate-y-1 transition-all text-right group flex flex-col h-full shadow-lg"
@@ -317,7 +374,7 @@
                                         <span className="text-[10px] text-slate-400 hidden md:inline-block">مدعوم بـ Google Gemini</span>
                                     </div>
                                 </div>
-                                <button 
+                                <button
                                     onClick={() => setSelectedTool(null)}
                                     className="flex items-center gap-1 text-slate-400 hover:text-white text-xs px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors"
                                 >
@@ -330,13 +387,13 @@
                                 {messages.map((msg, idx) => (
                                     <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                                         <div className={`relative max-w-[85%] md:max-w-[75%] p-4 rounded-2xl text-sm leading-7 whitespace-pre-wrap ${
-                                            msg.role === 'user' 
-                                                ? 'bg-cyan-600 text-white rounded-br-sm shadow-lg shadow-cyan-900/20' 
+                                            msg.role === 'user'
+                                                ? 'bg-cyan-600 text-white rounded-br-sm shadow-lg shadow-cyan-900/20'
                                                 : 'bg-white/10 text-slate-100 rounded-bl-sm border border-white/5 shadow-md'
                                         }`}>
                                             {msg.text}
                                             {msg.role === 'model' && (
-                                                <button 
+                                                <button
                                                     onClick={() => handleCopy(msg.text, idx)}
                                                     className="absolute -bottom-7 left-0 flex items-center gap-1.5 text-[10px] text-slate-500 hover:text-cyan-400 transition-colors px-2 py-1"
                                                 >
@@ -365,7 +422,7 @@
                             {/* Input Area */}
                             <div className="p-4 bg-white/5 border-t border-white/10">
                                 <div className="relative flex gap-2">
-                                    <textarea 
+                                    <textarea
                                         className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 pr-12 text-white text-sm focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all placeholder-slate-500 resize-none"
                                         rows="1"
                                         placeholder="اكتب هنا..."
@@ -378,12 +435,12 @@
                                             }
                                         }}
                                     />
-                                    <button 
+                                    <button
                                         onClick={handleSend}
                                         disabled={loading || !input.trim()}
                                         className={`absolute left-2 bottom-2 p-2 rounded-lg transition-all ${
-                                            input.trim() 
-                                            ? 'bg-cyan-500 text-white hover:bg-cyan-400 shadow-lg' 
+                                            input.trim() && !loading
+                                            ? 'bg-cyan-500 text-white hover:bg-cyan-400 shadow-lg'
                                             : 'bg-white/10 text-slate-500 cursor-not-allowed'
                                         }`}
                                     >
@@ -408,7 +465,7 @@
         const [isTyping, setIsTyping] = useState(false);
         const [copiedIndex, setCopiedIndex] = useState(null);
         const chatEndRef = useRef(null);
-        
+
         const scrollToBottom = () => {
             chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
         };
@@ -433,7 +490,7 @@
         };
 
         const handleSend = async () => {
-            if (!inputValue.trim()) return;
+            if (!inputValue.trim() || isTyping) return;
 
             const userMessage = inputValue;
             setMessages(prev => [...prev, { type: 'user', text: userMessage }]);
@@ -443,7 +500,7 @@
             const systemPrompt = `
                 أنت مساعد ذكي ومستشار لرائد أعمال. الموضوع الحالي هو: "${chapterTitle}".
                 بيانات السياق لهذا الفصل: "${contentData}".
-                
+
                 التعليمات الصارمة للإجابة:
                 1. استخدم بحث Google لتقديم معلومات دقيقة وحديثة، مع دمجها بسياق الفصل.
                 2. التنسيق (مهم جداً):
@@ -454,6 +511,7 @@
                 3. كن مهنياً، مشجعاً، ومباشراً.
                 4. افهم القصد من السؤال حتى لو كانت الصياغة ركيكة أو عامية.
                 5. قدم خطوات عملية ونصائح قابلة للتطبيق.
+                6. اكتب الأرقام بالصيغة اللاتينية (0-9).
             `;
 
             const botResponse = await callGeminiAPI(userMessage, systemPrompt);
@@ -467,20 +525,20 @@
                 <Sparkles className="text-cyan-400" size={20} />
                 <h4 className="font-bold text-white text-sm">المساعد الذكي - {chapterTitle}</h4>
             </div>
-            
+
             <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-gradient-to-b from-transparent to-black/20">
                 {messages.map((msg, idx) => (
                 <div key={idx} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
                     <div className={`relative max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${
-                    msg.type === 'user' 
-                        ? 'bg-cyan-600 text-white rounded-br-sm shadow-lg' 
+                    msg.type === 'user'
+                        ? 'bg-cyan-600 text-white rounded-br-sm shadow-lg'
                         : 'bg-white/10 text-slate-100 rounded-bl-sm border border-white/5'
                     }`}>
                     {msg.text}
-                    
+
                     {msg.type === 'bot' && (
                         <div className="absolute -bottom-6 left-0 flex gap-2">
-                        <button 
+                        <button
                             onClick={() => handleCopy(msg.text, idx)}
                             className="flex items-center gap-1 text-[10px] text-slate-400 hover:text-cyan-400 transition-colors bg-black/30 px-2 py-1 rounded-full border border-white/5"
                         >
@@ -506,19 +564,19 @@
             </div>
 
             <div className="p-3 bg-white/5 border-t border-white/10 flex gap-2 flex-shrink-0">
-                <input 
-                type="text" 
+                <input
+                type="text"
                 className="flex-1 bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all placeholder-slate-500"
                 placeholder="اطرح سؤالك هنا... (مثال: لخص لي أهم النقاط)"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                 />
-                <button 
+                <button
                 onClick={handleSend}
                 className={`p-3 rounded-xl text-white transition-all ${
-                    inputValue.trim() 
-                    ? 'bg-cyan-600 hover:bg-cyan-500 shadow-lg shadow-cyan-500/20' 
+                    inputValue.trim() && !isTyping
+                    ? 'bg-cyan-600 hover:bg-cyan-500 shadow-lg shadow-cyan-500/20'
                     : 'bg-white/10 cursor-not-allowed text-slate-500'
                 }`}
                 disabled={!inputValue.trim() || isTyping}
@@ -567,19 +625,19 @@
                     هل لديك فكرة أولية؟ صفها ببساطة، وسنحولها إلى "مشكلة"، "حل"، و"قيمة مقترحة" قوية.
                 </p>
                 </div>
-                <textarea 
+                <textarea
                 className="w-full bg-black/20 border border-white/10 rounded-lg p-3 text-sm text-white focus:border-yellow-400 focus:outline-none resize-none mb-3"
                 rows="3"
                 placeholder="مثال: تطبيق لتوصيل القهوة للمكاتب..."
                 value={ideaInput}
                 onChange={(e) => setIdeaInput(e.target.value)}
                 />
-                <button 
+                <button
                 onClick={() => handleToolAction(ideaInput, setIdeaResult, setIsRefining, 'refine')}
                 disabled={isRefining || !ideaInput.trim()}
                 className="w-full py-2 bg-yellow-500 hover:bg-yellow-600 text-black font-bold rounded-lg transition-colors disabled:opacity-50 mb-4 flex justify-center items-center gap-2"
                 >
-                {isRefining ? <span className="animate-spin">⌛</span> : <Sparkles size={16}/>} 
+                {isRefining ? <span className="animate-spin">⌛</span> : <Sparkles size={16}/>}
                 {isRefining ? "جاري الصياغة..." : "بلور فكرتي"}
                 </button>
                 {ideaResult && (
@@ -598,14 +656,14 @@
                     لا تعرف من أين تبدأ؟ صف المجال الذي تهتم به، وسنضع لك خارطة طريق عملية للبدء.
                 </p>
                 </div>
-                <textarea 
+                <textarea
                 className="w-full bg-black/20 border border-white/10 rounded-lg p-3 text-sm text-white focus:border-cyan-400 focus:outline-none resize-none mb-3"
                 rows="3"
                 placeholder="مثال: أريد بدء مشروع في التجارة الإلكترونية..."
                 value={clinicInput}
                 onChange={(e) => setClinicInput(e.target.value)}
                 />
-                <button 
+                <button
                 onClick={() => handleToolAction(clinicInput, setClinicResult, setIsDiagnosing, 'clinic')}
                 disabled={isDiagnosing || !clinicInput.trim()}
                 className="w-full py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-lg transition-colors disabled:opacity-50 mb-4 flex justify-center items-center gap-2"
@@ -630,7 +688,7 @@
             const handleScroll = () => {
             const totalScroll = document.documentElement.scrollTop;
             const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-            const scroll = `${totalScroll / windowHeight}`;
+            const scroll = windowHeight > 0 ? (totalScroll / windowHeight) : 0;
             setScrollProgress(Number(scroll));
             }
             window.addEventListener('scroll', handleScroll);
@@ -639,7 +697,7 @@
 
         return (
             <div className="fixed top-0 left-0 w-full h-1.5 bg-slate-800 z-50">
-            <div 
+            <div
                 className="h-full bg-gradient-to-r from-purple-500 via-cyan-500 to-blue-500 transition-all duration-100 ease-out"
                 style={{ width: `${scrollProgress * 100}%` }}
             />
@@ -669,7 +727,7 @@
             } else {
             const element = document.getElementById(id);
             if (element) {
-                const yOffset = -50; 
+                const yOffset = -50;
                 const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
                 window.scrollTo({ top: y, behavior: 'smooth' });
             }
@@ -677,8 +735,8 @@
         };
 
         return (
-            <div className="fixed top-6 left-6 z-50 font-['Cairo']">
-            <button 
+            <div className="fixed top-6 left-6 z-50">
+            <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="flex items-center gap-2 px-4 py-2 bg-slate-900/80 backdrop-blur-md border border-white/10 text-white rounded-full shadow-[0_0_15px_rgba(0,0,0,0.5)] hover:bg-cyan-900/30 hover:border-cyan-500/50 transition-all group"
             >
@@ -737,7 +795,7 @@
             </div>
             {!isLast && (
                 <div className="flex justify-center mt-12">
-                <button 
+                <button
                     onClick={scrollToNext}
                     className="group flex flex-col items-center gap-2 text-slate-400 hover:text-cyan-400 transition-colors"
                 >
@@ -770,8 +828,8 @@
             <br/>
             <span className="text-base text-slate-400 mt-2 block">رحلة تفاعلية تجمع الخبرة بالأدوات الذكية.</span>
             </p>
-            
-            <button 
+
+            <button
             onClick={() => document.getElementById('chapter1').scrollIntoView({ behavior: 'smooth' })}
             className="px-8 py-4 bg-gradient-to-r from-cyan-600 to-blue-600 rounded-full font-bold text-white text-lg hover:shadow-[0_0_30px_rgba(6,182,212,0.5)] transition-all transform hover:-translate-y-1 flex items-center gap-2 mb-8"
             >
@@ -793,7 +851,7 @@
         return (
             <div className="space-y-8">
             <ChapterSummary points={["الاستعداد النفسي والذهني.", "صفات رائد الأعمال الناجح.", "تجاوز الخوف من الفشل.", "دروس من رواد أعمال عالميين ومحليين."]} />
-            
+
             {/* 5 Traits */}
             <GlassCard className="mb-6 border-l-4 border-l-emerald-500 bg-gradient-to-r from-emerald-900/10 to-transparent">
                 <h3 className="text-xl font-bold mb-6 text-emerald-400 flex items-center gap-2">
@@ -836,10 +894,10 @@
             </GlassCard>
 
             {/* Psychological Aspect */}
-            <div className="grid md:grid-cols-2 gap-6"> 
-                <GlassCard className="hover:bg-purple-900/10 transition-colors"> <h4 className="text-lg font-bold text-purple-400 mb-3 flex items-center gap-2"> 🎭 متلازمة المحتال (Imposter Syndrome) </h4> <p className="text-sm text-slate-300 mb-4 leading-relaxed"> هو ذلك الشعور المزعج بأنك لا تستحق نجاحك، وأنك على وشك أن "تُكشف" كمحتال. شعور شائع جدًا بين الناجحين. </p> <div className="bg-white/5 p-3 rounded-lg text-xs text-slate-400 border border-white/5"> <strong className="text-white block mb-1">💡 كيف تتعامل معها؟</strong> وثّق نجاحاتك الصغيرة، تحدث مع رواد أعمال آخرين (لتعرف أنك لست وحدك)، وتذكر أن لا أحد يعرف كل شيء. </div> </GlassCard> 
-                <GlassCard className="hover:bg-red-900/10 transition-colors"> <h4 className="text-lg font-bold text-red-400 mb-3 flex items-center gap-2"> <Battery size={20} className="text-red-400" /> إدارة الإرهاق والاحتراق الوظيفي </h4> <p className="text-sm text-slate-300 mb-4 leading-relaxed"> العمل لساعات طويلة دون توقف ليس شارة شرف، بل وصفة للاحتراق تقتل الإبداع والقدرة على اتخاذ قرارات جيدة. </p> <div className="bg-white/5 p-3 rounded-lg text-xs text-slate-400 border border-white/5"> <strong className="text-white block mb-1">🛡️ اهتم بصحتك النفسية:</strong> ضع حدودًا واضحة، خصص وقتًا للراحة، تعلم قول "لا"، وفوض المهام. صحتك ضرورة وليست رفاهية. </div> </GlassCard> 
-            </div> 
+            <div className="grid md:grid-cols-2 gap-6">
+                <GlassCard className="hover:bg-purple-900/10 transition-colors"> <h4 className="text-lg font-bold text-purple-400 mb-3 flex items-center gap-2"> 🎭 متلازمة المحتال (Imposter Syndrome) </h4> <p className="text-sm text-slate-300 mb-4 leading-relaxed"> هو ذلك الشعور المزعج بأنك لا تستحق نجاحك، وأنك على وشك أن "تُكشف" كمحتال. شعور شائع جدًا بين الناجحين. </p> <div className="bg-white/5 p-3 rounded-lg text-xs text-slate-400 border border-white/5"> <strong className="text-white block mb-1">💡 كيف تتعامل معها؟</strong> وثّق نجاحاتك الصغيرة، تحدث مع رواد أعمال آخرين (لتعرف أنك لست وحدك)، وتذكر أن لا أحد يعرف كل شيء. </div> </GlassCard>
+                <GlassCard className="hover:bg-red-900/10 transition-colors"> <h4 className="text-lg font-bold text-red-400 mb-3 flex items-center gap-2"> <Battery size={20} className="text-red-400" /> إدارة الإرهاق والاحتراق الوظيفي </h4> <p className="text-sm text-slate-300 mb-4 leading-relaxed"> العمل لساعات طويلة دون توقف ليس شارة شرف، بل وصفة للاحتراق تقتل الإبداع والقدرة على اتخاذ قرارات جيدة. </p> <div className="bg-white/5 p-3 rounded-lg text-xs text-slate-400 border border-white/5"> <strong className="text-white block mb-1">🛡️ اهتم بصحتك النفسية:</strong> ضع حدودًا واضحة، خصص وقتًا للراحة، تعلم قول "لا"، وفوض المهام. صحتك ضرورة وليست رفاهية. </div> </GlassCard>
+            </div>
 
             {/* Nuheit & Altman */}
             <div className="space-y-6">
@@ -938,17 +996,17 @@
                 </div>
             </GlassCard>
 
-            <GlassCard className="border-l-4 border-l-cyan-500 bg-gradient-to-r from-cyan-900/10 to-transparent shadow-lg"> 
-                <h3 className="text-xl font-bold mb-3 text-cyan-400 flex items-center gap-2"> <Search size={20} /> 1. تحديد المشكلة (Problem Discovery) </h3> 
-                <p className="text-slate-300 mb-5 leading-relaxed text-sm"> تبدأ أعظم الشركات بحل لمشكلة حقيقية. الفكرة بحد ذاتها ليست هي القيمة، بل القيمة تكمن في قدرة هذه الفكرة على حل <strong className="text-white">"ألم" (Pain Point)</strong> لدى شريحة معينة من الناس. </p> 
-                <div className="space-y-3"> 
-                <div className="bg-white/5 p-3 rounded-lg border border-white/5 hover:border-cyan-500/30 transition-colors"> <strong className="text-white block mb-1 flex items-center gap-2">🏃‍♂️ اخرج من المبنى</strong> <span className="text-sm text-slate-400">تحدث إلى العملاء المحتملين. اسألهم عن تحدياتهم، وليس عن رأيهم في فكرتك. <span className="text-cyan-400/80">(وقع في حب "المشكلة" لا "الحل")</span>.</span> </div> 
-                <div className="bg-white/5 p-3 rounded-lg border border-white/5 hover:border-cyan-500/30 transition-colors"> <strong className="text-white block mb-1 flex items-center gap-2">🎯 من هو عميلك؟</strong> <span className="text-sm text-slate-400">حدد بدقة الشريحة التي تعاني من هذه المشكلة. تذكر: "الجميع" ليس إجابة مقبولة.</span> </div> 
-                <div className="bg-white/5 p-3 rounded-lg border border-white/5 hover:border-cyan-500/30 transition-colors"> <strong className="text-white block mb-1 flex items-center gap-2">🛠️ ما هو الحل الحالي؟</strong> <span className="text-sm text-slate-400">كيف يحل الناس هذه المشكلة اليوم؟ (حتى لو كان الحل "يدويًا" أو سيئًا، فهذا دليل قوي على وجود المشكلة).</span> </div> 
-                </div> 
+            <GlassCard className="border-l-4 border-l-cyan-500 bg-gradient-to-r from-cyan-900/10 to-transparent shadow-lg">
+                <h3 className="text-xl font-bold mb-3 text-cyan-400 flex items-center gap-2"> <Search size={20} /> 1. تحديد المشكلة (Problem Discovery) </h3>
+                <p className="text-slate-300 mb-5 leading-relaxed text-sm"> تبدأ أعظم الشركات بحل لمشكلة حقيقية. الفكرة بحد ذاتها ليست هي القيمة، بل القيمة تكمن في قدرة هذه الفكرة على حل <strong className="text-white">"ألم" (Pain Point)</strong> لدى شريحة معينة من الناس. </p>
+                <div className="space-y-3">
+                <div className="bg-white/5 p-3 rounded-lg border border-white/5 hover:border-cyan-500/30 transition-colors"> <strong className="text-white block mb-1 flex items-center gap-2">🏃‍♂️ اخرج من المبنى</strong> <span className="text-sm text-slate-400">تحدث إلى العملاء المحتملين. اسألهم عن تحدياتهم، وليس عن رأيهم في فكرتك. <span className="text-cyan-400/80">(وقع في حب "المشكلة" لا "الحل")</span>.</span> </div>
+                <div className="bg-white/5 p-3 rounded-lg border border-white/5 hover:border-cyan-500/30 transition-colors"> <strong className="text-white block mb-1 flex items-center gap-2">🎯 من هو عميلك؟</strong> <span className="text-sm text-slate-400">حدد بدقة الشريحة التي تعاني من هذه المشكلة. تذكر: "الجميع" ليس إجابة مقبولة.</span> </div>
+                <div className="bg-white/5 p-3 rounded-lg border border-white/5 hover:border-cyan-500/30 transition-colors"> <strong className="text-white block mb-1 flex items-center gap-2">🛠️ ما هو الحل الحالي؟</strong> <span className="text-sm text-slate-400">كيف يحل الناس هذه المشكلة اليوم؟ (حتى لو كان الحل "يدويًا" أو سيئًا، فهذا دليل قوي على وجود المشكلة).</span> </div>
+                </div>
             </GlassCard>
 
-            {/* NEW SECTION: Choosing Project Name */}
+            {/* Choosing Project Name */}
             <GlassCard className="bg-gradient-to-r from-pink-900/20 to-rose-900/20 border-l-4 border-l-pink-500 shadow-lg">
                 <h3 className="text-xl font-bold mb-4 text-pink-400 flex items-center gap-2">
                 <Type size={24} /> 4 تلميحات تساعدك في اختيار اسم مشروعك
@@ -968,45 +1026,45 @@
                 </div>
             </GlassCard>
 
-            {/* 4. Value Proposition */}
-            <GlassCard className="border-l-4 border-l-green-500 bg-gradient-to-r from-green-900/10 to-transparent shadow-lg"> 
-                <h3 className="text-xl font-bold mb-3 text-green-400 flex items-center gap-2"> <Target size={20} /> صياغة القيمة المقترحة (Value Proposition) </h3> 
-                <p className="text-slate-300 mb-4 text-sm"> هذه هي الجملة الواحدة التي تشرح لماذا يجب على العميل أن يختارك. استخدم هذه المعادلة البسيطة: </p> 
-                <div className="bg-black/30 p-4 rounded-lg border border-white/10 mb-4 font-mono text-sm text-center leading-loose shadow-inner"> "نحن نساعد <span className="text-purple-400 font-bold">(شريحة العملاء)</span> على <span className="text-red-400 font-bold">(حل المشكلة)</span> من خلال <span className="text-cyan-400 font-bold">(منتجك/السر الخاص بك)</span>." </div> 
-                <div className="text-sm text-slate-400 bg-white/5 p-3 rounded-lg border border-white/5"> <strong className="text-white block mb-1">مثال عملي:</strong> "نحن نساعد <span className="text-purple-300">أصحاب المتاجر الصغيرة</span> على <span className="text-red-300">إدارة مخزونهم بسهولة</span> من خلال <span className="text-cyan-300">تطبيق جوال بسيط</span>." </div> 
-            </GlassCard> 
+            {/* Value Proposition */}
+            <GlassCard className="border-l-4 border-l-green-500 bg-gradient-to-r from-green-900/10 to-transparent shadow-lg">
+                <h3 className="text-xl font-bold mb-3 text-green-400 flex items-center gap-2"> <Target size={20} /> صياغة القيمة المقترحة (Value Proposition) </h3>
+                <p className="text-slate-300 mb-4 text-sm"> هذه هي الجملة الواحدة التي تشرح لماذا يجب على العميل أن يختارك. استخدم هذه المعادلة البسيطة: </p>
+                <div className="bg-black/30 p-4 rounded-lg border border-white/10 mb-4 font-mono text-sm text-center leading-loose shadow-inner"> "نحن نساعد <span className="text-purple-400 font-bold">(شريحة العملاء)</span> على <span className="text-red-400 font-bold">(حل المشكلة)</span> من خلال <span className="text-cyan-400 font-bold">(منتجك/السر الخاص بك)</span>." </div>
+                <div className="text-sm text-slate-400 bg-white/5 p-3 rounded-lg border border-white/5"> <strong className="text-white block mb-1">مثال عملي:</strong> "نحن نساعد <span className="text-purple-300">أصحاب المتاجر الصغيرة</span> على <span className="text-red-300">إدارة مخزونهم بسهولة</span> من خلال <span className="text-cyan-300">تطبيق جوال بسيط</span>." </div>
+            </GlassCard>
 
-            {/* 5. Feasibility Study */}
+            {/* Feasibility Study */}
             <GlassCard className="border-l-4 border-l-teal-500 bg-gradient-to-r from-teal-900/10 to-transparent shadow-lg">
                 <h3 className="text-xl font-bold mb-4 text-teal-400 flex items-center gap-2">
                 <Calculator size={24} /> خطوات دراسة الجدوى العملية
                 </h3>
                 <div className="space-y-4">
                 {[
-                    { 
-                    t: "1. لا تبدأ بـ \"العاطفة\"، ابدأ بـ \"الأرقام\"", 
+                    {
+                    t: "1. لا تبدأ بـ \"العاطفة\"، ابدأ بـ \"الأرقام\"",
                     d: "الهدف ليس إثبات روعة الفكرة، بل اختبار ربحيتها. الفائدة: حماية مدخراتك.",
-                    e: "مثال: فتح محل آيس كريم في حي بارد طوال العام = إقبال ضعيف مهما كان الطعم لذيذاً." 
+                    e: "مثال: فتح محل آيس كريم في حي بارد طوال العام = إقبال ضعيف مهما كان الطعم لذيذاً."
                     },
-                    { 
-                    t: "2. ابحث عن \"الزبون\" قبل \"المحل\"", 
+                    {
+                    t: "2. ابحث عن \"الزبون\" قبل \"المحل\"",
                     d: "السوق هو المحرك. حدد الفجوة التسويقية ولماذا سيترك العميل غيرك ويأتيك.",
-                    e: "مثال: حي مليء بالمغاسل العادية؟ الفجوة قد تكون مغسلة مستعجلة (تسليم خلال ساعة)." 
+                    e: "مثال: حي مليء بالمغاسل العادية؟ الفجوة قد تكون مغسلة مستعجلة (تسليم خلال ساعة)."
                     },
-                    { 
-                    t: "3. خطط لكل \"مسمار\" (الدراسة الفنية)", 
+                    {
+                    t: "3. خطط لكل \"مسمار\" (الدراسة الفنية)",
                     d: "تحويل الفكرة لواقع: معدات، عمال، موقع. تجنب التكاليف المفاجئة.",
-                    e: "مثال: شراء فرن ينتج 1000 رغيف وسوقك يحتاج 100 فقط = هدر للمال." 
+                    e: "مثال: شراء فرن ينتج 1000 رغيف وسوقك يحتاج 100 فقط = هدر للمال."
                     },
-                    { 
-                    t: "4. اعرف متى ستعود أموالك (الدراسة المالية)", 
+                    {
+                    t: "4. اعرف متى ستعود أموالك (الدراسة المالية)",
                     d: "ميزان الربح والخسارة ونقطة التعادل. متى أسترد رأس المالي؟",
-                    e: "مثال: تكاليفك 10,000 وربحك 10 ريال؟ تحتاج بيع 1000 وجبة لتغطية التكاليف فقط." 
+                    e: "مثال: تكاليفك 10,000 وربحك 10 ريال؟ تحتاج بيع 1000 وجبة لتغطية التكاليف فقط."
                     },
-                    { 
-                    t: "5. الاستعداد لـ \"الأسوأ\" (تحليل الحساسية)", 
+                    {
+                    t: "5. الاستعداد لـ \"الأسوأ\" (تحليل الحساسية)",
                     d: "وضع سيناريوهات للأزمات لضمان مرونة المشروع.",
-                    e: "مثال: لو ارتفع سعر السكر، هل يظل محل الحلويات مربحاً؟ ضع خطة بديلة." 
+                    e: "مثال: لو ارتفع سعر السكر، هل يظل محل الحلويات مربحاً؟ ضع خطة بديلة."
                     }
                 ].map((step, i) => (
                     <div key={i} className="bg-white/5 p-3 rounded-lg border border-white/10 hover:bg-white/10 transition-colors">
@@ -1020,12 +1078,12 @@
                 </div>
             </GlassCard>
 
-            {/* 6. Business Model Canvas */}
-            <GlassCard className="border-l-4 border-l-purple-500 bg-gradient-to-r from-purple-900/10 to-transparent shadow-lg"> 
-                <h3 className="text-xl font-bold mb-4 text-purple-400 flex items-center gap-2"> <Layout size={20} /> مخطط نموذج العمل (Business Model Canvas) </h3> 
-                <p className="text-slate-300 mb-6 text-sm leading-relaxed"> هذه أداة من صفحة واحدة تساعدك على رؤية الصورة الكاملة لشركتك. إنها تجبرك على التفكير في 9 عناصر أساسية قبل أن تكتب أي خطة عمل مطولة: </p> 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"> {[ { title: 'شرائح العملاء', desc: 'من هم عملاؤك؟', color: 'text-purple-300' }, { title: 'القيمة المقترحة', desc: 'ما القيمة التي تقدمها لهم؟', color: 'text-green-300' }, { title: 'القنوات', desc: 'كيف ستصل إليهم؟', color: 'text-blue-300' }, { title: 'العلاقات مع العملاء', desc: 'كيف ستتفاعل معهم؟', color: 'text-pink-300' }, { title: 'مصادر الإيرادات', desc: 'كيف ستجني المال؟', color: 'text-yellow-300' }, { title: 'الموارد الرئيسية', desc: 'ما الذي تحتاجه (فريق، تقنية)؟', color: 'text-cyan-300' }, { title: 'الأنشطة الرئيسية', desc: 'ما هو أهم شيء يجب أن تفعله؟', color: 'text-red-300' }, { title: 'الشركاء الرئيسيون', desc: 'من سيساعدك؟', color: 'text-orange-300' }, { title: 'هيكل التكاليف', desc: 'ما هي أكبر مصاريفك؟', color: 'text-gray-300' }, ].map((item, idx) => ( <div key={idx} className="bg-white/5 p-3 rounded-lg border border-white/5 hover:bg-white/10 transition-colors"> <strong className={`block text-xs mb-1 ${item.color}`}>{item.title}</strong> <span className="text-xs text-slate-400">{item.desc}</span> </div> ))} </div> 
-            </GlassCard> 
+            {/* Business Model Canvas */}
+            <GlassCard className="border-l-4 border-l-purple-500 bg-gradient-to-r from-purple-900/10 to-transparent shadow-lg">
+                <h3 className="text-xl font-bold mb-4 text-purple-400 flex items-center gap-2"> <Layout size={20} /> مخطط نموذج العمل (Business Model Canvas) </h3>
+                <p className="text-slate-300 mb-6 text-sm leading-relaxed"> هذه أداة من صفحة واحدة تساعدك على رؤية الصورة الكاملة لشركتك. إنها تجبرك على التفكير في 9 عناصر أساسية قبل أن تكتب أي خطة عمل مطولة: </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"> {[ { title: 'شرائح العملاء', desc: 'من هم عملاؤك؟', color: 'text-purple-300' }, { title: 'القيمة المقترحة', desc: 'ما القيمة التي تقدمها لهم؟', color: 'text-green-300' }, { title: 'القنوات', desc: 'كيف ستصل إليهم؟', color: 'text-blue-300' }, { title: 'العلاقات مع العملاء', desc: 'كيف ستتفاعل معهم؟', color: 'text-pink-300' }, { title: 'مصادر الإيرادات', desc: 'كيف ستجني المال؟', color: 'text-yellow-300' }, { title: 'الموارد الرئيسية', desc: 'ما الذي تحتاجه (فريق، تقنية)؟', color: 'text-cyan-300' }, { title: 'الأنشطة الرئيسية', desc: 'ما هو أهم شيء يجب أن تفعله؟', color: 'text-red-300' }, { title: 'الشركاء الرئيسيون', desc: 'من سيساعدك؟', color: 'text-orange-300' }, { title: 'هيكل التكاليف', desc: 'ما هي أكبر مصاريفك؟', color: 'text-gray-300' }, ].map((item, idx) => ( <div key={idx} className="bg-white/5 p-3 rounded-lg border border-white/5 hover:bg-white/10 transition-colors"> <strong className={`block text-xs mb-1 ${item.color}`}>{item.title}</strong> <span className="text-xs text-slate-400">{item.desc}</span> </div> ))} </div>
+            </GlassCard>
 
             <ChapterChatBot chapterTitle="02. الفكرة والتحقق" contentData={chapterData} />
             </div>
@@ -1050,15 +1108,14 @@
                 "آلية تقسيم الحصص بشكل عادل."
             ]} />
 
-            {/* MERGED CARD: Comprehensive Founder Selection Guide */}
+            {/* Comprehensive Founder Selection Guide */}
             <GlassCard className="hover:bg-indigo-900/10 transition-colors border-l-4 border-l-indigo-500 shadow-lg">
-                <h3 className="text-xl font-bold text-indigo-400 mb-6 flex items-center gap-2"> 
+                <h3 className="text-xl font-bold text-indigo-400 mb-6 flex items-center gap-2">
                 <Handshake size={24} /> الدليل الشامل لاختيار الشريك المؤسس
                 </h3>
-                
+
                 <div className="space-y-8">
-                
-                {/* Section 1: The Ideal Traits (Positive) */}
+
                 <div>
                     <h4 className="text-white font-bold text-sm mb-3 border-b border-white/10 pb-2 flex items-center gap-2">
                         <CheckCircle size={16} className="text-green-400"/> 1. سمات الشريك المثالي (د. عبدالله القفاري)
@@ -1070,7 +1127,6 @@
                     </div>
                 </div>
 
-                {/* Section 2: Golden Rules (Strategic) */}
                 <div>
                     <h4 className="text-white font-bold text-sm mb-3 border-b border-white/10 pb-2 flex items-center gap-2">
                         <List size={16} className="text-blue-400"/> 2. قواعد الشراكة الذهبية (د. المقداد السلمي)
@@ -1082,7 +1138,6 @@
                     </ul>
                 </div>
 
-                {/* Section 3: Red Flags (Negative/Warnings) */}
                 <div className="bg-red-500/10 p-4 rounded-xl border border-red-500/20 shadow-inner">
                     <h4 className="text-red-400 font-bold text-sm mb-3 flex items-center gap-2">
                         <Flag size={16} className="fill-red-400"/> 3. أعلام حمراء: متى تهرب؟ (Red Flags)
@@ -1100,7 +1155,6 @@
                     </div>
                 </div>
 
-                {/* Section 4: Investor vs Partner */}
                 <div className="bg-indigo-500/10 p-4 rounded-xl border border-indigo-500/20 shadow-inner">
                     <h4 className="text-indigo-300 font-bold text-sm mb-2">💡 تنبيه هام: شريك أم ممول؟</h4>
                     <ul className="list-disc list-inside text-xs text-slate-300 space-y-1">
@@ -1113,7 +1167,7 @@
                 </div>
             </GlassCard>
 
-            {/* NEW CARD: Financial Transparency & CFO Importance */}
+            {/* Financial Transparency & CFO Importance */}
             <GlassCard className="border-l-4 border-l-emerald-500 bg-gradient-to-br from-emerald-900/20 to-slate-900/40 shadow-lg">
                 <h3 className="text-xl font-bold text-emerald-400 mb-4 flex items-center gap-2">
                     <Eye size={24} /> الشفافية المالية وحوكمة الأموال
@@ -1121,7 +1175,7 @@
                 <p className="text-sm text-slate-300 mb-6 leading-relaxed">
                     المال هو المحرك، والغموض فيه هو "السم" الذي يقتل أقوى الشراكات. الوضوح المالي ليس تشكيكاً، بل هو احترام للحقوق وضمان للاستمرارية.
                 </p>
-                
+
                 <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-4">
                         <div className="bg-white/5 p-4 rounded-xl border border-white/5 shadow-inner">
@@ -1141,14 +1195,14 @@
                             </p>
                         </div>
                     </div>
-                    
+
                     <div className="bg-emerald-500/5 border border-emerald-500/20 p-5 rounded-2xl flex flex-col justify-center shadow-inner">
                         <div className="bg-emerald-500/20 p-3 rounded-full w-fit mb-4 mx-auto border border-emerald-500/30">
                             <GanttChartSquare size={32} className="text-emerald-400" />
                         </div>
                         <h4 className="text-emerald-300 font-bold text-center mb-3">أهمية وجود مدير مالي (CFO)</h4>
                         <p className="text-xs text-slate-300 leading-6 text-center">
-                            وجود مدير مالي (أو محاسب مستقل في البداية) هو **خط الدفاع الأول**. وظيفته ليست المحاسبة فقط، بل:
+                            وجود مدير مالي (أو محاسب مستقل في البداية) هو خط الدفاع الأول. وظيفته ليست المحاسبة فقط، بل:
                         </p>
                         <div className="mt-4 space-y-2">
                             <div className="flex items-center gap-2 text-[10px] text-slate-200 bg-black/20 p-2 rounded-lg"><span className="text-emerald-400">●</span> مراقبة الأموال وضمان عدم الهدر.</div>
@@ -1159,14 +1213,14 @@
                 </div>
             </GlassCard>
 
-            <GlassCard className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 shadow-lg"> 
+            <GlassCard className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 shadow-lg">
                 <h3 className="text-xl font-bold mb-4 text-blue-400 flex items-center gap-2">
                     <FileText size={24} /> وثيقة الدستور (اتفاقية المؤسسين)
-                </h3> 
+                </h3>
                 <p className="text-sm text-slate-300 mb-6">
                     هذه الوثيقة هي "بوليصة التأمين" لعلاقتكم. لا تبدأوا العمل بدون توقيعها وتوضيح النقاط التالية بالأمثلة:
                 </p>
-                
+
                 <div className="space-y-4">
                     <div className="bg-white/5 p-4 rounded-lg border-l-4 border-l-blue-500 shadow-inner">
                     <strong className="text-white block text-sm mb-2">1. نسب الأسهم (Equity Splits)</strong>
@@ -1199,7 +1253,7 @@
                         <strong>مثال:</strong> إذا أراد شريك بيع حصته، يجب أن يعرضها على الشركة أو الشركاء الحاليين أولاً.
                     </div>
                     </div>
-                    
+
                     <div className="bg-white/5 p-4 rounded-lg border-l-4 border-l-red-500 shadow-inner">
                     <strong className="text-white block text-sm mb-2">5. التفرغ والملكية الفكرية (IP)</strong>
                     <p className="text-xs text-slate-400 mb-2">لمن تعود ملكية الكود أو التصاميم؟ وهل العمل بدوام كامل؟</p>
@@ -1209,7 +1263,7 @@
                     </div>
                 </div>
             </GlassCard>
-            
+
             <GlassCard className="bg-gradient-to-br from-slate-800 to-gray-900 border border-slate-700 shadow-lg">
                 <h3 className="text-xl font-bold mb-4 text-white flex items-center gap-2">
                 <PieChart size={24} className="text-blue-400" /> تقسيم حصص الملكية (Equity Split) ⚠️
@@ -1217,28 +1271,28 @@
                 <p className="text-sm text-slate-300 mb-6 leading-relaxed">
                 من أهم القرارات التي ستتخذها في شركتك. تجنب التوزيع المتساوي الأعمى، فهو قنبلة موقوتة.
                 </p>
-                
+
                 <div className="space-y-4">
                 {[
-                    { 
-                    t: "تجنب التوزيع بالتساوي (50/50)", 
-                    d: "نادراً ما يكون عادلاً لأن الجهد والمساهمة يختلفان. تصحيحه لاحقاً مكلف وصعب جداً." 
+                    {
+                    t: "تجنب التوزيع بالتساوي (50/50)",
+                    d: "نادراً ما يكون عادلاً لأن الجهد والمساهمة يختلفان. تصحيحه لاحقاً مكلف وصعب جداً."
                     },
-                    { 
-                    t: "قيّم الالتزام والمساهمة", 
-                    d: "حدد حصة كل شريك بناءً على: المسؤوليات، الوقت المخصص، الخبرة، والمساهمة المالية." 
+                    {
+                    t: "قيّم الالتزام والمساهمة",
+                    d: "حدد حصة كل شريك بناءً على: المسؤوليات، الوقت المخصص، الخبرة، والمساهمة المالية."
                     },
-                    { 
-                    t: "مخزون الأسهم (Option Pool)", 
-                    d: "حدد نسبة (عادة 10-20%) للأسهم الاحتياطية وأسهم الموظفين المستقبليين." 
+                    {
+                    t: "مخزون الأسهم (Option Pool)",
+                    d: "حدد نسبة (عادة 10-20%) للأسهم الاحتياطية وأسهم الموظفين المستقبليين."
                     },
-                    { 
-                    t: "طبّق بند الاستحقاق (Vesting)", 
-                    d: "الحصص ليست منحة فورية. يجب أن تُكتسب على فترة زمنية لضمان استمرار الشريك." 
+                    {
+                    t: "طبّق بند الاستحقاق (Vesting)",
+                    d: "الحصص ليست منحة فورية. يجب أن تُكتسب على فترة زمنية لضمان استمرار الشريك."
                     },
-                    { 
-                    t: "الوثيقة والجدولة", 
-                    d: "وثّق كل شيء في مستند رسمي يوضح جدول الاستحقاق، المهام، وقيمة الحصة لكل شريك." 
+                    {
+                    t: "الوثيقة والجدولة",
+                    d: "وثّق كل شيء في مستند رسمي يوضح جدول الاستحقاق، المهام، وقيمة الحصة لكل شريك."
                     }
                 ].map((point, i) => (
                     <div key={i} className="flex gap-3 bg-white/5 p-3 rounded-lg border border-white/10 hover:bg-white/10 transition-colors shadow-inner">
@@ -1252,10 +1306,10 @@
                 </div>
             </GlassCard>
 
-            <GlassCard className="border-l-4 border-l-yellow-500 bg-gradient-to-r from-yellow-900/10 to-transparent shadow-lg"> 
-                <h3 className="text-xl font-bold mb-4 text-yellow-400 flex items-center gap-2"> <Users size={24} /> لماذا يراهن المستثمرون على الفرق؟ </h3> 
-                <p className="text-sm text-slate-300 mb-4"> أحد أكبر الأعلام الحمراء لدى المستثمرين هو "المؤسس المنفرد". بناء شركة رحلة شاقة، ومحاولة القيام بها بمفردك تزيد من خطر الفشل. </p> 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4"> {[ { t: "تكامل المهارات", d: "الفريق المتكامل يغطي الثغرات (تقنية، تسويق، إدارة) بكفاءة أعلى." }, { t: "الدعم النفسي", d: "وجود شريك يفهم معاناتك ويشاركك الضغط هو عامل حاسم للاستمرارية." }, { t: "جودة القرار", d: "تعدد وجهات النظر والنقاش العميق يؤدي لقرارات مدروسة بشكل أفضل." }, { t: "توزيع العبء", d: "تقسيم المهام يسمح بتركيز أكبر وإنجاز أسرع لكل شريك." } ].map((item, i) => ( <div key={i} className="bg-white/5 p-3 rounded-lg border border-white/5 flex items-start gap-3 shadow-inner"> <div className="mt-1 text-yellow-500"><CheckCircle size={16} /></div> <div> <strong className="text-white block text-sm">{item.t}</strong> <p className="text-xs text-slate-400">{item.d}</p> </div> </div> )) } </div> 
+            <GlassCard className="border-l-4 border-l-yellow-500 bg-gradient-to-r from-yellow-900/10 to-transparent shadow-lg">
+                <h3 className="text-xl font-bold mb-4 text-yellow-400 flex items-center gap-2"> <Users size={24} /> لماذا يراهن المستثمرون على الفرق؟ </h3>
+                <p className="text-sm text-slate-300 mb-4"> أحد أكبر الأعلام الحمراء لدى المستثمرين هو "المؤسس المنفرد". بناء شركة رحلة شاقة، ومحاولة القيام بها بمفردك تزيد من خطر الفشل. </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4"> {[ { t: "تكامل المهارات", d: "الفريق المتكامل يغطي الثغرات (تقنية، تسويق، إدارة) بكفاءة أعلى." }, { t: "الدعم النفسي", d: "وجود شريك يفهم معاناتك ويشاركك الضغط هو عامل حاسم للاستمرارية." }, { t: "جودة القرار", d: "تعدد وجهات النظر والنقاش العميق يؤدي لقرارات مدروسة بشكل أفضل." }, { t: "توزيع العبء", d: "تقسيم المهام يسمح بتركيز أكبر وإنجاز أسرع لكل شريك." } ].map((item, i) => ( <div key={i} className="bg-white/5 p-3 rounded-lg border border-white/5 flex items-start gap-3 shadow-inner"> <div className="mt-1 text-yellow-500"><CheckCircle size={16} /></div> <div> <strong className="text-white block text-sm">{item.t}</strong> <p className="text-xs text-slate-400">{item.d}</p> </div> </div> )) } </div>
             </GlassCard>
 
             <ChapterChatBot chapterTitle="03. الفريق والتأسيس" contentData={chapterData} />
@@ -1266,9 +1320,11 @@
         const Phase4Content = () => {
         const [ltv, setLtv] = useState(100);
         const [cac, setCac] = useState(30);
-        const ratio = cac > 0 ? (ltv / cac).toFixed(1) : 0;
+        const nLtv = Number(ltv) || 0;
+        const nCac = Number(cac) || 0;
+        const ratio = nCac > 0 ? (nLtv / nCac).toFixed(1) : 0;
         const status = ratio >= 3 ? 'healthy' : ratio < 1 ? 'critical' : 'warning';
-        
+
         const chapterData = `
             خطوات نجاح المشاريع: تحديد الهدف، الجدوى، التخطيط.
             الخطة vs الواقع.
@@ -1403,7 +1459,7 @@
                     <span className="text-sm text-slate-400">CAC (تكلفة الاكتساب)</span>
                     <input type="number" value={cac} onChange={e => setCac(e.target.value)} className="w-20 bg-white/10 rounded p-1 text-center text-white outline-none border border-white/10"/>
                 </div>
-                
+
                 <div className="text-center pt-4 border-t border-white/10">
                     <div className="text-4xl font-bold mb-2 font-mono flex items-center justify-center gap-2">
                     {ratio}x
@@ -1425,7 +1481,7 @@
                 <p className="text-sm text-slate-300 mb-4 leading-relaxed">
                     التحول ليس فشلاً، بل استجابة ذكية لبيانات السوق. هو تغيير استراتيجي في نموذج عملك بناءً على ما تعلمته.
                 </p>
-                
+
                 <div className="grid gap-4 mb-4">
                     <div className="bg-black/20 p-3 rounded-lg shadow-inner">
                     <strong className="text-white text-xs block mb-2">متى تتحول؟</strong>
@@ -1639,7 +1695,6 @@
             "دروس ريادية من سام ألتمان ومحمد النحيت ورياض الزامل."
             ]} />
 
-            {/* 3. Growth & Scaling */}
             <GlassCard className="bg-gradient-to-r from-violet-900/20 to-fuchsia-900/20 border-l-4 border-l-violet-500 shadow-lg">
             <h3 className="text-xl font-bold mb-4 text-violet-400 flex items-center gap-2">
                 <Settings size={24} /> محرك النمو: الركائز الأساسية للتوسع
@@ -1665,358 +1720,4 @@
                     </h3>
                     <div className="grid gap-3">
                         {[
-                            { title: "من مؤسس إلى مدير", desc: "انتقل من 'العمل في الشركة' إلى 'العمل على الشركة'." },
-                            { title: "بناء الأنظمة", desc: "حوّل العمليات لأنظمة قابلة للتكرار (Scalable Systems)." }
-                        ].map((item, idx) => (
-                            <div key={idx} className="bg-white/5 p-2 rounded-lg border border-white/5 shadow-inner">
-                                <strong className="block text-white mb-1 text-xs">{item.title}</strong>
-                                <span className="text-[10px] text-slate-400">{item.desc}</span>
-                            </div>
-                        ))}
-                    </div>
-                </GlassCard>
-
-                <GlassCard className="bg-gradient-to-r from-slate-800 to-gray-900 border-l-4 border-l-white shadow-lg">
-                <h3 className="text-xl font-bold mb-4 text-white flex items-center gap-2">
-                    <Activity size={24} /> اتخاذ القرارات الصعبة تحت الضغط
-                </h3>
-                <div className="grid gap-3">
-                    {[
-                    { t: "اجمع البيانات، لا الآراء", d: "ابحث عن الحقائق قبل اتخاذ القرار." },
-                    { t: "لا تسعَ للمثالية", d: "قرار 'جيد بما يكفي' وسريع أفضل من قرار متأخر." }
-                    ].map((item, i) => (
-                    <div key={i} className="flex gap-3 items-start p-2 rounded bg-white/5 border border-white/5 shadow-inner">
-                        <div className="mt-1 text-slate-400">⚡</div>
-                        <div>
-                        <strong className="text-white text-xs block">{item.t}</strong>
-                        <p className="text-[10px] text-slate-400">{item.d}</p>
-                        </div>
-                    </div>
-                    ))}
-                </div>
-                </GlassCard>
-            </div>
-
-            <GlassCard className="border-l-4 border-l-cyan-500 shadow-lg">
-                <h3 className="text-xl font-bold mb-4 text-cyan-400 flex items-center gap-2">
-                    <RefreshCw size={20} /> منهجية "اقرن": دورة التحسين المستمر
-                </h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
-                    {[
-                        { step: "1", title: "ابحث واسأل", desc: "عن المصادر" },
-                        { step: "2", title: "قارن", desc: "بين ما لديك ولدى الآخرين" },
-                        { step: "3", title: "راقب", desc: "الأسواق" },
-                        { step: "4", title: "نفّذ", desc: "حوّل المعرفة لعمل" },
-                    ].map((item) => (
-                        <div key={item.step} className="relative p-3 bg-cyan-900/20 rounded-xl border border-cyan-500/20 shadow-inner">
-                            <div className="absolute -top-3 -right-2 w-6 h-6 bg-cyan-500 rounded-full text-black font-bold flex items-center justify-center text-xs border-2 border-slate-900 shadow-md">{item.step}</div>
-                            <div className="font-bold text-white mb-1">{item.title}</div>
-                            <div className="text-xs text-cyan-200/70">{item.desc}</div>
-                        </div>
-                    ))}
-                </div>
-            </GlassCard>
-
-            <ChapterChatBot chapterTitle="06. القيادة والنمو" contentData={chapterData} />
-            </div>
-            );
-        };
-
-        const Phase7Content = () => {
-            const chapterData = `
-            كيف يتعلم رائد الأعمال: الدراسة، الكتب، البودكاست، النشرات، الذكاء الاصطناعي.
-            أهم المعارض: LEAP, Biban, GITEX.
-            أدوات التشغيل اليومي.
-            `;
-
-            // New Data Structure for the PDF Content (Extracted and structured)
-            const zeroToOneTools = [
-                {
-                    category: "مرحلة التأسيس",
-                    icon: <Rocket size={20} className="text-purple-400"/>,
-                    desc: "أدوات تهم المؤسسين في البداية للتخطيط والتعرف على السوق.",
-                    tools: [
-                        { name: "Venturekit", desc: "توليد خطط أعمال ونماذج مالية.", url: "https://venturekit.ai" },
-                        { name: "Perplexity AI", desc: "محرك بحث ذكي بإجابات موثقة.", url: "https://www.perplexity.ai" },
-                        { name: "Miro AI", desc: "خرائط ذهنية وتفكير جماعي.", url: "https://miro.com/ai" },
-                        { name: "Brandmark", desc: "تصميم شعارات وهويات تجارية.", url: "https://brandmark.io" },
-                        { name: "Durable AI", desc: "صناعة المواقع والمحتوى بلا برمجة.", url: "https://durable.co" }
-                    ]
-                },
-                {
-                    category: "العمليات وتطوير المنتجات",
-                    icon: <Cpu size={20} className="text-cyan-400"/>,
-                    desc: "تنظيم بيانات المستخدمين وتطوير المنتجات.",
-                    tools: [
-                        { name: "Paradigm", desc: "تنظيم وأتمتة البيانات في الإكسل.", url: "https://paradigm.ai" },
-                        { name: "Zoho CRM", desc: "أتمتة المبيعات وإدارة العملاء.", url: "https://www.zoho.com/crm" },
-                        { name: "GPTExcel", desc: "صناعة المعادلات والرسوم في الإكسل.", url: "https://gptexcel.uk" },
-                        { name: "Hotjar", desc: "تحليل تفاعل الزوار (Heatmaps).", url: "https://www.hotjar.com" },
-                        { name: "Kissmetrics", desc: "تحليلات سلوك المستخدم والإيرادات.", url: "https://www.kissmetrics.io" }
-                    ]
-                },
-                {
-                    category: "التسويق والنمو",
-                    icon: <TrendingUp size={20} className="text-green-400"/>,
-                    desc: "التصاميم، الفيديوهات، وكتابة المحتوى.",
-                    tools: [
-                        { name: "Runway", desc: "تحرير وتوليد الصور والفيديوهات.", url: "https://runwayml.com" },
-                        { name: "Jibewith", desc: "أتمتة كتابة المحتوى للقنوات المختلفة.", url: "https://jibewith.com" },
-                        { name: "Quickads", desc: "صناعة الإعلانات للجمهور المستهدف.", url: "https://www.quickads.ai" },
-                        { name: "Twilio Segment", desc: "تحليل بيانات العملاء لتخصيص التسويق.", url: "https://segment.com" }
-                    ]
-                }
-            ];
-
-            return (
-            <div className="space-y-8">
-                <ChapterSummary points={[
-                "مصادر التعلم المستمر.",
-                "المعارض والمؤتمرات الهامة.",
-                "أدوات التشغيل اليومية."
-                ]} />
-
-                <GlassCard className="border-l-4 border-l-yellow-500 bg-gradient-to-r from-yellow-900/10 to-transparent shadow-lg">
-                    <h3 className="text-xl font-bold text-yellow-400 mb-4 flex items-center gap-2">
-                        <BookOpen size={24} /> كيف يتعلم رائد الأعمال؟
-                    </h3>
-                    <div className="space-y-4">
-                        <div className="flex gap-4 items-start bg-white/5 p-3 rounded-lg shadow-inner">
-                            <div className="p-2 bg-yellow-500/20 rounded-lg text-yellow-400"><Award size={20} /></div>
-                            <div>
-                                <strong className="text-white text-sm block mb-1">1. هل الدراسة مهمة؟</strong>
-                                <p className="text-xs text-slate-400">نعم، سواء جامعية أو دورات قصيرة. التعليم اليوم يعتمد على الممارسة.</p>
-                            </div>
-                        </div>
-                        <div className="flex gap-4 items-start bg-white/5 p-3 rounded-lg shadow-inner">
-                            <div className="p-2 bg-cyan-500/20 rounded-lg text-cyan-400"><Bot size={20} /></div>
-                            <div>
-                                <strong className="text-white text-sm block mb-1">2. أدوات الذكاء الاصطناعي</strong>
-                                <p className="text-xs text-slate-400">لم تعد رفاهية، بل ضرورة لزيادة الإنتاجية في المحتوى والتحليل.</p>
-                            </div>
-                        </div>
-                    </div>
-                </GlassCard>
-
-                {/* NEW SECTION: Major Exhibitions */}
-                <GlassCard className="bg-gradient-to-r from-orange-900/20 to-amber-900/20 border-l-4 border-l-orange-500 shadow-lg">
-                    <h3 className="text-xl font-bold mb-4 text-orange-400 flex items-center gap-2">
-                        <Ticket size={24} /> معارض ومؤتمرات ريادية لا تفوتها
-                    </h3>
-                    <p className="text-sm text-slate-300 mb-6">
-                        زيارة هذه المعارض ليست رفاهية، بل فرصة استراتيجية لبناء العلاقات، فهم توجهات السوق، والبحث عن استثمار.
-                    </p>
-                    
-                    <div className="grid md:grid-cols-2 gap-4">
-                        <div className="bg-white/5 p-4 rounded-lg">
-                            <strong className="text-white block mb-2 text-sm">لماذا يجب أن تزورها؟</strong>
-                            <ul className="text-xs text-slate-400 space-y-2 list-disc list-inside">
-                                <li>لقاء مستثمرين وشركاء محتملين وجهاً لوجه.</li>
-                                <li>الاطلاع على أحدث التقنيات والمنافسين في مجالك.</li>
-                                <li>حضور ورش عمل وجلسات حوارية ملهمة.</li>
-                            </ul>
-                        </div>
-                        
-                        <div className="bg-white/5 p-4 rounded-lg">
-                            <strong className="text-white block mb-2 text-sm">أهم المعارض (دون ترتيب):</strong>
-                            <div className="flex flex-wrap gap-2">
-                                {['LEAP (ليب)', 'Biban (بيبان)', 'GITEX (جيتكس)', 'Seamless (سيملس)', 'Web Summit', 'Step Conference', 'RiseUp'].map(event => (
-                                    <span key={event} className="text-[10px] bg-orange-500/20 text-orange-200 px-2 py-1 rounded border border-orange-500/30">{event}</span>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                </GlassCard>
-
-                {/* NEW SECTION: Zero to One AI Tools */}
-                <GlassCard className="bg-gradient-to-br from-slate-900 to-slate-800 border-l-4 border-l-purple-500 shadow-xl">
-                    <div className="flex items-center justify-between mb-6">
-                        <div>
-                            <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                                <Bot size={24} className="text-purple-400" /> دليل أدوات الذكاء الاصطناعي
-                            </h3>
-                            <p className="text-xs text-slate-400 mt-1">مجموعة مختارة لتسريع نمو شركتك الناشئة</p>
-                        </div>
-                    </div>
-                    
-                    <div className="space-y-6">
-                        {zeroToOneTools.map((section, idx) => (
-                            <div key={idx} className="bg-white/5 rounded-xl p-4 border border-white/5 shadow-inner">
-                                <div className="flex items-center gap-2 mb-3 pb-2 border-b border-white/5">
-                                    {section.icon}
-                                    <h4 className="text-white font-bold text-sm">{section.category}</h4>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                    {section.tools.map((tool, tIdx) => (
-                                        <a href={tool.url} target="_blank" rel="noopener noreferrer" key={tIdx} className="flex items-start justify-between group p-2 hover:bg-white/5 rounded-lg transition-colors">
-                                            <div>
-                                                <strong className="text-purple-200 text-xs block group-hover:text-purple-300 transition-colors">{tool.name}</strong>
-                                                <span className="text-[10px] text-slate-400 block leading-tight">{tool.desc}</span>
-                                            </div>
-                                            <ExternalLink size={12} className="text-slate-600 group-hover:text-purple-400 transition-colors mt-1" />
-                                        </a>
-                                    ))}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </GlassCard>
-
-                <SmartAIAdvisor />
-
-                <div>
-                    <h3 className="text-lg font-bold text-white mb-3">أدوات التشغيل اليومي</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        {[
-                        { cat: 'تنظيم', name: 'Notion', icon: '📝' },
-                        { cat: 'مهام', name: 'Trello / Asana', icon: '✅' },
-                        { cat: 'تواصل', name: 'Slack', icon: '💬' },
-                        { cat: 'تصميم', name: 'Figma', icon: '🎨' },
-                        { cat: 'تحليل', name: 'Analytics', icon: '📊' },
-                        { cat: 'CRM', name: 'HubSpot', icon: '👥' },
-                        ].map((tool, i) => (
-                        <div key={i} className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5 hover:border-cyan-500/30 transition-colors shadow-sm">
-                            <div className="text-2xl">{tool.icon}</div>
-                            <div>
-                            <div className="font-bold text-white text-sm">{tool.name}</div>
-                            <div className="text-xs text-slate-500">{tool.cat}</div>
-                            </div>
-                        </div>
-                        ))}
-                    </div>
-                </div>
-
-                <ChapterChatBot chapterTitle="07. الأدوات والمصادر" contentData={chapterData} />
-            </div>
-            );
-        };
-
-        const AppendixContent = () => {
-        return ( 
-        <div className="space-y-8"> 
-            <ChapterSummary points={["أسباب فقدان الشغف.", "10 توصيات ذهبية.", "الخاتمة."]} />
-            <GlassCard className="border-l-4 border-l-pink-500 bg-gradient-to-r from-pink-900/10 to-transparent shadow-lg"> 
-                <h3 className="text-xl font-bold mb-6 text-pink-400 flex items-center gap-2"> <Frown size={24} className="text-pink-500" /> ملحق: لماذا نفقد الشغف في العمل؟ </h3> 
-                <div className="grid md:grid-cols-2 gap-4"> {[ { t: "1- غياب التقدير", d: "تعطي فوق طاقتك، وما تسمع حتى 'يعطيك العافية' أو 'شكراً'." }, { t: "2- ضبابية الرؤية", d: "ليش نشتغل؟ وين رايحين؟ إذا ما عرفنا الهدف، الحماس يضيع." }, { t: "3- المدير المتسلط", d: "كل شيء أوامر بدون نقاش، تحس إنك آلة مب إنسان." }, { t: "4- وعود زائفة", d: "وعود بالترقيات تتبخر مرة ومرتين.. فتفقد الثقة." }, { t: "5- انعدام التطور", d: "نفس المكان والراتب والكل يتطور إلا أنت؟ طبيعي تُحبط." }, { t: "6- ثقافة اللوم", d: "كل غلطة بفيلم رعب، من يتجرأ يبدع في بيئة خوف؟" }, { t: "7- الفوضى", d: "كل يوم قرار جديد، شغل عشوائي يهد الحيل." }, { t: "8- غياب العدل", d: "المجتهد ما ينشاف، والواسطة هي معيار الترقية." }, { t: "9- التهميش", d: "عندك فكرة أو مشكلة بس محد فاضي يسمع لك." }, { t: "10- إهمال النفسية", d: "تشتغل وأنت تعبان من الجو السام.. ما تطول حتى لو الراتب عالي." } ].map((item, i) => ( <div key={i} className="flex gap-3 bg-white/5 p-3 rounded-lg border border-white/5 hover:border-pink-500/30 transition-colors shadow-inner"> <div className="text-pink-500 font-bold">{item.t.split('-')[0]}</div> <div> <strong className="text-pink-200 text-sm block">{item.t.split('-')[1]}</strong> <p className="text-xs text-slate-400 mt-1 leading-snug">{item.d}</p> </div> </div> )) } </div> <p className="text-center text-pink-300 text-sm mt-6 font-bold bg-pink-500/10 py-2 rounded-lg border border-pink-500/20"> بيئة العمل إما ترفعك... أو تكسر المنظومة، فخلونا نبني بيئة نحب نروح لها كل صبح ❤️ </p> 
-            </GlassCard> 
-            <GlassCard className="bg-gradient-to-br from-yellow-900/20 to-amber-900/20 border border-yellow-500/30 shadow-lg"> <div className="flex items-center gap-3 mb-6"> <div className="p-2 bg-yellow-500/20 rounded-full text-yellow-400"><Award size={24} /></div> <h3 className="text-xl font-bold text-white">الدليل العملي: 10 توصيات أساسية</h3> </div> <div className="space-y-3"> {[ { h: "التركيز على المشكلة لا الحل", t: "ابدأ بتحديد مشكلة حقيقية وملموسة وتحدث مع العملاء أولاً." }, { h: "البدء المرن والتحقق السريع", t: "أطلق MVP بأسرع وقت ممكن. الفشل المبكر هو أرخص درس." }, { h: "بناء فريق وثقافة قوية", t: "استثمر في بناء ثقافة جاذبة ووظّف 'اللاعبين المتميزين' فقط." }, { h: "فهم اقتصاديات الوحدة", t: "تأكد من أن نموذج عملك مربح لكل عميل قبل التوسع." }, { h: "استراتيجية تمويل مدروسة", t: "اختر نوع التمويل الذي يناسب نموذج عملك ومرحلة نموك." }, { h: "إتقان العمليات الخلفية", t: "الميزة التنافسية الحقيقية تكمن في كفاءة العمليات التشغيلية." }, { h: "المواءمة مع الرؤى الوطنية", t: "في السعودية، ربط أهدافك برؤية 2030 يفتح أبواب الدعم." }, { h: "بناء شبكة علاقات قوية", t: "رأس المال الاجتماعي لا يقل أهمية عن رأس المال المالي." }, { h: "التفكير في المنظومة المتكاملة", t: "حوّل شركتك إلى 'نظام تشغيل' لعملائك." }, { h: "الاستعداد للتحول (Pivot)", t: "الشجاعة لا تكمن في البدء فقط، بل في معرفة متى يجب تغيير المسار." } ].map((rec, i) => ( <div key={i} className="flex items-start gap-4 p-3 hover:bg-white/5 rounded-lg transition-colors border-b border-white/5 last:border-0"> <span className="text-yellow-500 font-mono font-bold text-lg w-6 pt-1">{i+1}</span> <div className="text-sm"> <span className="text-white font-bold block mb-1">{rec.h}</span> <span className="text-slate-300 text-xs">{rec.t}</span> </div> </div> )) } </div> </GlassCard> <div className="text-center p-8 bg-gradient-to-t from-cyan-900/40 to-slate-900 rounded-2xl border-t border-cyan-500/30 mt-8 shadow-2xl"> <div className="inline-block p-3 bg-cyan-500/20 rounded-full mb-4 text-cyan-400 animate-bounce"> <Flag size={24} /> </div> <h2 className="text-3xl font-bold text-white mb-4">خاتمة: البناء رحلة مستمرة</h2> <p className="text-slate-300 leading-relaxed max-w-2xl mx-auto mb-6"> لقد وصلت إلى نهاية هذا الدليل، ولكنك في بداية رحلة أعظم. ريادة الأعمال ليست خطًا مستقيمًا، بل هي سلسلة من التجارب والتعلم والتكيف. استخدم هذا الدليل كمرجع، ولكن تذكر دائمًا أن أفضل معلم هو السوق، وأهم أصل لديك هو قدرتك على الاستماع والاستجابة. </p> <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="px-6 py-2 bg-cyan-600 hover:bg-cyan-500 rounded-full text-white font-bold transition-colors shadow-lg"> 🚀 بالتوفيق في رحلتك! </button> </div> </div> 
-        );
-        };
-
-        // --- Main App Component ---
-
-        const App = () => {
-        return (
-            <div className="min-h-screen selection:bg-cyan-500/30">
-            <BackgroundBlobs />
-            <ScrollProgress />
-            <NavigationMenu />
-
-            <main className="max-w-3xl mx-auto px-6 pb-32">
-                
-                {/* Intro */}
-                <IntroSection />
-
-                {/* Timeline Sequence */}
-                <div className="mt-10 border-r border-white/5 relative">
-                
-                <TimelineSection 
-                    id="chapter1" 
-                    number="01" 
-                    title="العقلية والاستعداد" 
-                    icon={<Brain />} 
-                    nextId="chapter2"
-                >
-                    <Phase1Content />
-                </TimelineSection>
-
-                <TimelineSection 
-                    id="chapter2" 
-                    number="02" 
-                    title="الفكرة والتحقق" 
-                    icon={<Lightbulb />} 
-                    nextId="chapter3"
-                >
-                    <Phase2Content />
-                </TimelineSection>
-
-                <TimelineSection 
-                    id="chapter3" 
-                    number="03" 
-                    title="الفريق والتأسيس" 
-                    icon={<Users />} 
-                    nextId="chapter4"
-                >
-                    <Phase3Content />
-                </TimelineSection>
-
-                <TimelineSection 
-                    id="chapter4" 
-                    number="04" 
-                    title="المنتج والإطلاق" 
-                    icon={<Rocket />} 
-                    nextId="chapter5"
-                >
-                    <Phase4Content />
-                </TimelineSection>
-
-                <TimelineSection 
-                    id="chapter5" 
-                    number="05" 
-                    title="التمويل والاستثمار" 
-                    icon={<DollarSign />} 
-                    nextId="chapter6"
-                >
-                    <Phase5Content />
-                </TimelineSection>
-
-                <TimelineSection 
-                    id="chapter6" 
-                    number="06" 
-                    title="القيادة والنمو" 
-                    icon={<TrendingUp />} 
-                    nextId="chapter7"
-                >
-                    <Phase6Content />
-                </TimelineSection>
-
-                <TimelineSection 
-                    id="chapter7" 
-                    number="07" 
-                    title="الأدوات والمصادر" 
-                    icon={<PenTool />} 
-                    nextId="appendix"
-                >
-                    <Phase7Content />
-                </TimelineSection>
-
-                {/* Appendix Section */}
-                <TimelineSection 
-                    id="appendix" 
-                    number="08" 
-                    title="الملحق والخاتمة" 
-                    icon={<Flag />} 
-                    isLast={true}
-                >
-                    <AppendixContent />
-                </TimelineSection>
-
-                </div>
-
-                <footer className="mt-20 text-center text-slate-500 py-10 border-t border-white/5">
-                <p className="mb-2">🎉</p>
-                <p className="text-lg text-white font-bold">وصلت لنهاية الدليل، لكن رحلتك بدأت للتو.</p>
-                <p className="text-sm mt-2 opacity-60">© 2025 دليل رائد الأعمال | م. وليد بن محمد المصعبي</p>
-                </footer>
-
-            </main>
-            </div>
-        );
-        };
-
-        // Render the app
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
-</body>
-</html>
+                            { title: "من م
